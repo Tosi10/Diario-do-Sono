@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function sonoUser() {
+      return get(/databases/$(database)/documents/sonoUsers/$(request.auth.uid)).data;
+    }
+
+    function isProfessional() {
+      return signedIn() && sonoUser().role in ['professional', 'admin'];
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function linkedProfessional(patientUid) {
+      return get(/databases/$(database)/documents/sonoUsers/$(patientUid)).data.linkedProfessionalId;
+    }
+
+    match /sonoUsers/{uid} {
+      allow read: if isOwner(uid)
+        || (isProfessional() && resource.data.linkedProfessionalId == request.auth.uid)
+        || (signedIn() && resource.data.inviteCode != null);
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid);
+    }
+
+    match /sonoPatients/{patientUid} {
+      allow read: if isOwner(patientUid)
+        || (isProfessional() && resource.data.professionalId == request.auth.uid);
+      allow create, update: if isOwner(patientUid)
+        || (isProfessional() && request.resource.data.professionalId == request.auth.uid);
+    }
+
+    match /sonoWeeks/{weekId} {
+      allow read: if isOwner(resource.data.patientUid)
+        || (isProfessional() && resource.data.professionalId == request.auth.uid);
+      allow create, update: if isOwner(request.resource.data.patientUid)
+        || (isProfessional() && request.resource.data.professionalId == request.auth.uid);
+    }
+
+    match /sonoDays/{dayId} {
+      allow read: if isOwner(resource.data.patientUid)
+        || (isProfessional() && linkedProfessional(resource.data.patientUid) == request.auth.uid);
+      allow create, update: if isOwner(request.resource.data.patientUid)
+        || (isProfessional() && linkedProfessional(request.resource.data.patientUid) == request.auth.uid);
+    }
+
+    match /sonoOcrJobs/{jobId} {
+      allow read, write: if false; // Sprint OCR
+    }
+  }
+}

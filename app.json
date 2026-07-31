@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "Diário do Sono",
+    "slug": "diario-do-sono",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo-ana-heloisa.png",
+    "scheme": "diariodosono",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/logo-ana-heloisa.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1E2238"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.diariodosono.app"
+    },
+    "android": {
+      "package": "com.diariodosono.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#1E2238",
+        "foregroundImage": "./assets/images/logo-ana-heloisa.png"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/images/logo-ana-heloisa.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Diário do Sono precisa da galeria para enviar a foto da folha preenchida.",
+          "cameraPermission": "O Diário do Sono precisa da câmara para fotografar a folha do diário."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#1E2238",
+          "image": "./assets/images/logo-ana-heloisa.png",
+          "imageWidth": 200,
+          "resizeMode": "contain"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
