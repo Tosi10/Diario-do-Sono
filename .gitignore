@@ -13,3 +13,5 @@ npm-debug.*
 .DS_Store
 expo-env.d.ts
 Gemini_Generated_Image*
+docs/_brand-preview/
+docs/_brand-extract/
