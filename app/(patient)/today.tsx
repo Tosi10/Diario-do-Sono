@@ -110,7 +110,7 @@ export default function PatientTodayScreen() {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#A3B899" />
+          <ActivityIndicator color="#AC665C" />
         </View>
       </Screen>
     );
@@ -135,14 +135,14 @@ export default function PatientTodayScreen() {
         <View className="mt-4 gap-3">
           {isPastNoon() ? (
             <DangerBanner>
-              Já passou do meio-dia ({DIARY_CUTOFF_HOUR}:00). Não é possível
-              adicionar ou alterar os dados de hoje — regra de consistência do
-              método.
+              Já passou do meio-dia ({DIARY_CUTOFF_HOUR}:00, horário de
+              Brasília). Não é possível adicionar ou alterar os dados de hoje —
+              regra de consistência do método.
             </DangerBanner>
           ) : (
             <InfoBanner>
-              Você pode preencher até {DIARY_CUTOFF_HOUR}:00. Depois disso o dia
-              fecha.
+              Você pode preencher até {DIARY_CUTOFF_HOUR}:00 (Brasília). Depois
+              disso o dia fecha.
             </InfoBanner>
           )}
 

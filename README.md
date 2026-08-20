@@ -1,6 +1,6 @@
-# Diário do Sono
+# Mapa do Sono
 
-App **React Native (Expo)** para acompanhamento clínico de insônia. Feito sob medida para o método da profissional: formulário simples, poucos passos, cálculos automáticos e (em breve) foto da folha + IA.
+App **React Native (Expo)** da Dra. Ana Gonçalves para acompanhamento clínico de sono. Formulário simples (método dela), poucos passos, cálculos automáticos e (em breve) foto da folha + IA.
 
 **Stack:** Expo Router · TypeScript · NativeWind · Firebase (Auth, Firestore, Storage)
 
@@ -35,7 +35,7 @@ Quando quiser o banco de verdade: copie `.env.example` → `.env`, preencha e re
 
 ### Regra do meio-dia
 
-Após **12:00** (horário local) **não dá para gravar o dia de hoje** — consistência do método.  
+Após **12:00 (horário de Brasília / Curitiba)** **não dá para gravar o dia de hoje** — consistência do método.  
 A profissional **pode** registrar **dias anteriores** (folha na consulta). Hoje, depois do meio-dia, também fica bloqueado para ela.
 
 ---
@@ -44,13 +44,17 @@ A profissional **pode** registrar **dias anteriores** (folha na consulta). Hoje,
 
 | Doc | Conteúdo |
 |-----|----------|
-| [`ROADMAP.md`](ROADMAP.md) | Sprints |
+| [`ROADMAP.md`](ROADMAP.md) | Sprints + status atual |
+| [`docs/IDENTIDADE-VISUAL.md`](docs/IDENTIDADE-VISUAL.md) | Cores, fontes, marca |
 | [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md) | Arquitetura |
 | [`docs/FORMULARIO-DIARIO.md`](docs/FORMULARIO-DIARIO.md) | Q0–Q10 + fórmulas |
 | [`docs/FIRESTORE-MODEL.md`](docs/FIRESTORE-MODEL.md) | Coleções `sono*` |
 | [`docs/OCR-PIPELINE.md`](docs/OCR-PIPELINE.md) | Foto → revisão (próximo) |
+| [`docs/MAPA DO SONO.docx`](docs/MAPA%20DO%20SONO.docx) | Copy oficial da Ana |
 
 ## Status
 
-🟢 **Sprint 1–3 em código** — scaffold, auth, form paciente, painel profissional, regra 12h, métricas base (LIS…EF).  
-OCR e equações extras: depois do alinhamento com ela.
+🟢 **Sprints 1–3 feitos em demo** — scaffold, auth, form Mapa do Sono, painel, regra 12h (Brasília), métricas base.  
+🟢 **Identidade + nome** — Mapa do Sono, paleta/tipografia/selo no app.  
+🟡 **Sprint 4–5 parciais** — métricas a validar com ela; OCR só UI/mock.  
+⏳ **Próximo:** Firebase real → piloto APK.

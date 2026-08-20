@@ -37,9 +37,9 @@ export function useIsWebSidebar(): boolean {
 export const WEB_SIDEBAR_WIDTH = 248;
 
 export const webSidebarColors = {
-  bg: brand.indigoDeep,
+  bg: brand.terraDeep,
   border: brand.line,
-  active: brand.sage,
-  muted: brand.muted,
-  ink: brand.ink,
+  active: brand.argila,
+  muted: brand.areia,
+  ink: brand.marfim,
 } as const;

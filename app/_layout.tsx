@@ -2,16 +2,16 @@ import "../global.css";
 import { AuthProvider } from "@/src/contexts/AuthContext";
 import { brand } from "@/src/theme/brand";
 import {
-  CormorantGaramond_500Medium,
-  CormorantGaramond_500Medium_Italic,
-  CormorantGaramond_600SemiBold,
-} from "@expo-google-fonts/cormorant-garamond";
+  BodoniModa_500Medium,
+  BodoniModa_500Medium_Italic,
+  BodoniModa_600SemiBold,
+} from "@expo-google-fonts/bodoni-moda";
 import {
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_500Medium,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_700Bold,
-} from "@expo-google-fonts/plus-jakarta-sans";
+  WorkSans_400Regular,
+  WorkSans_500Medium,
+  WorkSans_600SemiBold,
+  WorkSans_700Bold,
+} from "@expo-google-fonts/work-sans";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -25,13 +25,13 @@ if (Platform.OS !== "web") {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    CormorantGaramond_500Medium,
-    CormorantGaramond_500Medium_Italic,
-    CormorantGaramond_600SemiBold,
-    PlusJakartaSans_400Regular,
-    PlusJakartaSans_500Medium,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_700Bold,
+    BodoniModa_500Medium,
+    BodoniModa_500Medium_Italic,
+    BodoniModa_600SemiBold,
+    WorkSans_400Regular,
+    WorkSans_500Medium,
+    WorkSans_600SemiBold,
+    WorkSans_700Bold,
   });
 
   useEffect(() => {
@@ -41,16 +41,16 @@ export default function RootLayout() {
   }, [fontsLoaded]);
 
   if (!fontsLoaded && Platform.OS !== "web") {
-    return <View style={{ flex: 1, backgroundColor: brand.indigo }} />;
+    return <View style={{ flex: 1, backgroundColor: brand.marfim }} />;
   }
 
   return (
     <AuthProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: brand.indigo },
+          contentStyle: { backgroundColor: brand.marfim },
           animation: "fade",
         }}
       />

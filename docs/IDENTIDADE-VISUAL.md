@@ -102,17 +102,23 @@ Fotografia: macro floral desfocada, areia, madeira, botânica. Nunca stock “m�
 Clara, adulta, sem infantilizar. Sem “atendimento humanizado” genérico.  
 Explicar possibilidades, limites e próximo passo. Decisão compartilhada.
 
-Landing e app falam **Ana Gonçalves, psiquiatra**. O Diário do Sono é ferramenta clínica, não o nome da marca pessoal.
+Landing e app falam **Ana Gonçalves, psiquiatra**. O produto clínico do diário chama-se **Mapa do Sono**.
 
 ---
 
-## App vs landing
+## App — Mapa do Sono
 
-| Superfície | Direção |
-|------------|---------|
-| **Landing** | Marca pessoal: quem é, como cuida, consulta presencial/online, CRM, WhatsApp |
-| **App paciente** | Mesma paleta/tipo; Início = manhã de hoje; Diário; Perfil |
-| **App profissional** | Papelaria clínica: Marfim, Terra, Oliva; lista e métricas sóbrias |
+| Token `sleep.*` | Hex | Papel no app |
+|-----------------|-----|--------------|
+| bg | `#F1ECDF` | Fundo Marfim |
+| ink | `#5C383D` | Texto Terra |
+| accent | `#AC665C` | CTA Argila |
+| lavender | `#A29D79` | Acentos Oliva |
+| rose | `#78484E` | Labels |
+| areia/line | `#DFD5C1` / `#D4C8B4` | Cards e bordas |
+
+Tipografia no app: **Bodoni Moda** (títulos) + **Work Sans** (UI).  
+Splash / ícone: selo ginkgo em fundo Marfim.
 
 ---
 

@@ -9,6 +9,7 @@ import {
   Title,
 } from "@/src/components/ui";
 import { TextField } from "@/src/components/TextField";
+import { mapaDoSono } from "@/src/content/mapaDoSono";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { brandCopy } from "@/src/theme/brand";
 import { Redirect, router } from "expo-router";
@@ -64,22 +65,19 @@ export default function LoginScreen() {
 
           <View className="mt-10">
             <Eyebrow>{brandCopy.appName}</Eyebrow>
-            <Title>Bem-vinda à noite calma</Title>
-            <Subtitle>
-              Acompanhamento simples do sono — o método dela, sem etapas
-              desnecessárias.
-            </Subtitle>
+            <Title>{mapaDoSono.welcomeTitle}</Title>
+            <Subtitle>{mapaDoSono.subtitle}</Subtitle>
           </View>
 
           {demoMode ? (
             <View className="mt-8 gap-3">
               <Card>
                 <Text className="font-sansMed text-sm text-sleep-rose mb-1">
-                  Demonstração visual
+                  Demonstração
                 </Text>
                 <Text className="font-sans text-sm text-sleep-muted leading-5">
-                  Sem banco de dados. Explore o fluxo completo com a identidade
-                  visual de teste.
+                  Sem banco de dados. Explore o fluxo com a identidade visual da
+                  Dra. Ana Gonçalves.
                 </Text>
               </Card>
               <PrimaryButton
@@ -129,7 +127,7 @@ export default function LoginScreen() {
           )}
 
           <Text className="mt-10 text-center font-sans text-xs text-sleep-muted/80">
-            Identidade visual de teste · Manual V1.0
+            {mapaDoSono.welcomeCta}
           </Text>
         </AppScrollView>
       </KeyboardAvoidingView>

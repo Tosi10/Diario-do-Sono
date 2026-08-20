@@ -117,15 +117,20 @@ export default function App() {
           <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-marfim to-transparent" />
 
           <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-6 py-10 text-center">
-            <LogoMark className="mb-4 h-16 w-16" />
-            <h1 className="mt-2 font-display text-[2.6rem] leading-[0.92] text-terra md:text-6xl">
-              <span className="relative inline-block">
-                Ana
-                <span className="absolute left-full top-2 ml-2 hidden font-sans text-[10px] font-medium uppercase tracking-[0.22em] text-terra/70 sm:inline">
-                  {site.title}
+            <LogoMark className="mb-1 h-14 w-14 md:h-16 md:w-16" />
+            <h1 className="font-display text-[2.6rem] leading-[0.9] text-terra md:text-6xl">
+              <span className="inline-flex flex-col items-start text-left">
+                <span className="flex items-center">
+                  <span className="invisible select-none" aria-hidden="true">
+                    G
+                  </span>
+                  <span>Ana</span>
+                  <span className="ml-2.5 translate-y-1.5 font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-terra/70 md:translate-y-2 md:text-[11px]">
+                    {site.title}
+                  </span>
                 </span>
+                <span>Gonçalves</span>
               </span>
-              <span className="block">Gonçalves</span>
             </h1>
             <p className="mt-4 max-w-md font-sans text-[15px] leading-relaxed text-ink/80">
               Escuta, clareza e decisões compartilhadas — sem fórmulas prontas.
@@ -418,6 +423,12 @@ export default function App() {
               <a href={site.whatsappUrl} className="mt-1.5 block hover:text-marfim">
                 WhatsApp {site.whatsappDisplay}
               </a>
+              <a href={site.clinicPhoneUrl} className="mt-1 block hover:text-marfim">
+                Cuidar {site.clinicPhoneDisplay}
+              </a>
+              <a href={site.emailUrl} className="mt-1 block hover:text-marfim">
+                {site.email}
+              </a>
               <a href={site.instagramUrl} className="mt-1 block hover:text-marfim">
                 @{site.instagram}
               </a>
@@ -436,8 +447,8 @@ export default function App() {
           </div>
         </div>
         <p className="mx-auto mt-3 max-w-6xl border-t border-marfim/15 pt-2.5 font-sans text-[11px] text-areia/70">
-          Protótipo de identidade. CRM, WhatsApp e endereço devem ser confirmados
-          antes da publicação. Responsável técnico: Dra. Ana Heloisa Gonçalves.
+          Responsável técnico: Dra. Ana Heloisa Gonçalves. CRM e endereço do
+          consultório devem ser confirmados antes da publicação.
         </p>
       </footer>
 

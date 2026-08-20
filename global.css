@@ -6,11 +6,11 @@ html,
 body,
 #root {
   height: 100%;
-  background-color: #1e2238;
-  color: #f3ede6;
+  background-color: #f1ecdf;
+  color: #5c383d;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #8c82b6 #15182a;
+  scrollbar-color: #a29d79 #e6dcc8;
 }

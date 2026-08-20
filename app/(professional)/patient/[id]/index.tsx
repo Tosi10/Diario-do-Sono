@@ -67,7 +67,7 @@ export default function PatientDetailScreen() {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#A3B899" />
+          <ActivityIndicator color="#AC665C" />
         </View>
       </Screen>
     );

@@ -1,4 +1,4 @@
-# Arquitetura — Diário do Sono
+# Arquitetura — Mapa do Sono
 
 Documento de arquitetura de software. Espelha decisões já consolidadas em Coach'em, Tiro, Carol, EletroNovo e cora-ai, adaptadas a um produto **clínico de sono**.
 
@@ -128,7 +128,7 @@ Padrão idêntico ao scaffold Coach-em / Tiro / cora-ai.
 
 ### 5.0 Regra do meio-dia
 
-Após **12:00** horário local, ninguém grava o **dia de hoje** (`canSaveDay`).  
+Após **12:00** no fuso `America/Sao_Paulo` (Brasília/Curitiba), ninguém grava o **dia de hoje** (`canSaveDay`).  
 Profissional pode gravar **dias anteriores** (consulta / folha). Paciente só preenche **hoje** e só antes do meio-dia.
 
 ### 5.1 Paciente — preencher manhã

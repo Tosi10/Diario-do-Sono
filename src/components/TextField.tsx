@@ -29,7 +29,7 @@ export function TextField({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#7E779A"
+        placeholderTextColor="#8A6A6E"
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
         multiline={multiline}

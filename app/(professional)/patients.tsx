@@ -69,7 +69,7 @@ export default function ProfessionalPatientsScreen() {
 
         {loading ? (
           <View className="mt-10 items-center">
-            <ActivityIndicator color="#A3B899" />
+            <ActivityIndicator color="#AC665C" />
           </View>
         ) : patients.length === 0 ? (
           <View className="mt-6">

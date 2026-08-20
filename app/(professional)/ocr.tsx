@@ -181,7 +181,7 @@ export default function ProfessionalOcrScreen() {
                     <Text
                       className={`font-sansMed ${
                         selected?.patientUid === p.patientUid
-                          ? "text-sleep-bgDeep"
+                          ? "text-sleep-bg"
                           : "text-sleep-ink"
                       }`}
                     >
@@ -225,7 +225,7 @@ export default function ProfessionalOcrScreen() {
         <View className="mt-4">
           {busy ? (
             <View className="items-center py-4">
-              <ActivityIndicator color="#A3B899" />
+              <ActivityIndicator color="#AC665C" />
               <Text className="mt-2 font-sans text-sm text-sleep-muted">
                 Lendo a folha…
               </Text>

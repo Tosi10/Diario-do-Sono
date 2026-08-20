@@ -7,18 +7,18 @@ type Props = {
 };
 
 const sizes = {
-  sm: 48,
-  md: 88,
-  lg: 160,
+  sm: 44,
+  md: 72,
+  lg: 120,
 };
 
-/** Só o símbolo 3D — sem moldura circular. */
+/** Selo oficial Ana Gonçalves (ginkgo). */
 export function BrandMark({ size = "md", showWordmark = false }: Props) {
   const dim = sizes[size];
   return (
     <View className="items-center">
       <Image
-        source={require("../../assets/images/logo-ana-heloisa.png")}
+        source={require("../../assets/brand/seal.png")}
         style={{ width: dim, height: dim }}
         resizeMode="contain"
       />

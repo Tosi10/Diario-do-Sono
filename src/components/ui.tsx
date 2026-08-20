@@ -14,7 +14,6 @@ export function Screen({
   children: ReactNode;
   className?: string;
   edges?: "both" | "top" | "none";
-  /** Largura máx. do conteúdo na web (formulários). */
   contentMaxWidth?: number;
 }) {
   const insets = useSafeAreaInsets();
@@ -27,7 +26,7 @@ export function Screen({
       }}
     >
       <LinearGradient
-        colors={[brand.indigoDeep, brand.indigo, "#242A45"]}
+        colors={[brand.marfim, brand.areia, "#E8DFCF"]}
         start={{ x: 0.1, y: 0 }}
         end={{ x: 0.9, y: 1 }}
         style={{
@@ -38,9 +37,18 @@ export function Screen({
           bottom: 0,
         }}
       />
+      {/* Textura linho sutil */}
       <View
         pointerEvents="none"
-        className="absolute -right-16 -top-10 h-56 w-56 rounded-full bg-sleep-lavender/20"
+        className="absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundColor: "transparent",
+          borderWidth: 0,
+        }}
+      />
+      <View
+        pointerEvents="none"
+        className="absolute -right-16 -top-10 h-56 w-56 rounded-full bg-sleep-lavender/25"
       />
       <View
         pointerEvents="none"
@@ -86,13 +94,13 @@ export function Card({
 }) {
   return (
     <View
-      className={`rounded-clay border border-sleep-line/80 bg-sleep-card/90 px-4 py-4 ${className}`}
+      className={`rounded-clay border border-sleep-line/90 bg-sleep-card/95 px-4 py-4 ${className}`}
       style={{
-        shadowColor: "#0B0D18",
-        shadowOpacity: 0.35,
-        shadowRadius: 18,
-        shadowOffset: { width: 0, height: 10 },
-        elevation: 6,
+        shadowColor: brand.terraDeep,
+        shadowOpacity: 0.08,
+        shadowRadius: 14,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 3,
       }}
     >
       {children}
@@ -130,12 +138,16 @@ export function PrimaryButton({
       className={`overflow-hidden rounded-2xl ${disabled ? "opacity-45" : ""}`}
     >
       <LinearGradient
-        colors={disabled ? [brand.line, brand.line] : [brand.sage, "#8FA67F"]}
+        colors={
+          disabled
+            ? [brand.line, brand.line]
+            : [brand.argila, brand.terra]
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{ paddingVertical: 15, paddingHorizontal: 16 }}
       >
-        <Text className="text-center font-sansBold text-[15px] text-sleep-bgDeep">
+        <Text className="text-center font-sansBold text-[15px] text-sleep-bg">
           {label}
         </Text>
       </LinearGradient>
@@ -153,7 +165,7 @@ export function SecondaryButton({
   return (
     <Pressable
       onPress={onPress}
-      className="rounded-2xl border border-sleep-lavender/50 bg-sleep-lavenderSoft/60 px-4 py-3.5"
+      className="rounded-2xl border border-sleep-rose/25 bg-sleep-lavenderSoft/80 px-4 py-3.5"
     >
       <Text className="text-center font-sansMed text-[15px] text-sleep-rose">
         {label}
@@ -164,7 +176,7 @@ export function SecondaryButton({
 
 export function DangerBanner({ children }: { children: ReactNode }) {
   return (
-    <View className="rounded-2xl border border-sleep-danger/40 bg-[#3A2A32] px-3.5 py-3">
+    <View className="rounded-2xl border border-sleep-danger/35 bg-[#F3E0DC] px-3.5 py-3">
       <Text className="font-sansMed text-sm text-sleep-danger leading-5">
         {children}
       </Text>
@@ -174,8 +186,8 @@ export function DangerBanner({ children }: { children: ReactNode }) {
 
 export function InfoBanner({ children }: { children: ReactNode }) {
   return (
-    <View className="rounded-2xl border border-sleep-lavender/35 bg-sleep-lavenderSoft/70 px-3.5 py-3">
-      <Text className="font-sans text-sm text-sleep-rose leading-5">
+    <View className="rounded-2xl border border-sleep-lavender/40 bg-sleep-lavenderSoft/90 px-3.5 py-3">
+      <Text className="font-sans text-sm text-sleep-ink leading-5">
         {children}
       </Text>
     </View>

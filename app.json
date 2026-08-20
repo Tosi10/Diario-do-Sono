@@ -1,33 +1,33 @@
 {
   "expo": {
-    "name": "Diário do Sono",
-    "slug": "diario-do-sono",
+    "name": "Mapa do Sono",
+    "slug": "mapa-do-sono",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo-ana-heloisa.png",
-    "scheme": "diariodosono",
-    "userInterfaceStyle": "dark",
+    "icon": "./assets/brand/seal.png",
+    "scheme": "mapadosono",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/logo-ana-heloisa.png",
+      "image": "./assets/brand/seal.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1E2238"
+      "backgroundColor": "#F1ECDF"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.diariodosono.app"
+      "bundleIdentifier": "com.mapadosono.app"
     },
     "android": {
-      "package": "com.diariodosono.app",
+      "package": "com.mapadosono.app",
       "adaptiveIcon": {
-        "backgroundColor": "#1E2238",
-        "foregroundImage": "./assets/images/logo-ana-heloisa.png"
+        "backgroundColor": "#F1ECDF",
+        "foregroundImage": "./assets/brand/seal.png"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/logo-ana-heloisa.png"
+      "favicon": "./assets/brand/seal.png"
     },
     "plugins": [
       "expo-router",
@@ -35,15 +35,15 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "O Diário do Sono precisa da galeria para enviar a foto da folha preenchida.",
-          "cameraPermission": "O Diário do Sono precisa da câmara para fotografar a folha do diário."
+          "photosPermission": "O Mapa do Sono precisa da galeria para enviar a foto da folha preenchida.",
+          "cameraPermission": "O Mapa do Sono precisa da câmera para fotografar a folha do diário."
         }
       ],
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#1E2238",
-          "image": "./assets/images/logo-ana-heloisa.png",
+          "backgroundColor": "#F1ECDF",
+          "image": "./assets/brand/seal.png",
           "imageWidth": 200,
           "resizeMode": "contain"
         }

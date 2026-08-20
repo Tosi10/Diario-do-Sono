@@ -161,7 +161,7 @@ function RoleChip({
     >
       <Text
         className={`text-center font-sansMed ${
-          active ? "text-sleep-bgDeep" : "text-sleep-ink"
+          active ? "text-sleep-bg" : "text-sleep-ink"
         }`}
       >
         {label}

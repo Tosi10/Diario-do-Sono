@@ -1,4 +1,7 @@
-import { DIARY_CUTOFF_HOUR } from "@/src/constants/collections";
+import {
+  CLINIC_TIMEZONE,
+  DIARY_CUTOFF_HOUR,
+} from "@/src/constants/collections";
 import type { IsoDate, Minutes, TimeHHmm } from "@/src/types";
 
 /** Parse "HH:mm" → minutos desde 00:00. Retorna null se inválido. */
@@ -47,11 +50,42 @@ export function morningDiffMinutes(
   return Math.max(0, b - a);
 }
 
+/** Data/hora no fuso do consultório (não no fuso do emulador). */
+export function getClinicDateParts(now: Date = new Date()): {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+} {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: CLINIC_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((p) => p.type === type)?.value ?? "0";
+
+  return {
+    year: Number(get("year")),
+    month: Number(get("month")),
+    day: Number(get("day")),
+    hour: Number(get("hour")),
+    minute: Number(get("minute")),
+  };
+}
+
+/** Dia civil no fuso do consultório (YYYY-MM-DD). */
 export function toIsoDate(d: Date): IsoDate {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  const p = getClinicDateParts(d);
+  const m = String(p.month).padStart(2, "0");
+  const day = String(p.day).padStart(2, "0");
+  return `${p.year}-${m}-${day}`;
 }
 
 export function parseIsoDate(iso: IsoDate): Date {
@@ -66,9 +100,10 @@ export function formatIsoDatePt(iso: IsoDate): string {
   return `${day}/${month}`;
 }
 
-/** Segunda-feira da semana local que contém `date`. */
+/** Segunda-feira da semana (fuso do consultório) que contém `date`. */
 export function startOfWeekMonday(date: Date): Date {
-  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  const p = getClinicDateParts(date);
+  const d = new Date(p.year, p.month - 1, p.day, 12, 0, 0, 0);
   const day = d.getDay(); // 0=dom
   const diff = day === 0 ? -6 : 1 - day;
   d.setDate(d.getDate() + diff);
@@ -93,7 +128,8 @@ export function dayIndexInWeek(startIso: IsoDate, dateIso: IsoDate): number {
 }
 
 /**
- * Regra clínica: o dia de HOJE só pode ser gravado antes das 12:00 locais.
+ * Regra clínica: o dia de HOJE só pode ser gravado antes das 12:00
+ * (horário de Brasília / Curitiba), não o relógio do emulador em UTC.
  * Dias passados: profissional pode preencher (papel / consulta).
  * Dias futuros: nunca.
  */
@@ -115,10 +151,10 @@ export function canSaveDay(
   }
 
   if (morningDateIso === todayIso) {
-    if (now.getHours() >= DIARY_CUTOFF_HOUR) {
+    if (getClinicDateParts(now).hour >= DIARY_CUTOFF_HOUR) {
       return {
         ok: false,
-        reason: `Após ${DIARY_CUTOFF_HOUR}:00 não é mais possível adicionar os dados de hoje. Preencha pela manhã para manter a consistência.`,
+        reason: `Após ${DIARY_CUTOFF_HOUR}:00 (horário de Brasília) não é mais possível adicionar os dados de hoje. Preencha pela manhã para manter a consistência.`,
       };
     }
     return { ok: true };
@@ -137,5 +173,5 @@ export function canSaveDay(
 }
 
 export function isPastNoon(now: Date = new Date()): boolean {
-  return now.getHours() >= DIARY_CUTOFF_HOUR;
+  return getClinicDateParts(now).hour >= DIARY_CUTOFF_HOUR;
 }

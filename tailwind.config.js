@@ -6,35 +6,35 @@ module.exports = {
     extend: {
       colors: {
         /**
-         * Marca Dra. Ana Heloisa — Manual V1.0
-         * Índigo Noite · Lavanda · Sálvia · Ouro Rosé
+         * Ana Gonçalves — Terra, Marfim, Argila, Oliva, Areia
+         * Tokens sleep.* mantidos para não reescrever todas as telas.
          */
         sleep: {
-          bg: "#1E2238",
-          bgDeep: "#15182A",
-          card: "#2A2F48",
-          cardSoft: "#32385A",
-          ink: "#F3EDE6",
-          muted: "#A8A0C4",
-          line: "#3D4466",
-          accent: "#A3B899",
-          accentSoft: "#3A4638",
-          lavender: "#8C82B6",
-          lavenderSoft: "#3A3654",
-          rose: "#EAD5C3",
-          warn: "#D4A574",
-          danger: "#C97B7B",
-          ok: "#A3B899",
+          bg: "#F1ECDF",
+          bgDeep: "#E6DCC8",
+          card: "#FAF6ED",
+          cardSoft: "#F7F1E6",
+          ink: "#5C383D",
+          muted: "#8A6A6E",
+          line: "#D4C8B4",
+          accent: "#AC665C",
+          accentSoft: "#E8D0C8",
+          lavender: "#A29D79",
+          lavenderSoft: "#E5E2D0",
+          rose: "#78484E",
+          warn: "#C4A06A",
+          danger: "#B85C5C",
+          ok: "#A29D79",
         },
       },
       fontFamily: {
-        display: ["CormorantGaramond_500Medium"],
-        displayBold: ["CormorantGaramond_600SemiBold"],
-        displayItalic: ["CormorantGaramond_500Medium_Italic"],
-        sans: ["PlusJakartaSans_400Regular"],
-        sansMed: ["PlusJakartaSans_500Medium"],
-        sansBold: ["PlusJakartaSans_600SemiBold"],
-        sansExtra: ["PlusJakartaSans_700Bold"],
+        display: ["BodoniModa_500Medium"],
+        displayBold: ["BodoniModa_600SemiBold"],
+        displayItalic: ["BodoniModa_500Medium_Italic"],
+        sans: ["WorkSans_400Regular"],
+        sansMed: ["WorkSans_500Medium"],
+        sansBold: ["WorkSans_600SemiBold"],
+        sansExtra: ["WorkSans_700Bold"],
       },
       borderRadius: {
         clay: "24px",

@@ -168,7 +168,7 @@ export function OcrReviewScreen() {
               >
                 <Text
                   className={`font-sansMed text-sm ${
-                    i === dayIndex ? "text-sleep-bgDeep" : "text-sleep-ink"
+                    i === dayIndex ? "text-sleep-bg" : "text-sleep-ink"
                   }`}
                 >
                   Dia {d.dayIndex}

@@ -1,5 +1,6 @@
 import { FieldHint, Label } from "@/src/components/ui";
 import { TextField } from "@/src/components/TextField";
+import { formQuestions } from "@/src/content/mapaDoSono";
 import type { SleepDayInput } from "@/src/types";
 import { Pressable, Text, View } from "react-native";
 
@@ -32,86 +33,103 @@ export function DayForm({ value, onChange, disabled }: Props) {
   return (
     <View>
       <TextField
-        label="0. A que horas você acordou? (HH:mm)"
+        label={`${formQuestions.q0.label} (HH:mm)`}
         value={value.q0}
         onChangeText={(t) => set("q0", t)}
         placeholder="06:00"
         autoCapitalize="none"
       />
+      <FieldHint>{formQuestions.q0.hint}</FieldHint>
+
       <TextField
-        label="1. A que horas saiu da cama? (HH:mm)"
+        label={`${formQuestions.q1.label} (HH:mm)`}
         value={value.q1}
         onChangeText={(t) => set("q1", t)}
         placeholder="06:30"
         autoCapitalize="none"
       />
+      <FieldHint>{formQuestions.q1.hint}</FieldHint>
+
       <TextField
-        label="2. Foi para a cama a noite passada? (HH:mm)"
+        label={`${formQuestions.q2.label} (HH:mm)`}
         value={value.q2}
         onChangeText={(t) => set("q2", t)}
         placeholder="23:00"
         autoCapitalize="none"
       />
+      <FieldHint>{formQuestions.q2.hint}</FieldHint>
+
       <TextField
-        label="3. Decidiu tentar dormir? (HH:mm)"
+        label={`${formQuestions.q3.label} (HH:mm)`}
         value={value.q3}
         onChangeText={(t) => set("q3", t)}
         placeholder="23:30"
         autoCapitalize="none"
       />
+      <FieldHint>{formQuestions.q3.hint}</FieldHint>
+
       <TextField
-        label="4. Quanto tempo levou para iniciar o sono? (min)"
+        label={formQuestions.q4.label}
         value={String(value.q4 || "")}
         onChangeText={(t) => set("q4", parseIntSafe(t))}
         placeholder="30"
         keyboardType="number-pad"
       />
+      <FieldHint>{formQuestions.q4.hint}</FieldHint>
+
       <TextField
-        label="5. Quantas vezes despertou? (sem o final)"
+        label={formQuestions.q5.label}
         value={String(value.q5 || "")}
         onChangeText={(t) => set("q5", parseIntSafe(t))}
         placeholder="0"
         keyboardType="number-pad"
       />
+      <FieldHint>{formQuestions.q5.hint}</FieldHint>
+
       <TextField
-        label="6. Duração de cada despertar (min, separados por vírgula)"
+        label={formQuestions.q6.label}
         value={(value.q6 || []).join(", ")}
         onChangeText={(t) => set("q6", parseMinutesList(t))}
         placeholder="10, 30, 15"
         autoCapitalize="none"
       />
-      <FieldHint>A soma vira o TA (tempo acordado no meio do sono).</FieldHint>
+      <FieldHint>{formQuestions.q6.hint}</FieldHint>
 
       <View className="mt-3">
         <TextField
-          label="7. Ao todo, quanto tempo dormiu? (minutos)"
+          label={formQuestions.q7.label}
           value={String(value.q7 || "")}
           onChangeText={(t) => set("q7", parseIntSafe(t))}
           placeholder="360"
           keyboardType="number-pad"
         />
-        <FieldHint>Ex.: 6h = 360 minutos.</FieldHint>
+        <FieldHint>{formQuestions.q7.hint}</FieldHint>
       </View>
 
       <TextField
-        label="8. Álcool na noite passada?"
+        label={formQuestions.q8.label}
         value={value.q8}
         onChangeText={(t) => set("q8", t)}
         placeholder="Ex.: 1 taça de vinho / nenhum"
       />
+      <FieldHint>{formQuestions.q8.hint}</FieldHint>
+
       <TextField
-        label="9. Comprimidos para dormir?"
+        label={formQuestions.q9.label}
         value={value.q9}
         onChangeText={(t) => set("q9", t)}
-        placeholder="Ex.: nenhum / 1 Stillnox"
+        placeholder="Ex.: nenhum / dose e medicamento"
       />
+      <FieldHint>{formQuestions.q9.hint}</FieldHint>
+
       <TextField
-        label="10. Comentários (se necessário)"
+        label={formQuestions.q10.label}
         value={value.q10 || ""}
         onChangeText={(t) => set("q10", t)}
         placeholder="Opcional"
         multiline
       />
+      <FieldHint>{formQuestions.q10.hint}</FieldHint>
 
       <View className="mt-2 mb-2">
         <Label>Qualidade — quanto se sente bem esta manhã?</Label>
@@ -157,7 +175,7 @@ function ScaleRow({
         >
           <Text
             className={`font-sansMed text-sm ${
-              value === i ? "text-sleep-bgDeep" : "text-sleep-rose"
+              value === i ? "text-sleep-bg" : "text-sleep-rose"
             }`}
           >
             {i}

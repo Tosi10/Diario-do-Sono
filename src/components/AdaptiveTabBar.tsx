@@ -4,12 +4,26 @@ import {
   useIsWebSidebar,
 } from "@/src/components/ContentFrame";
 import { brand, brandCopy } from "@/src/theme/brand";
+import { Ionicons } from "@expo/vector-icons";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+type IconName = keyof typeof Ionicons.glyphMap;
+
+function tabIcon(routeName: string, focused: boolean): IconName {
+  const map: Record<string, [IconName, IconName]> = {
+    index: ["home", "home-outline"],
+    week: ["moon", "moon-outline"],
+    patients: ["people", "people-outline"],
+    profile: ["person", "person-outline"],
+  };
+  const pair = map[routeName] ?? ["ellipse", "ellipse-outline"];
+  return focused ? pair[0] : pair[1];
+}
+
 /**
- * Mobile: barra inferior.
+ * Mobile: barra inferior com ícone + rótulo.
  * Web (≥900px): sidebar esquerda.
  */
 export function AdaptiveTabBar({
@@ -41,9 +55,9 @@ export function AdaptiveTabBar({
           top: 0,
           bottom: 0,
           width: WEB_SIDEBAR_WIDTH,
-          backgroundColor: brand.indigoDeep,
+          backgroundColor: brand.terraDeep,
           borderRightWidth: 1,
-          borderRightColor: brand.line,
+          borderRightColor: "rgba(241,236,223,0.15)",
           paddingTop: 28,
           paddingBottom: 24,
           paddingHorizontal: 16,
@@ -51,11 +65,11 @@ export function AdaptiveTabBar({
       >
         <View className="mb-8 items-center px-2">
           <BrandMark size="sm" />
-          <Text className="mt-3 text-center font-displayBold text-lg text-sleep-ink leading-5">
+          <Text className="mt-3 text-center font-displayBold text-lg text-sleep-bg leading-5">
             {brandCopy.appName}
           </Text>
           <Text className="mt-1 text-center font-sans text-[10px] uppercase tracking-[2px] text-sleep-lavender">
-            Medicina do Sono
+            {brandCopy.category}
           </Text>
         </View>
 
@@ -67,6 +81,7 @@ export function AdaptiveTabBar({
                 ? options.tabBarLabel
                 : options.title ?? route.name;
             const focused = state.routes[state.index]?.key === route.key;
+            const color = focused ? brand.marfim : "rgba(241,236,223,0.7)";
 
             return (
               <Pressable
@@ -81,13 +96,18 @@ export function AdaptiveTabBar({
                     navigation.navigate(route.name, route.params);
                   }
                 }}
-                className={`rounded-2xl px-3 py-3 ${
-                  focused ? "bg-sleep-accent/20" : "bg-transparent"
+                className={`flex-row items-center gap-3 rounded-2xl px-3 py-3 ${
+                  focused ? "bg-sleep-accent/25" : "bg-transparent"
                 }`}
               >
+                <Ionicons
+                  name={tabIcon(route.name, focused)}
+                  size={20}
+                  color={color}
+                />
                 <Text
                   className={`font-sansMed text-[15px] ${
-                    focused ? "text-sleep-accent" : "text-sleep-muted"
+                    focused ? "text-sleep-bg" : "text-sleep-bg/70"
                   }`}
                 >
                   {label}
@@ -104,12 +124,12 @@ export function AdaptiveTabBar({
     <View
       style={{
         flexDirection: "row",
-        backgroundColor: brand.indigoDeep,
+        backgroundColor: brand.marfim,
         borderTopColor: brand.line,
         borderTopWidth: 1,
         paddingBottom: Math.max(insets.bottom, 8),
-        paddingTop: 8,
-        height: 56 + Math.max(insets.bottom, 8),
+        paddingTop: 10,
+        height: 64 + Math.max(insets.bottom, 8),
       }}
     >
       {items.map((route) => {
@@ -120,6 +140,7 @@ export function AdaptiveTabBar({
             : options.title ?? route.name;
         const focused =
           state.index === state.routes.findIndex((r) => r.key === route.key);
+        const color = focused ? brand.argila : brand.muted;
 
         return (
           <Pressable
@@ -136,8 +157,13 @@ export function AdaptiveTabBar({
             }}
             style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
           >
+            <Ionicons
+              name={tabIcon(route.name, focused)}
+              size={22}
+              color={color}
+            />
             <Text
-              className={`text-[11px] tracking-wide ${
+              className={`mt-1 text-[11px] tracking-wide ${
                 focused
                   ? "font-sansBold text-sleep-accent"
                   : "font-sans text-sleep-muted"

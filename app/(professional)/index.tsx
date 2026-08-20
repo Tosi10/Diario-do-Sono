@@ -13,6 +13,7 @@ import {
   getProfessionalHomeData,
   type ProfessionalHomeData,
 } from "@/src/services/professionalHome";
+import { brandCopy } from "@/src/theme/brand";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
@@ -54,14 +55,12 @@ export default function ProfessionalHomeScreen() {
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}
       >
-        <View className="mb-5 flex-row items-center gap-3">
+        <View className="mb-5 items-center">
           <BrandMark size="sm" />
-          <View className="flex-1">
-            <Eyebrow>{profile?.clinicName || "Consultório"}</Eyebrow>
-            <Text className="mt-1 font-displayBold text-2xl text-sleep-ink">
-              Olá, {profile?.displayName?.split(" ")[0] || "doutora"}
-            </Text>
-          </View>
+          <Eyebrow>{brandCopy.appName}</Eyebrow>
+          <Text className="mt-2 text-center font-displayBold text-2xl text-sleep-ink">
+            Olá, {profile?.displayName?.split(" ")[0] || "doutora"}
+          </Text>
         </View>
 
         <Title>Início</Title>
@@ -71,7 +70,7 @@ export default function ProfessionalHomeScreen() {
 
         {loading || !data ? (
           <View className="mt-10 items-center">
-            <ActivityIndicator color="#A3B899" />
+            <ActivityIndicator color="#AC665C" />
           </View>
         ) : data.totalPatients === 0 ? (
           <View className="mt-6">
