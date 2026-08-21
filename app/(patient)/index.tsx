@@ -59,7 +59,7 @@ export default function PatientHomeScreen() {
   const pastNoon = isPastNoon();
 
   return (
-    <Screen>
+    <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
@@ -92,7 +92,7 @@ export default function PatientHomeScreen() {
 
             <Card>
               <Text className="font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-lavender">
-                Sobre o mapa
+                Sobre o Sono à Vista
               </Text>
               <Text className="mt-2 font-displayBold text-xl text-sleep-ink">
                 {mapaDoSono.welcomeTitle}
@@ -136,7 +136,7 @@ export default function PatientHomeScreen() {
                       ? "Ver / editar hoje"
                       : pastNoon
                         ? "Ver detalhes de hoje"
-                        : "Preencher o mapa de hoje"
+                        : "Preencher o diário de hoje"
                   }
                   onPress={() => router.push("/(patient)/today")}
                 />

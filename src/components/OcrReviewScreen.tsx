@@ -64,7 +64,7 @@ export function OcrReviewScreen() {
 
   if (!job || !form || !draft) {
     return (
-      <Screen>
+      <Screen edges="top">
         <View className="flex-1 items-center justify-center px-6">
           <Text className="font-sans text-sleep-muted text-center">
             Leitura não encontrada.
@@ -107,7 +107,19 @@ export function OcrReviewScreen() {
       const updated = updateOcrJob(job.jobId, { status: "confirmed" });
       setJob(updated);
       Alert.alert("Confirmado", "Dados da folha gravados no diário.", [
-        { text: "OK", onPress: () => router.back() },
+        {
+          text: "OK",
+          onPress: () => {
+            if (role === "professional" || role === "admin") {
+              router.replace({
+                pathname: "/(professional)/patient/[id]/day",
+                params: { id: job.patientUid, date: form.date },
+              });
+            } else {
+              router.back();
+            }
+          },
+        },
       ]);
     } catch (e) {
       Alert.alert(
@@ -122,7 +134,7 @@ export function OcrReviewScreen() {
   const metrics = computeDayMetrics(form);
 
   return (
-    <Screen>
+    <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}

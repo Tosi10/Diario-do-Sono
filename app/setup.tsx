@@ -21,7 +21,7 @@ export default function SetupScreen() {
   return (
     <Screen>
       <AppScrollView className="flex-1 px-5 pt-8" contentContainerStyle={{ paddingBottom: 40 }}>
-        <Title>Mapa do Sono</Title>
+        <Title>Sono à Vista</Title>
         <Subtitle>
           Firebase ainda não está ligado. Use o modo demo ou configure o `.env`
           depois.

@@ -1,18 +1,18 @@
-/** Copy oficial do Mapa do Sono (texto da Dra. Ana). */
+/** Copy oficial do Sono à Vista (texto da Dra. Ana). */
 export const mapaDoSono = {
-  title: "Mapa do Sono",
-  subtitle: "Compreendendo os padrões das suas noites",
-  welcomeTitle: "Bem-vindo ao Mapa do Sono!",
+  title: "Sono à Vista",
+  subtitle: "Visualizando os padrões das suas noites",
+  welcomeTitle: "Bem-vindo ao Sono à Vista!",
   welcomeBody: [
     "Este é o seu diário do sono. Você vai registrar algumas informações simples sobre as suas noites. Com elas, poderemos conhecer melhor o seu sono, identificar padrões e pensar nas estratégias que podem ajudá-lo a dormir melhor.",
-    "O Mapa do Sono é preenchido em ciclos de sete noites. O preenchimento é rápido e deve ser feito pela manhã, de preferência logo depois de acordar, enquanto as lembranças da noite ainda estão frescas.",
+    "O Sono à Vista é preenchido em ciclos de sete noites. O preenchimento é rápido e deve ser feito pela manhã, de preferência logo depois de acordar, enquanto as lembranças da noite ainda estão frescas.",
     "Não se preocupe em ser exato! Queremos saber como você percebeu a sua noite, e não os minutos marcados no relógio. Por isso, faça estimativas e responda da maneira que lembrar. Aqui, o relógio fica de fora.",
-    "A cada noite registrada, vamos construindo um mapa um pouco mais claro do seu sono.",
+    "Com alguns minutos pela manhã, noite após noite, seu sono vai ficando cada vez mais à vista.",
   ],
   welcomeCta: "Vamos começar?",
   guideTitle: "Guia para o preenchimento",
   dateHint:
-    "Registre a data (dia/mês) relativa à manhã em que está preenchendo o seu mapa do sono.",
+    "Registre a data (dia/mês) relativa à manhã em que está preenchendo o seu Sono à Vista.",
   timeFormatHint: "Utilize o padrão de 24 horas (para não haver confusão).",
 } as const;
 

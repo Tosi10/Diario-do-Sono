@@ -9,6 +9,7 @@ import {
 import { useAuth } from "@/src/contexts/AuthContext";
 import {
   formatIsoDatePt,
+  formatMinutesAsHm,
   toIsoDate,
   weekDateList,
 } from "@/src/domain/timeHelpers";
@@ -61,7 +62,7 @@ export default function PatientDiaryScreen() {
 
   if (loading || !week) {
     return (
-      <Screen>
+      <Screen edges="top">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color="#AC665C" />
         </View>
@@ -73,7 +74,7 @@ export default function PatientDiaryScreen() {
   const byDate = new Map(days.map((d) => [d.date, d]));
 
   return (
-    <Screen>
+    <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
@@ -82,42 +83,60 @@ export default function PatientDiaryScreen() {
         <Title>Diário</Title>
         <Subtitle>
           {formatIsoDatePt(week.startDate)} — {formatIsoDatePt(week.endDate)} ·{" "}
-          {days.length}/7 dias
+          {days.length}/7 dias. Hoje você preenche; dias anteriores só consulta.
         </Subtitle>
 
         <Card className="mt-5">
           {dates.map((date, i) => {
             const day = byDate.get(date);
             const isToday = date === todayIso;
+            const isFuture = date > todayIso;
+            const canOpen = !isFuture;
+
             return (
               <Pressable
                 key={date}
-                disabled={!isToday}
+                disabled={!canOpen}
                 onPress={() => {
-                  if (isToday) router.push("/(patient)/today");
+                  if (!canOpen) return;
+                  router.push({
+                    pathname: "/(patient)/today",
+                    params: { date },
+                  });
                 }}
                 className={`flex-row items-center justify-between py-3 ${
                   i < dates.length - 1 ? "border-b border-sleep-line" : ""
-                }`}
+                } ${isFuture ? "opacity-45" : ""}`}
               >
-                <View>
+                <View className="flex-1 pr-2">
                   <Text className="font-sansMed text-sleep-ink">
                     Dia {i + 1} · {formatIsoDatePt(date)}
                     {isToday ? " (hoje)" : ""}
                   </Text>
                   <Text className="font-sans text-xs text-sleep-muted mt-0.5">
                     {day
-                      ? `Sono ~ ${day.metrics.ttsPatient} min · EF ${day.metrics.efPatient}%`
+                      ? `Sono ~ ${formatMinutesAsHm(day.metrics.ttsPatient)} · EF ${day.metrics.efPatient}%${
+                          isToday ? "" : " · ver histórico"
+                        }`
                       : isToday
                         ? "Toque para preencher"
-                        : "Ainda não preenchido"}
+                        : isFuture
+                          ? "Ainda não chegou"
+                          : "Sem registro · toque para ver"}
                   </Text>
                 </View>
-                <View
-                  className={`h-2.5 w-2.5 rounded-full ${
-                    day ? "bg-sleep-accent" : "bg-sleep-line"
-                  }`}
-                />
+                <View className="items-end gap-1">
+                  <View
+                    className={`h-2.5 w-2.5 rounded-full ${
+                      day ? "bg-sleep-accent" : "bg-sleep-line"
+                    }`}
+                  />
+                  {canOpen ? (
+                    <Text className="font-sansMed text-xs text-sleep-accent">
+                      {isToday ? "Abrir" : day ? "Ver" : "Ver"}
+                    </Text>
+                  ) : null}
+                </View>
               </Pressable>
             );
           })}

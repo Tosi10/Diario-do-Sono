@@ -32,15 +32,19 @@ export async function extractDiaryFromImage(params: {
   patientUid: string;
   patientName: string;
   uploadedBy: string;
+  /** Dia-alvo (quando a doutora abre OCR de dentro de um dia). */
+  targetDate?: string;
 }): Promise<OcrJob> {
   // Simula latência de leitura
   await new Promise((r) => setTimeout(r, 900));
+
+  const baseDate = params.targetDate ?? toIsoDate(new Date());
 
   if (!isDemoMode()) {
     // Placeholder até Functions: mesmo mock, marcado como demo parcial
     const job = mockExtractFromImage(params.imageUri, {
       ...params,
-      baseDate: toIsoDate(new Date()),
+      baseDate,
     });
     job.warnings = [
       "Firebase ligado, mas OCR com IA ainda não está deployado.",
@@ -52,7 +56,7 @@ export async function extractDiaryFromImage(params: {
 
   const job = mockExtractFromImage(params.imageUri, {
     ...params,
-    baseDate: toIsoDate(new Date()),
+    baseDate,
   });
   jobs.set(job.jobId, job);
   return job;

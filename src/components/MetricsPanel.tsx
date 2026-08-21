@@ -35,7 +35,7 @@ function dayRows(
     },
     {
       code: "TTS",
-      label: "Tempo total de sono",
+      label: "Tempo de sono nesta noite",
       value: formatMinutesAsHm(tts),
     },
     {
@@ -45,12 +45,12 @@ function dayRows(
     },
     {
       code: "TTC",
-      label: "Tempo total na cama",
+      label: "Tempo na cama nesta noite",
       value: formatMinutesAsHm(metrics.ttc),
     },
     {
       code: "TTA",
-      label: "Tempo total acordado",
+      label: "Tempo acordado nesta noite",
       value: formatMinutesAsHm(metrics.tta),
     },
     {
@@ -70,42 +70,42 @@ function averageRows(averages: SleepWeekAverages): MetricRow[] {
     },
     {
       code: "LIS",
-      label: "Latência para iniciar o sono",
+      label: "Média da latência para iniciar o sono",
       value: formatMinutesAsHm(averages.lis),
     },
     {
       code: "FDN",
-      label: "Despertares no meio da noite",
+      label: "Média de despertares no meio da noite",
       value: String(averages.fdn),
     },
     {
       code: "TA",
-      label: "Tempo acordado no meio do sono",
+      label: "Média do tempo acordado no meio do sono",
       value: formatMinutesAsHm(averages.ta),
     },
     {
       code: "TTS",
-      label: "Tempo total de sono",
+      label: "Média do tempo de sono por noite",
       value: formatMinutesAsHm(averages.tts),
     },
     {
       code: "DPM",
-      label: "Tempo na cama após acordar",
+      label: "Média do tempo na cama após acordar",
       value: formatMinutesAsHm(averages.dpm),
     },
     {
       code: "TTC",
-      label: "Tempo total na cama",
+      label: "Média do tempo na cama por noite",
       value: formatMinutesAsHm(averages.ttc),
     },
     {
       code: "TTA",
-      label: "Tempo total acordado",
+      label: "Média do tempo acordado por noite",
       value: formatMinutesAsHm(averages.tta),
     },
     {
       code: "EF",
-      label: "Eficiência do sono",
+      label: "Média da eficiência do sono",
       value: `${averages.ef}%`,
     },
   ];
@@ -140,8 +140,9 @@ export function MetricsPanel({
     <View className="w-full">
       {averages ? (
         <Text className="mb-3 font-sans text-xs text-sleep-muted leading-5">
-          Média dos {averages.n} dia(s) já preenchido(s) nesta semana — os
-          mesmos cálculos do diário em papel (LIS, FDN, TA…).
+          Cada valor abaixo é a média por noite entre os {averages.n} dia(s)
+          preenchidos nesta semana (não a soma). Mesmos cálculos do diário em
+          papel (LIS, FDN, TA…).
         </Text>
       ) : null}
 

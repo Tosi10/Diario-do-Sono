@@ -1,4 +1,4 @@
-/** Dados de protótipo — confirmar CRM, WhatsApp e endereço com a Ana antes de publicar. */
+/** Contatos oficiais — WhatsApp Business = número da Clínica Cuidar. */
 export const site = {
   name: "Ana Gonçalves",
   title: "Psiquiatra",
@@ -7,11 +7,10 @@ export const site = {
   city: "Curitiba",
   instagram: "anag.psiquiatra",
   instagramUrl: "https://instagram.com/anag.psiquiatra",
-  whatsappDisplay: "(41) 99272-4876",
-  whatsappUrl: "https://wa.me/5541992724876",
+  /** WhatsApp Business (mesmo número usado na Cuidar) */
+  whatsappDisplay: "(41) 99287-3260",
+  whatsappUrl: "https://wa.me/5541992873260",
   clinic: "Clínica Cuidar",
-  clinicPhoneDisplay: "(41) 99287-3260",
-  clinicPhoneUrl: "tel:+5541992873260",
   email: "anag.psiquiatra@gmail.com",
   emailUrl: "mailto:anag.psiquiatra@gmail.com",
   tagline: "Saúde mental é abrir espaço para a vida se renovar.",

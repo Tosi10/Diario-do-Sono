@@ -1,6 +1,10 @@
+import { demoPersona } from "@/src/content/demoPersona";
 import {
   demoCreateProfile,
+  demoEnsureProfessional,
   demoGetUser,
+  demoLinkByCode,
+  demoSeedSessionPatientHistory,
 } from "@/src/services/demoStore";
 import {
   isDemoMode,
@@ -104,17 +108,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [demoMode, loadProfile]);
 
   const enterDemo = useCallback((role: SonoRole) => {
-    const uid =
-      role === "patient" ? "demo-session-patient" : "demo-session-pro";
+    if (role === "professional" || role === "admin") {
+      const created = demoCreateProfile({
+        uid: demoPersona.professional.uid,
+        email: demoPersona.professional.email,
+        displayName: demoPersona.professional.displayName,
+        role: "professional",
+        clinicName: demoPersona.professional.clinicName,
+        inviteCode: demoPersona.professional.inviteCode,
+      });
+      setUser({ uid: created.uid, email: created.email });
+      setProfile(created);
+      return;
+    }
+
+    demoEnsureProfessional();
     const created = demoCreateProfile({
-      uid,
-      email: role === "patient" ? "paciente@demo.local" : "pro@demo.local",
-      displayName: role === "patient" ? "Paciente Demo" : "Dra. Demo",
-      role,
-      clinicName: "Clínica Demo",
+      uid: demoPersona.patient.uid,
+      email: demoPersona.patient.email,
+      displayName: demoPersona.patient.displayName,
+      role: "patient",
     });
-    setUser({ uid, email: created.email });
-    setProfile(created);
+    demoLinkByCode({
+      patientUid: created.uid,
+      patientName: created.displayName,
+      patientEmail: created.email,
+      inviteCode: demoPersona.professional.inviteCode,
+    });
+    demoSeedSessionPatientHistory({
+      patientUid: created.uid,
+      professionalId: demoPersona.professional.uid,
+    });
+    const linked = demoGetUser(created.uid) ?? created;
+    setUser({ uid: linked.uid, email: linked.email });
+    setProfile(linked);
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {

@@ -128,8 +128,8 @@ Padrão idêntico ao scaffold Coach-em / Tiro / cora-ai.
 
 ### 5.0 Regra do meio-dia
 
-Após **12:00** no fuso `America/Sao_Paulo` (Brasília/Curitiba), ninguém grava o **dia de hoje** (`canSaveDay`).  
-Profissional pode gravar **dias anteriores** (consulta / folha). Paciente só preenche **hoje** e só antes do meio-dia.
+Após **12:00** no fuso `America/Sao_Paulo` (Brasília/Curitiba), o **paciente** não grava o **dia de hoje** (`canSaveDay`).  
+A **profissional** pode gravar **hoje após o meio-dia** e **dias anteriores** (consulta / folha). Dias futuros: nunca.
 
 ### 5.1 Paciente — preencher manhã
 

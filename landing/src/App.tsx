@@ -25,7 +25,7 @@ export default function App() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="min-h-dvh bg-marfim text-ink">
+    <div className="min-h-dvh w-full overflow-x-hidden bg-marfim text-ink">
       <a
         href="#conteudo"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-marfim focus:px-3 focus:py-2"
@@ -106,15 +106,17 @@ export default function App() {
       <main id="conteudo">
         <section
           id="topo"
-          className="relative flex min-h-dvh items-center overflow-hidden pt-24"
+          className="relative flex min-h-dvh w-full items-center overflow-hidden pt-24"
         >
-          <img
-            src="/brand/hero-floral.jpg"
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover object-[center_35%]"
-          />
-          <div className="absolute inset-0 bg-marfim/40" />
-          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-marfim to-transparent" />
+          <div className="absolute inset-0 overflow-hidden">
+            <img
+              src="/brand/hero-floral.jpg"
+              alt=""
+              className="absolute left-1/2 top-1/2 h-[112%] w-[112%] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover object-[center_35%]"
+            />
+            <div className="absolute inset-0 bg-marfim/40" />
+            <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-marfim to-transparent" />
+          </div>
 
           <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-6 py-10 text-center">
             <LogoMark className="mb-1 h-14 w-14 md:h-16 md:w-16" />
@@ -422,9 +424,6 @@ export default function App() {
               <p className="text-[11px] uppercase tracking-[0.2em] text-oliva">Contato</p>
               <a href={site.whatsappUrl} className="mt-1.5 block hover:text-marfim">
                 WhatsApp {site.whatsappDisplay}
-              </a>
-              <a href={site.clinicPhoneUrl} className="mt-1 block hover:text-marfim">
-                Cuidar {site.clinicPhoneDisplay}
               </a>
               <a href={site.emailUrl} className="mt-1 block hover:text-marfim">
                 {site.email}

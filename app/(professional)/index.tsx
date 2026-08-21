@@ -50,7 +50,7 @@ export default function ProfessionalHomeScreen() {
   );
 
   return (
-    <Screen>
+    <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}

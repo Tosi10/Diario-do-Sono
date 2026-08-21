@@ -35,8 +35,8 @@ Quando quiser o banco de verdade: copie `.env.example` → `.env`, preencha e re
 
 ### Regra do meio-dia
 
-Após **12:00 (horário de Brasília / Curitiba)** **não dá para gravar o dia de hoje** — consistência do método.  
-A profissional **pode** registrar **dias anteriores** (folha na consulta). Hoje, depois do meio-dia, também fica bloqueado para ela.
+Após **12:00 (horário de Brasília / Curitiba)** o **paciente** não grava o dia de hoje — consistência do método.  
+A **profissional** pode registrar/corrigir **hoje à noite** e **dias anteriores** (folha entregue na consulta).
 
 ---
 

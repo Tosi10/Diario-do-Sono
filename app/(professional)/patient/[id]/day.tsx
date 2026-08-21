@@ -1,14 +1,13 @@
 import { DayForm } from "@/src/components/DayForm";
-import { MetricsPanel } from "@/src/components/MetricsPanel";
 import {
   Card,
   DangerBanner,
   InfoBanner,
   PrimaryButton,
   Screen,
+  SecondaryButton,
   Title,
 } from "@/src/components/ui";
-import { DIARY_CUTOFF_HOUR } from "@/src/constants/collections";
 import { useAuth } from "@/src/contexts/AuthContext";
 import {
   canSaveDay,
@@ -110,7 +109,7 @@ export default function ProfessionalFillDayScreen() {
 
   if (loading) {
     return (
-      <Screen>
+      <Screen edges="top">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color="#AC665C" />
         </View>
@@ -118,8 +117,10 @@ export default function ProfessionalFillDayScreen() {
     );
   }
 
+  const isToday = dateIso === toIsoDate(new Date());
+
   return (
-    <Screen>
+    <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}
@@ -131,30 +132,29 @@ export default function ProfessionalFillDayScreen() {
         <Title>Registrar dia</Title>
         <Text className="mt-1 font-sans text-sleep-muted">
           {formatIsoDatePt(dateIso)}
+          {isToday ? " · hoje" : ""}
         </Text>
 
         <View className="mt-4 gap-3">
           {!gate.ok ? (
             <DangerBanner>{gate.reason}</DangerBanner>
-          ) : dateIso === toIsoDate(new Date()) ? (
-            <InfoBanner>
-              Hoje: só até {DIARY_CUTOFF_HOUR}:00. Dias anteriores você pode
-              preencher a qualquer hora (ex.: folha entregue na consulta).
-            </InfoBanner>
           ) : (
             <InfoBanner>
-              Dia anterior: você pode registrar pelos dados do paciente.
+              Você pode preencher ou corrigir este dia a qualquer hora — inclusive
+              à noite ou em outra consulta. A regra do meio-dia vale só para o
+              paciente.
             </InfoBanner>
           )}
 
-          {existing?.metrics ? (
-            <Card>
-              <Text className="font-sansMed text-sleep-ink mb-2">
-                Métricas atuais
-              </Text>
-              <MetricsPanel metrics={existing.metrics} />
-            </Card>
-          ) : null}
+          <SecondaryButton
+            label="Ler folha em papel (foto)"
+            onPress={() =>
+              router.push({
+                pathname: "/(professional)/ocr",
+                params: { patientId: id, date: dateIso },
+              })
+            }
+          />
 
           <Card>
             <DayForm value={form} onChange={setForm} disabled={!gate.ok} />

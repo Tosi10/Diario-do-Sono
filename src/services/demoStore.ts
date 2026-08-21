@@ -1,7 +1,10 @@
 /**
  * Modo demo — memória local, sem Firebase.
  * Ativo automaticamente quando não há .env configurado.
+ * Seed personalizado para apresentação à Dra. Ana Gonçalves.
  */
+import { TERMS_VERSION } from "@/src/constants/collections";
+import { demoPersona } from "@/src/content/demoPersona";
 import { computeDayMetrics, computeWeekAverages } from "@/src/domain/sleepMetrics";
 import {
   addDays,
@@ -11,7 +14,6 @@ import {
   toIsoDate,
   weekDateList,
 } from "@/src/domain/timeHelpers";
-import { TERMS_VERSION } from "@/src/constants/collections";
 import { emptyDayInput } from "@/src/types";
 import type {
   EntrySource,
@@ -48,16 +50,23 @@ export function demoCreateProfile(params: {
   displayName: string;
   role: SonoRole;
   clinicName?: string;
+  inviteCode?: string;
 }): SonoUserProfile {
   const profile: SonoUserProfile = {
     uid: params.uid,
     email: params.email,
     displayName: params.displayName,
     role: params.role,
-    clinicName: params.clinicName ?? (params.role === "professional" ? "Clínica Demo" : null),
+    clinicName:
+      params.clinicName ??
+      (params.role === "professional" || params.role === "admin"
+        ? demoPersona.professional.clinicName
+        : null),
     linkedProfessionalId: null,
     inviteCode:
-      params.role === "professional" || params.role === "admin" ? "DEMO01" : null,
+      params.role === "professional" || params.role === "admin"
+        ? (params.inviteCode ?? demoPersona.professional.inviteCode)
+        : null,
     termsVersion: TERMS_VERSION,
     termsAcceptedAt: nowIso(),
     createdAt: nowIso(),
@@ -72,16 +81,120 @@ export function demoCreateProfile(params: {
   return profile;
 }
 
-/** Pacientes fictícios para a profissional ver a lista. */
+/** Garante a profissional Ana no store (para vínculo do paciente demo). */
+export function demoEnsureProfessional(): SonoUserProfile {
+  const existing = users.get(demoPersona.professional.uid);
+  if (existing) return existing;
+  return demoCreateProfile({
+    uid: demoPersona.professional.uid,
+    email: demoPersona.professional.email,
+    displayName: demoPersona.professional.displayName,
+    role: "professional",
+    clinicName: demoPersona.professional.clinicName,
+    inviteCode: demoPersona.professional.inviteCode,
+  });
+}
+
+type NightPatch = Partial<ReturnType<typeof emptyDayInput>>;
+
+function night(patch: NightPatch = {}): NightPatch {
+  return {
+    q0: "06:30",
+    q1: "07:00",
+    q2: "23:00",
+    q3: "23:20",
+    q4: 25,
+    q5: 1,
+    q6: [15],
+    q7: 380,
+    q8: "nenhum",
+    q9: "nenhum",
+    qualityFeel: 7,
+    qualityEnjoy: 6,
+    ...patch,
+  };
+}
+
+/** Grava dia de seed sem regra do meio-dia (só demonstração). */
+function seedWriteDay(params: {
+  patientUid: string;
+  professionalId: string;
+  date: IsoDate;
+  patch: NightPatch;
+}) {
+  const already = [...days.values()].some(
+    (d) => d.patientUid === params.patientUid && d.date === params.date
+  );
+  if (already) return;
+
+  const input = { ...emptyDayInput(params.date), ...params.patch, date: params.date };
+  const week = demoEnsureWeek({
+    patientUid: params.patientUid,
+    professionalId: params.professionalId,
+    around: new Date(params.date + "T12:00:00"),
+  });
+  const metrics = computeDayMetrics(input);
+  const dayId = dayIdFor(week.weekId, params.date);
+  const now = nowIso();
+  const day: SonoDay = {
+    dayId,
+    weekId: week.weekId,
+    patientUid: params.patientUid,
+    dayIndex: dayIndexInWeek(week.startDate, params.date),
+    date: params.date,
+    input,
+    metrics,
+    entrySource: "professional",
+    createdBy: params.professionalId,
+    updatedBy: params.professionalId,
+    createdAt: now,
+    updatedAt: now,
+  };
+  days.set(dayId, day);
+
+  const all = demoListDays(week.weekId);
+  const averages = computeWeekAverages(all, week.ttsMode as TtsMode);
+  const filledDayIds = all.map((d) => d.dayId);
+  weeks.set(week.weekId, {
+    ...week,
+    filledDayIds,
+    averages,
+    status: filledDayIds.length >= 7 ? "complete" : week.status,
+    updatedAt: now,
+  });
+
+  const patient = patients.get(params.patientUid);
+  if (patient) {
+    patients.set(params.patientUid, {
+      ...patient,
+      activeWeekId: week.weekId,
+      filledDays: filledDayIds.length,
+      updatedAt: now,
+    });
+  }
+}
+
+function seedDay(
+  professionalId: string,
+  patientUid: string,
+  daysAgo: number,
+  patch: NightPatch
+) {
+  const date = toIsoDate(addDays(new Date(), -daysAgo));
+  seedWriteDay({ patientUid, professionalId, date, patch });
+}
+
+/** Pacientes fictícios + semana rica para a apresentação. */
 function seedDemoPatients(professionalId: string) {
   const samples = [
-    { uid: "demo-patient-1", name: "Ana Souza", email: "ana@demo.local" },
-    { uid: "demo-patient-2", name: "Bruno Lima", email: "bruno@demo.local" },
-    { uid: "demo-patient-3", name: "Carla Mendes", email: "carla@demo.local" },
-    { uid: "demo-patient-4", name: "Diego Rocha", email: "diego@demo.local" },
-    { uid: "demo-patient-5", name: "Elena Prado", email: "elena@demo.local" },
-    { uid: "demo-patient-6", name: "Felipe Nunes", email: "felipe@demo.local" },
+    { uid: "demo-patient-1", name: "Ana Souza", email: "ana.souza@mapadosono.demo" },
+    { uid: "demo-patient-2", name: "Bruno Lima", email: "bruno@mapadosono.demo" },
+    { uid: "demo-patient-3", name: "Carla Mendes", email: "carla@mapadosono.demo" },
+    { uid: "demo-patient-4", name: "Diego Rocha", email: "diego@mapadosono.demo" },
+    { uid: "demo-patient-5", name: "Elena Prado", email: "elena@mapadosono.demo" },
+    { uid: "demo-patient-6", name: "Felipe Nunes", email: "felipe@mapadosono.demo" },
   ];
+
   for (const s of samples) {
     if (patients.has(s.uid)) continue;
     const p: SonoPatient = {
@@ -110,74 +223,182 @@ function seedDemoPatients(professionalId: string) {
     });
   }
 
-  // Registros demo — só quem teve atividade aparece em Atualizações
-  const seedDay = (
-    patientUid: string,
-    daysAgo: number,
-    patch: Partial<ReturnType<typeof emptyDayInput>>
-  ) => {
-    try {
-      const date = toIsoDate(addDays(new Date(), -daysAgo));
-      const already = [...days.values()].some(
-        (d) => d.patientUid === patientUid && d.date === date
-      );
-      if (already) return;
-      const input = { ...emptyDayInput(date), ...patch, date };
-      demoSaveDay({
-        patientUid,
-        professionalId,
-        actorUid: professionalId,
-        actorRole: "professional",
-        input,
-        entrySource: "manual",
-      });
-    } catch {
-      // ignore
-    }
-  };
+  // Elena — quase uma semana completa (show de métricas / aderência)
+  const elenaNights: NightPatch[] = [
+    night({
+      q0: "05:50",
+      q1: "06:20",
+      q2: "22:15",
+      q3: "22:45",
+      q4: 45,
+      q5: 3,
+      q6: [8, 20, 10],
+      q7: 330,
+      q8: "1 taça de vinho",
+      qualityFeel: 5,
+      qualityEnjoy: 4,
+    }),
+    night({
+      q0: "06:10",
+      q1: "06:40",
+      q4: 35,
+      q5: 2,
+      q6: [12, 18],
+      q7: 350,
+      qualityFeel: 6,
+      qualityEnjoy: 5,
+    }),
+    night({
+      q0: "06:00",
+      q1: "06:25",
+      q4: 20,
+      q5: 1,
+      q6: [10],
+      q7: 390,
+      qualityFeel: 7,
+      qualityEnjoy: 7,
+    }),
+    night({
+      q0: "06:40",
+      q1: "07:05",
+      q2: "23:30",
+      q3: "23:50",
+      q4: 40,
+      q5: 2,
+      q6: [15, 20],
+      q7: 340,
+      qualityFeel: 5,
+      qualityEnjoy: 5,
+    }),
+    night({
+      q0: "06:20",
+      q1: "06:45",
+      q4: 15,
+      q5: 0,
+      q6: [],
+      q7: 410,
+      qualityFeel: 8,
+      qualityEnjoy: 8,
+    }),
+    night({
+      q0: "06:05",
+      q1: "06:30",
+      q4: 30,
+      q5: 1,
+      q6: [25],
+      q7: 370,
+      qualityFeel: 6,
+      qualityEnjoy: 6,
+    }),
+  ];
+  elenaNights.forEach((patch, i) => {
+    seedDay(professionalId, "demo-patient-5", i, patch);
+  });
 
-  seedDay("demo-patient-1", 1, {
-    q0: "06:00",
-    q1: "06:30",
-    q2: "23:00",
-    q3: "23:30",
-    q4: 30,
-    q5: 2,
-    q6: [10, 15],
-    q7: 360,
-    q8: "nenhum",
-    q9: "nenhum",
-    qualityFeel: 7,
-    qualityEnjoy: 6,
-  });
-  seedDay("demo-patient-3", 0, {
-    q0: "07:10",
-    q1: "07:25",
-    q2: "22:40",
-    q3: "23:00",
-    q4: 20,
-    q5: 1,
-    q6: [12],
-    q7: 390,
-    q8: "nenhum",
-    q9: "nenhum",
-    qualityFeel: 8,
-    qualityEnjoy: 7,
-  });
-  seedDay("demo-patient-5", 2, {
-    q0: "05:50",
-    q1: "06:20",
-    q2: "22:15",
-    q3: "22:45",
-    q4: 45,
-    q5: 3,
-    q6: [8, 20, 10],
-    q7: 330,
-    q8: "1 taça de vinho",
-    q9: "nenhum",
-    qualityFeel: 5,
-    qualityEnjoy: 4,
-  });
+  // Carla — manhã de hoje (painel “hoje ok”)
+  seedDay(
+    professionalId,
+    "demo-patient-3",
+    0,
+    night({
+      q0: "07:10",
+      q1: "07:25",
+      q2: "22:40",
+      q3: "23:00",
+      q4: 20,
+      q5: 1,
+      q6: [12],
+      q7: 390,
+      qualityFeel: 8,
+      qualityEnjoy: 7,
+    })
+  );
+
+  // Ana Souza — ontem
+  seedDay(
+    professionalId,
+    "demo-patient-1",
+    1,
+    night({
+      q0: "06:00",
+      q1: "06:30",
+      q2: "23:00",
+      q3: "23:30",
+      q4: 30,
+      q5: 2,
+      q6: [10, 15],
+      q7: 360,
+      qualityFeel: 7,
+      qualityEnjoy: 6,
+    })
+  );
+
+  // Bruno — 3 dias atrás
+  seedDay(
+    professionalId,
+    "demo-patient-2",
+    3,
+    night({
+      q0: "08:00",
+      q1: "08:20",
+      q2: "00:30",
+      q3: "01:00",
+      q4: 50,
+      q5: 2,
+      q6: [20, 15],
+      q7: 320,
+      qualityFeel: 4,
+      qualityEnjoy: 3,
+    })
+  );
+}
+
+/**
+ * Histórico curto para Marina (paciente da demo) — dias passados só leitura.
+ */
+export function demoSeedSessionPatientHistory(params: {
+  patientUid: string;
+  professionalId: string;
+}) {
+  seedDay(
+    params.professionalId,
+    params.patientUid,
+    1,
+    night({
+      q0: "06:45",
+      q1: "07:10",
+      q7: 370,
+      qualityFeel: 7,
+      qualityEnjoy: 6,
+    })
+  );
+  seedDay(
+    params.professionalId,
+    params.patientUid,
+    2,
+    night({
+      q0: "07:00",
+      q1: "07:20",
+      q4: 40,
+      q5: 2,
+      q6: [10, 20],
+      q7: 340,
+      qualityFeel: 5,
+      qualityEnjoy: 5,
+    })
+  );
+  seedDay(
+    params.professionalId,
+    params.patientUid,
+    3,
+    night({
+      q0: "06:20",
+      q1: "06:50",
+      q7: 400,
+      qualityFeel: 8,
+      qualityEnjoy: 7,
+    })
+  );
 }
 
 export function demoGetUser(uid: string) {
@@ -191,14 +412,21 @@ export function demoUpdateUser(uid: string, patch: Partial<SonoUserProfile>) {
 }
 
 export function demoFindByInviteCode(code: string) {
-  const upper = code.toUpperCase();
+  const upper = code.trim().toUpperCase();
+  const aliases = demoPersona.professional.inviteAliases as readonly string[];
   for (const u of users.values()) {
     if (
-      u.inviteCode === upper &&
-      (u.role === "professional" || u.role === "admin")
+      (u.role === "professional" || u.role === "admin") &&
+      (u.inviteCode === upper ||
+        (aliases.includes(upper) &&
+          aliases.includes(u.inviteCode ?? "")))
     ) {
       return u;
     }
+  }
+  // MAPA01 / DEMO01 → Ana mesmo se ainda não estiver na sessão
+  if (aliases.includes(upper)) {
+    return demoEnsureProfessional();
   }
   return null;
 }
@@ -371,27 +599,6 @@ export function demoLinkByCode(params: {
 }): string {
   const pro = demoFindByInviteCode(params.inviteCode);
   if (!pro) {
-    // No demo, aceita DEMO01 mesmo antes de criar profissional nesta sessão
-    if (params.inviteCode.trim().toUpperCase() === "DEMO01") {
-      const fakeProId = "demo-professional";
-      if (!users.has(fakeProId)) {
-        demoCreateProfile({
-          uid: fakeProId,
-          email: "pro@demo.local",
-          displayName: "Dra. Demo",
-          role: "professional",
-          clinicName: "Clínica Demo",
-        });
-      }
-      demoUpdateUser(params.patientUid, { linkedProfessionalId: fakeProId });
-      demoUpsertPatient({
-        patientUid: params.patientUid,
-        professionalId: fakeProId,
-        displayName: params.patientName,
-        email: params.patientEmail,
-      });
-      return fakeProId;
-    }
     throw new Error("Nenhuma profissional encontrada com este código.");
   }
   demoUpdateUser(params.patientUid, { linkedProfessionalId: pro.uid });

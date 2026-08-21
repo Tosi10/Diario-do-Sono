@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Mapa do Sono",
-    "slug": "mapa-do-sono",
+    "name": "Sono à Vista",
+    "slug": "mapa-do-sono-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/brand/seal.png",
@@ -22,7 +22,10 @@
       "adaptiveIcon": {
         "backgroundColor": "#F1ECDF",
         "foregroundImage": "./assets/brand/seal.png"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -35,8 +38,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "O Mapa do Sono precisa da galeria para enviar a foto da folha preenchida.",
-          "cameraPermission": "O Mapa do Sono precisa da câmera para fotografar a folha do diário."
+          "photosPermission": "O Sono à Vista precisa da galeria para enviar a foto da folha preenchida.",
+          "cameraPermission": "O Sono à Vista precisa da câmera para fotografar a folha do diário."
         }
       ],
       [
@@ -51,6 +54,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d439687f-80b4-4fbb-b477-ce9d4ae3dbdc"
+      }
+    },
+    "owner": "v6core"
   }
 }

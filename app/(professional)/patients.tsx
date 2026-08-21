@@ -44,15 +44,16 @@ export default function ProfessionalPatientsScreen() {
   );
 
   return (
-    <Screen>
+    <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
       >
-        <Eyebrow>{profile?.clinicName || "Consultório"}</Eyebrow>
+        <Eyebrow>{profile?.clinicName || "Clínica Cuidar"}</Eyebrow>
         <Title>Pacientes</Title>
         <Subtitle>
-          Abra o diário de cada um. Toque no dia para preencher ou corrigir.
+          Toque para abrir a semana. Elena Prado já tem quase o ciclo completo —
+          bom para mostrar métricas.
         </Subtitle>
 
         <Card className="mt-5">
@@ -60,10 +61,10 @@ export default function ProfessionalPatientsScreen() {
             Código de vínculo
           </Text>
           <Text className="mt-2 font-displayBold text-3xl text-sleep-rose tracking-[6px]">
-            {profile?.inviteCode || "—"}
+            {profile?.inviteCode || "MAPA01"}
           </Text>
           <Text className="mt-2 font-sans text-xs text-sleep-muted leading-5">
-            O paciente digita este código no Perfil dele.
+            Na consulta, a paciente digita este código no Perfil dela.
           </Text>
         </Card>
 

@@ -21,6 +21,8 @@ export function Screen({
     <View
       className={`flex-1 bg-sleep-bg ${className}`}
       style={{
+        // Em telas com tab bar use edges="top": o bottom inset fica na barra,
+        // senão aparece uma faixa vazia (fundo) entre o conteúdo e as abas.
         paddingTop: edges === "none" ? 0 : insets.top,
         paddingBottom: edges === "top" || edges === "none" ? 0 : insets.bottom,
       }}

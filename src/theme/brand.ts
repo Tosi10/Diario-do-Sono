@@ -1,4 +1,4 @@
-/** Tokens oficiais — Ana Gonçalves / Mapa do Sono */
+/** Tokens oficiais — Ana Gonçalves / Sono à Vista */
 export const brand = {
   terra: "#78484E",
   terraDeep: "#5C383D",
@@ -24,6 +24,6 @@ export const brand = {
 export const brandCopy = {
   name: "Ana Gonçalves",
   category: "Psiquiatra",
-  appName: "Mapa do Sono",
-  tagline: "Compreendendo os padrões das suas noites",
+  appName: "Sono à Vista",
+  tagline: "Visualizando os padrões das suas noites",
 } as const;

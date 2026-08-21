@@ -128,9 +128,10 @@ export function dayIndexInWeek(startIso: IsoDate, dateIso: IsoDate): number {
 }
 
 /**
- * Regra clínica: o dia de HOJE só pode ser gravado antes das 12:00
- * (horário de Brasília / Curitiba), não o relógio do emulador em UTC.
- * Dias passados: profissional pode preencher (papel / consulta).
+ * Regra clínica do paciente: o dia de HOJE só pode ser gravado antes das 12:00
+ * (horário de Brasília / Curitiba).
+ * Profissional (`allowPastByProfessional`): pode gravar hoje após o meio-dia
+ * e dias passados (folha entregue à noite ou em outra consulta).
  * Dias futuros: nunca.
  */
 export type SaveDayGate =
@@ -142,6 +143,7 @@ export function canSaveDay(
   now: Date = new Date(),
   options?: { allowPastByProfessional?: boolean }
 ): SaveDayGate {
+  const asProfessional = options?.allowPastByProfessional === true;
   const todayIso = toIsoDate(now);
   const morning = parseIsoDate(morningDateIso);
   const today = parseIsoDate(todayIso);
@@ -151,7 +153,7 @@ export function canSaveDay(
   }
 
   if (morningDateIso === todayIso) {
-    if (getClinicDateParts(now).hour >= DIARY_CUTOFF_HOUR) {
+    if (!asProfessional && getClinicDateParts(now).hour >= DIARY_CUTOFF_HOUR) {
       return {
         ok: false,
         reason: `Após ${DIARY_CUTOFF_HOUR}:00 (horário de Brasília) não é mais possível adicionar os dados de hoje. Preencha pela manhã para manter a consistência.`,
@@ -160,8 +162,8 @@ export function canSaveDay(
     return { ok: true };
   }
 
-  // Passado
-  if (options?.allowPastByProfessional) {
+  // Passado — só a profissional
+  if (asProfessional) {
     return { ok: true };
   }
 

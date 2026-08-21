@@ -8,6 +8,7 @@ import {
   Subtitle,
   Title,
 } from "@/src/components/ui";
+import { demoPersona } from "@/src/content/demoPersona";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { linkPatientToProfessionalByCode } from "@/src/services/users";
 import { useState } from "react";
@@ -15,8 +16,10 @@ import { AppScrollView } from "@/src/components/AppScrollView";
 import { Alert, Text, View } from "react-native";
 
 export default function PatientProfileScreen() {
-  const { user, profile, signOut, refreshProfile } = useAuth();
-  const [code, setCode] = useState("");
+  const { user, profile, signOut, refreshProfile, demoMode } = useAuth();
+  const [code, setCode] = useState(
+    demoMode ? demoPersona.professional.inviteCode : ""
+  );
   const [linking, setLinking] = useState(false);
 
   const onLink = async () => {
@@ -30,7 +33,7 @@ export default function PatientProfileScreen() {
         inviteCode: code,
       });
       await refreshProfile();
-      Alert.alert("Vinculado", "Você está conectado à profissional.");
+      Alert.alert("Vinculado", "Você está conectada à Dra. Ana Gonçalves.");
       setCode("");
     } catch (e) {
       Alert.alert("Código", e instanceof Error ? e.message : "Falha");
@@ -40,7 +43,7 @@ export default function PatientProfileScreen() {
   };
 
   return (
-    <Screen>
+    <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
@@ -60,14 +63,21 @@ export default function PatientProfileScreen() {
             Vínculo com a profissional
           </Text>
           {profile?.linkedProfessionalId ? (
-            <InfoBanner>Já vinculado. Qualquer dúvida, fale com ela.</InfoBanner>
+            <InfoBanner>
+              Vinculada à Dra. Ana Gonçalves ({demoPersona.professional.clinicName}
+              ). Qualquer dúvida, fale com ela na consulta.
+            </InfoBanner>
           ) : (
             <>
+              <Text className="mb-3 font-sans text-sm text-sleep-muted leading-5">
+                Digite o código que ela passou. Na demonstração use{" "}
+                {demoPersona.professional.inviteCode}.
+              </Text>
               <TextField
                 label="Código dela"
                 value={code}
                 onChangeText={(t) => setCode(t.toUpperCase())}
-                placeholder="ABC123"
+                placeholder={demoPersona.professional.inviteCode}
                 autoCapitalize="none"
               />
               <PrimaryButton

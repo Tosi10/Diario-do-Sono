@@ -1,0 +1,85 @@
+body {
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.45;
+  color: #2c2424;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+p {
+  text-align: center;
+}
+
+h1 {
+  font-size: 20pt;
+  color: #78484e;
+  margin-bottom: 0.25em;
+}
+
+h2 {
+  font-size: 13pt;
+  color: #78484e;
+  margin-top: 1.5em;
+  margin-bottom: 0.55em;
+}
+
+h3 {
+  font-size: 11.5pt;
+  color: #5c383d;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+}
+
+p {
+  margin: 0.5em auto;
+}
+
+em {
+  color: #6b5a5a;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #d4c8b4;
+  margin: 1.3em 0;
+}
+
+table {
+  width: 100% !important;
+  border-collapse: collapse;
+  margin: 0.75em 0 1.1em 0;
+  font-size: 10pt;
+  table-layout: auto;
+}
+
+th,
+td {
+  border: 1px solid #d4c8b4;
+  padding: 9px 11px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #f1ecdf;
+  color: #78484e;
+  font-weight: 600;
+}
+
+tr:nth-child(even) td {
+  background: #faf6ed;
+}
+
+/* Só alinha à direita colunas de valor (não a 1ª coluna, nem tabelas de 1 coluna) */
+th + th:last-child,
+td + td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+strong {
+  color: #5c383d;
+}

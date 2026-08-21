@@ -9,6 +9,7 @@ import {
   Title,
 } from "@/src/components/ui";
 import { TextField } from "@/src/components/TextField";
+import { demoPersona } from "@/src/content/demoPersona";
 import { mapaDoSono } from "@/src/content/mapaDoSono";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { brandCopy } from "@/src/theme/brand";
@@ -73,22 +74,21 @@ export default function LoginScreen() {
             <View className="mt-8 gap-3">
               <Card>
                 <Text className="font-sansMed text-sm text-sleep-rose mb-1">
-                  Demonstração
+                  Apresentação — Dra. Ana Gonçalves
                 </Text>
                 <Text className="font-sans text-sm text-sleep-muted leading-5">
-                  Sem banco de dados. Explore o fluxo com a identidade visual da
-                  Dra. Ana Gonçalves.
+                  {demoPersona.loginBlurb}
                 </Text>
               </Card>
               <PrimaryButton
-                label="Entrar como profissional"
+                label="Entrar como Ana (profissional)"
                 onPress={() => {
                   enterDemo("professional");
                   router.replace("/");
                 }}
               />
               <SecondaryButton
-                label="Entrar como paciente"
+                label="Entrar como Marina (paciente)"
                 onPress={() => {
                   enterDemo("patient");
                   router.replace("/");

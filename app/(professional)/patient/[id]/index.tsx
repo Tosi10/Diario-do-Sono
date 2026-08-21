@@ -2,7 +2,6 @@ import { MetricsPanel } from "@/src/components/MetricsPanel";
 import {
   Card,
   Screen,
-  SecondaryButton,
   Subtitle,
   Title,
 } from "@/src/components/ui";
@@ -65,7 +64,7 @@ export default function PatientDetailScreen() {
 
   if (loading || !week) {
     return (
-      <Screen>
+      <Screen edges="top">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color="#AC665C" />
         </View>
@@ -78,7 +77,7 @@ export default function PatientDetailScreen() {
   const todayIso = toIsoDate(new Date());
 
   return (
-    <Screen>
+    <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}
@@ -93,18 +92,6 @@ export default function PatientDetailScreen() {
           Diário {formatIsoDatePt(week.startDate)} —{" "}
           {formatIsoDatePt(week.endDate)}
         </Subtitle>
-
-        <View className="mt-4">
-          <SecondaryButton
-            label="Ler folha em papel (foto)"
-            onPress={() =>
-              router.push({
-                pathname: "/(professional)/ocr",
-                params: { patientId: id },
-              })
-            }
-          />
-        </View>
 
         <Card className="mt-5">
           {dates.map((date, i) => {
@@ -131,7 +118,7 @@ export default function PatientDetailScreen() {
                     <Text className="font-sans text-xs text-sleep-muted mt-0.5">
                       {day
                         ? `${day.entrySource === "professional" ? "Você registrou" : "Paciente registrou"} · EF ${day.metrics.efPatient}%`
-                        : "Toque para preencher"}
+                        : "Toque para preencher ou ler a folha"}
                     </Text>
                   </View>
                   <Text className="font-sansMed text-sleep-accent">Abrir</Text>

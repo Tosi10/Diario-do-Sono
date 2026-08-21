@@ -44,13 +44,13 @@ Docs de suporte: [`README.md`](README.md) · [`docs/ARQUITETURA.md`](docs/ARQUIT
 ## Papéis (não esquecer)
 
 - **Paciente:** preenche de manhã (só até 12:00 Brasília); vincula com o código dela.
-- **Profissional (ela = admin da clínica):** vê pacientes, preenche no lugar deles, registra dias anteriores; hoje após 12h também bloqueado.
+- **Profissional (ela = admin da clínica):** vê pacientes, preenche no lugar deles (hoje ou dias anteriores, a qualquer hora), lê folha por dia; hoje após 12h liberado para ela.
 - **Admin técnico (você):** Firebase Console no piloto.
 
 ### Regra do meio-dia
 
-`canSaveDay` / `isPastNoon` em `src/domain/timeHelpers.ts`: após **12:00 no fuso `America/Sao_Paulo`** (Brasília/Curitiba), o **dia de hoje** não pode ser gravado (paciente nem profissional). Dias passados: só a profissional.  
-Isso evita emulador em UTC marcar “já passou do meio-dia” de manhã no Brasil.
+`canSaveDay` / `isPastNoon` em `src/domain/timeHelpers.ts`: após **12:00 no fuso `America/Sao_Paulo`**, o **paciente** não grava o dia de hoje.  
+A **profissional** pode registrar/corrigir **hoje após o meio-dia** e **dias anteriores** (folha entregue à noite ou em outra consulta). Dias futuros: nunca.
 
 ---
 
@@ -108,7 +108,8 @@ Isso evita emulador em UTC marcar “já passou do meio-dia” de manhã no Bras
 - [x] Paciente vincula → `sonoPatients`
 - [x] Lista de pacientes + aderência
 - [x] Profissional preenche/edita dia do paciente
-- [x] Dias passados liberados para ela; hoje após 12h bloqueado
+- [x] Dias passados liberados para ela; hoje após 12h também liberado para ela (corte só no paciente)
+- [x] OCR a partir do dia escolhido (não só da semana)
 - [x] Home profissional com atualizações (só quem tem registro real)
 - [ ] Cloud Function criar paciente com senha provisória (depois)
 

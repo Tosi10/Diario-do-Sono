@@ -8,6 +8,7 @@ import {
   Title,
 } from "@/src/components/ui";
 import { useAuth } from "@/src/contexts/AuthContext";
+import { formatIsoDatePt } from "@/src/domain/timeHelpers";
 import { listPatientsForProfessional } from "@/src/services/patients";
 import { extractDiaryFromImage, listOcrJobs } from "@/src/services/ocr";
 import type { SonoPatient } from "@/src/types";
@@ -27,7 +28,11 @@ import {
 
 export default function ProfessionalOcrScreen() {
   const { user } = useAuth();
-  const { patientId } = useLocalSearchParams<{ patientId?: string }>();
+  const { patientId, date: dateParam } = useLocalSearchParams<{
+    patientId?: string;
+    date?: string;
+  }>();
+  const targetDate = typeof dateParam === "string" ? dateParam : undefined;
   const [patients, setPatients] = useState<SonoPatient[]>([]);
   const [selected, setSelected] = useState<SonoPatient | null>(null);
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -104,6 +109,7 @@ export default function ProfessionalOcrScreen() {
         patientUid: selected.patientUid,
         patientName: selected.displayName,
         uploadedBy: user.uid,
+        targetDate,
       });
       setJobs(listOcrJobs().filter((j) => j.uploadedBy === user.uid));
       router.push({
@@ -118,7 +124,7 @@ export default function ProfessionalOcrScreen() {
   };
 
   return (
-    <Screen>
+    <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
@@ -126,12 +132,32 @@ export default function ProfessionalOcrScreen() {
         <Title>Folha em papel</Title>
         <Subtitle>
           {lockedToPatient && selected
-            ? `Foto da folha de ${selected.displayName}.`
+            ? targetDate
+              ? `Foto da folha de ${selected.displayName} · ${formatIsoDatePt(targetDate)}.`
+              : `Foto da folha de ${selected.displayName}.`
             : "Fotografe a folha e vincule a um paciente."}
         </Subtitle>
 
         <View className="mt-3">
-          <Pressable onPress={() => router.back()}>
+          <Pressable
+            onPress={() => {
+              if (patientId && targetDate) {
+                router.replace({
+                  pathname: "/(professional)/patient/[id]/day",
+                  params: { id: patientId, date: targetDate },
+                });
+                return;
+              }
+              if (patientId) {
+                router.replace({
+                  pathname: "/(professional)/patient/[id]",
+                  params: { id: patientId },
+                });
+                return;
+              }
+              router.back();
+            }}
+          >
             <Text className="font-sansMed text-sm text-sleep-accent">
               ← Voltar ao diário
             </Text>
@@ -154,7 +180,9 @@ export default function ProfessionalOcrScreen() {
               {selected.displayName}
             </Text>
             <Text className="mt-1 font-sans text-xs text-sleep-muted">
-              Já definido pelo diário que você abriu.
+              {targetDate
+                ? `Os dados vão para o dia ${formatIsoDatePt(targetDate)} após você revisar.`
+                : "Já definido pelo diário que você abriu."}
             </Text>
           </Card>
         ) : (
