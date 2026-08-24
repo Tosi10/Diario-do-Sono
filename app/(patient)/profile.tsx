@@ -1,3 +1,4 @@
+import { showAppAlert } from "@/src/components/AppAlert";
 import { TextField } from "@/src/components/TextField";
 import {
   Card,
@@ -13,7 +14,7 @@ import { useAuth } from "@/src/contexts/AuthContext";
 import { linkPatientToProfessionalByCode } from "@/src/services/users";
 import { useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
-import { Alert, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 export default function PatientProfileScreen() {
   const { user, profile, signOut, refreshProfile, demoMode } = useAuth();
@@ -33,10 +34,10 @@ export default function PatientProfileScreen() {
         inviteCode: code,
       });
       await refreshProfile();
-      Alert.alert("Vinculado", "Você está conectada à Dra. Ana Gonçalves.");
+      showAppAlert("Vinculado", "Você está conectada à Dra. Ana Gonçalves.");
       setCode("");
     } catch (e) {
-      Alert.alert("Código", e instanceof Error ? e.message : "Falha");
+      showAppAlert("Código", e instanceof Error ? e.message : "Falha");
     } finally {
       setLinking(false);
     }

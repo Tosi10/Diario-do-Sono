@@ -1,3 +1,4 @@
+import { showAppAlert } from "@/src/components/AppAlert";
 import { TextField } from "@/src/components/TextField";
 import {
   InfoBanner,
@@ -12,7 +13,6 @@ import { Redirect, router } from "expo-router";
 import { useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -44,7 +44,7 @@ export default function RegisterScreen() {
       });
       router.replace("/");
     } catch (e) {
-      Alert.alert(
+      showAppAlert(
         "Cadastro",
         e instanceof Error ? e.message : "Erro desconhecido"
       );

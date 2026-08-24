@@ -1,11 +1,16 @@
+import { showAppAlert } from "@/src/components/AppAlert";
+import { CycleHistoryList } from "@/src/components/CycleHistoryList";
 import { MetricsPanel } from "@/src/components/MetricsPanel";
 import {
   Card,
+  InfoBanner,
+  PrimaryButton,
   Screen,
   Subtitle,
   Title,
 } from "@/src/components/ui";
 import { useAuth } from "@/src/contexts/AuthContext";
+import { cycleStatusLabel } from "@/src/domain/cycleProtocol";
 import {
   formatIsoDatePt,
   toIsoDate,
@@ -13,7 +18,10 @@ import {
 } from "@/src/domain/timeHelpers";
 import {
   ensureActiveWeek,
+  getWeek,
   listDaysForWeek,
+  listWeeksForPatient,
+  startNewCycle,
 } from "@/src/services/diary";
 import { getPatient } from "@/src/services/patients";
 import type { SonoDay, SonoPatient, SonoWeek } from "@/src/types";
@@ -28,11 +36,16 @@ import {
 } from "react-native";
 
 export default function PatientDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, weekId: weekIdParam } = useLocalSearchParams<{
+    id: string;
+    weekId?: string;
+  }>();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [starting, setStarting] = useState(false);
   const [patient, setPatient] = useState<SonoPatient | null>(null);
   const [week, setWeek] = useState<SonoWeek | null>(null);
+  const [weeks, setWeeks] = useState<SonoWeek[]>([]);
   const [days, setDays] = useState<SonoDay[]>([]);
 
   useFocusEffect(
@@ -43,13 +56,21 @@ export default function PatientDetailScreen() {
         setLoading(true);
         try {
           const p = await getPatient(id);
-          const w = await ensureActiveWeek({
-            patientUid: id,
-            professionalId: user.uid,
-          });
+          const history = await listWeeksForPatient(id);
+          let w: SonoWeek | null = null;
+          if (typeof weekIdParam === "string" && weekIdParam) {
+            w = await getWeek(weekIdParam);
+          }
+          if (!w) {
+            w = await ensureActiveWeek({
+              patientUid: id,
+              professionalId: user.uid,
+            });
+          }
           const d = await listDaysForWeek(w.weekId);
           if (!alive) return;
           setPatient(p);
+          setWeeks(history);
           setWeek(w);
           setDays(d);
         } finally {
@@ -59,8 +80,31 @@ export default function PatientDetailScreen() {
       return () => {
         alive = false;
       };
-    }, [id, user])
+    }, [id, user, weekIdParam])
   );
+
+  const onStartNew = async () => {
+    if (!id || !user) return;
+    try {
+      setStarting(true);
+      const w = await startNewCycle({
+        patientUid: id,
+        professionalId: user.uid,
+      });
+      router.replace({
+        pathname: "/(professional)/patient/[id]",
+        params: { id, weekId: w.weekId },
+      });
+      showAppAlert(
+        "Novo ciclo",
+        "Ciclo criado. Peça à paciente para definir a hora de acordar no app."
+      );
+    } catch (e) {
+      showAppAlert("Não foi possível", e instanceof Error ? e.message : "Erro");
+    } finally {
+      setStarting(false);
+    }
+  };
 
   if (loading || !week) {
     return (
@@ -75,6 +119,9 @@ export default function PatientDetailScreen() {
   const dates = weekDateList(week.startDate);
   const byDate = new Map(days.map((d) => [d.date, d]));
   const todayIso = toIsoDate(new Date());
+  const canStartNew =
+    !weeks.some((w) => w.status === "open") &&
+    weeks.some((w) => w.status === "complete" || w.status === "failed");
 
   return (
     <Screen edges="top">
@@ -89,9 +136,29 @@ export default function PatientDetailScreen() {
         </Pressable>
         <Title>{patient?.displayName || "Paciente"}</Title>
         <Subtitle>
-          Diário {formatIsoDatePt(week.startDate)} —{" "}
-          {formatIsoDatePt(week.endDate)}
+          Ciclo {formatIsoDatePt(week.startDate)} —{" "}
+          {formatIsoDatePt(week.endDate)} · {cycleStatusLabel(week.status)}
+          {week.wakeTime ? ` · acordar ${week.wakeTime}` : ""}
         </Subtitle>
+
+        {week.status !== "open" ? (
+          <View className="mt-3">
+            <InfoBanner>
+              Ciclo fechado no histórico. Você ainda pode abrir qualquer dia
+              para corrigir.
+            </InfoBanner>
+          </View>
+        ) : null}
+
+        {canStartNew ? (
+          <View className="mt-3">
+            <PrimaryButton
+              label={starting ? "Criando…" : "Iniciar novo ciclo"}
+              onPress={onStartNew}
+              disabled={starting}
+            />
+          </View>
+        ) : null}
 
         <Card className="mt-5">
           {dates.map((date, i) => {
@@ -136,6 +203,25 @@ export default function PatientDetailScreen() {
             <MetricsPanel averages={week.averages} />
           </Card>
         ) : null}
+
+        <Card className="mt-4">
+          <Text className="font-sansMed text-sleep-ink mb-1">
+            Histórico de ciclos
+          </Text>
+          <Text className="mb-2 font-sans text-xs text-sleep-muted">
+            Inclui ciclos válidos e incompletos — estudo completo da paciente.
+          </Text>
+          <CycleHistoryList
+            weeks={weeks}
+            selectedWeekId={week.weekId}
+            onSelect={(w) =>
+              router.push({
+                pathname: "/(professional)/patient/[id]",
+                params: { id, weekId: w.weekId },
+              })
+            }
+          />
+        </Card>
       </AppScrollView>
     </Screen>
   );

@@ -1,3 +1,4 @@
+import { showAppAlert } from "@/src/components/AppAlert";
 import {
   Card,
   InfoBanner,
@@ -19,7 +20,6 @@ import { useCallback, useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Pressable,
   Text,
@@ -75,7 +75,7 @@ export default function ProfessionalOcrScreen() {
       ? await ImagePicker.requestCameraPermissionsAsync()
       : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert(
+      showAppAlert(
         "Permissão",
         fromCamera
           ? "Precisamos da câmara para fotografar a folha."
@@ -117,7 +117,7 @@ export default function ProfessionalOcrScreen() {
         params: { jobId: job.jobId },
       });
     } catch (e) {
-      Alert.alert("OCR", e instanceof Error ? e.message : "Falha na leitura");
+      showAppAlert("OCR", e instanceof Error ? e.message : "Falha na leitura");
     } finally {
       setBusy(false);
     }

@@ -9,11 +9,20 @@ export const COLLECTIONS = {
 /** Versão dos termos — subir quando o texto legal mudar */
 export const TERMS_VERSION = "1.0.0";
 
-/** Após este horário (fuso do consultório), não se pode mais gravar o dia de hoje */
-export const DIARY_CUTOFF_HOUR = 12;
-
 /** Curitiba / Brasília — evita emulador em UTC bloquear o diário de manhã */
 export const CLINIC_TIMEZONE = "America/Sao_Paulo";
+
+/** Protocolo do ciclo (Sprint 8) — substitui o corte das 12h. */
+export const CYCLE_DAYS = 7;
+export const MIN_FILLED_DAYS = 5;
+/** 7 − 5: no 3º dia perdido o ciclo já não pode ser válido. */
+export const MAX_MISSED_DAYS = 3;
+/** Push de lembrete: minutos após a hora de acordar (só se o dia ainda não foi salvo) */
+export const FILL_OPEN_OFFSET_MIN = 10;
+/** Push de aviso: minutos antes de fechar a janela */
+export const FILL_CLOSE_WARNING_MIN = 10;
+/** Janela do paciente: da hora de acordar até +5h (Brasília) */
+export const FILL_WINDOW_MINUTES = 5 * 60;
 
 export const QUALITY_MIN = 0;
 export const QUALITY_MAX = 10;

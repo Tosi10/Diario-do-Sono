@@ -1,4 +1,5 @@
 import "../global.css";
+import { AppAlertHost } from "@/src/components/AppAlert";
 import { AuthProvider } from "@/src/contexts/AuthContext";
 import { brand } from "@/src/theme/brand";
 import {
@@ -54,6 +55,7 @@ export default function RootLayout() {
           animation: "fade",
         }}
       />
+      <AppAlertHost />
     </AuthProvider>
   );
 }

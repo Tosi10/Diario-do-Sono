@@ -1,3 +1,4 @@
+import { showAppAlert } from "@/src/components/AppAlert";
 import { DayForm } from "@/src/components/DayForm";
 import { MetricsPanel } from "@/src/components/MetricsPanel";
 import {
@@ -19,7 +20,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
 import {
-  Alert,
   Image,
   Pressable,
   Text,
@@ -87,7 +87,7 @@ export function OcrReviewScreen() {
   const onConfirm = async () => {
     if (!user || !role || !form || !profile) return;
     if (!gate.ok) {
-      Alert.alert("Bloqueado", gate.reason);
+      showAppAlert("Bloqueado", gate.reason);
       return;
     }
     try {
@@ -106,7 +106,7 @@ export function OcrReviewScreen() {
       });
       const updated = updateOcrJob(job.jobId, { status: "confirmed" });
       setJob(updated);
-      Alert.alert("Confirmado", "Dados da folha gravados no diário.", [
+      showAppAlert("Confirmado", "Dados da folha gravados no diário.", [
         {
           text: "OK",
           onPress: () => {
@@ -122,7 +122,7 @@ export function OcrReviewScreen() {
         },
       ]);
     } catch (e) {
-      Alert.alert(
+      showAppAlert(
         "Não gravou",
         e instanceof Error ? e.message : "Erro desconhecido"
       );

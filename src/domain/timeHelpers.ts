@@ -1,7 +1,5 @@
-import {
-  CLINIC_TIMEZONE,
-  DIARY_CUTOFF_HOUR,
-} from "@/src/constants/collections";
+import { CLINIC_TIMEZONE } from "@/src/constants/collections";
+import { FILL_WINDOW_MINUTES } from "@/src/constants/collections";
 import type { IsoDate, Minutes, TimeHHmm } from "@/src/types";
 
 /** Parse "HH:mm" → minutos desde 00:00. Retorna null se inválido. */
@@ -12,6 +10,13 @@ export function parseTimeToMinutes(time: TimeHHmm): Minutes | null {
   const min = Number(m[2]);
   if (h < 0 || h > 23 || min < 0 || min > 59) return null;
   return h * 60 + min;
+}
+
+export function formatHHmm(totalMinutes: number): TimeHHmm {
+  const wrapped = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
+  const h = Math.floor(wrapped / 60);
+  const m = wrapped % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
 export function formatMinutesAsHm(total: Minutes): string {
@@ -80,6 +85,61 @@ export function getClinicDateParts(now: Date = new Date()): {
   };
 }
 
+export function clinicMinutesNow(now: Date = new Date()): number {
+  const p = getClinicDateParts(now);
+  return p.hour * 60 + p.minute;
+}
+
+/**
+ * Janela do paciente: da hora de acordar até +5h (Brasília).
+ * O push de lembrete (+10 min) é só aviso — se já preencheu, cancela.
+ */
+export function fillWindow(wakeTime: TimeHHmm): {
+  open: TimeHHmm;
+  close: TimeHHmm;
+  openMin: number;
+  closeMin: number;
+} {
+  const wake = parseTimeToMinutes(wakeTime);
+  if (wake === null) {
+    throw new Error("Horário de acordar inválido.");
+  }
+  const openMin = wake;
+  const closeMin = wake + FILL_WINDOW_MINUTES;
+  return {
+    open: formatHHmm(openMin),
+    close: formatHHmm(closeMin),
+    openMin,
+    closeMin,
+  };
+}
+
+export function isWithinFillWindow(
+  wakeTime: TimeHHmm,
+  now: Date = new Date()
+): boolean {
+  const { openMin, closeMin } = fillWindow(wakeTime);
+  const n = clinicMinutesNow(now);
+  if (closeMin <= 24 * 60) {
+    return n >= openMin && n < closeMin;
+  }
+  const closeWrapped = closeMin - 24 * 60;
+  return n >= openMin || n < closeWrapped;
+}
+
+export function isFillWindowClosed(
+  wakeTime: TimeHHmm,
+  now: Date = new Date()
+): boolean {
+  const { openMin, closeMin } = fillWindow(wakeTime);
+  const n = clinicMinutesNow(now);
+  if (closeMin <= 24 * 60) {
+    return n >= closeMin;
+  }
+  const closeWrapped = closeMin - 24 * 60;
+  return n >= closeWrapped && n < openMin;
+}
+
 /** Dia civil no fuso do consultório (YYYY-MM-DD). */
 export function toIsoDate(d: Date): IsoDate {
   const p = getClinicDateParts(d);
@@ -128,11 +188,9 @@ export function dayIndexInWeek(startIso: IsoDate, dateIso: IsoDate): number {
 }
 
 /**
- * Regra clínica do paciente: o dia de HOJE só pode ser gravado antes das 12:00
- * (horário de Brasília / Curitiba).
- * Profissional (`allowPastByProfessional`): pode gravar hoje após o meio-dia
- * e dias passados (folha entregue à noite ou em outra consulta).
- * Dias futuros: nunca.
+ * Protocolo do ciclo (Sprint 8):
+ * - Paciente: só o dia de hoje, na janela wakeTime … wakeTime+5h.
+ * - Profissional: hoje e passado a qualquer hora; nunca futuro.
  */
 export type SaveDayGate =
   | { ok: true }
@@ -141,7 +199,11 @@ export type SaveDayGate =
 export function canSaveDay(
   morningDateIso: IsoDate,
   now: Date = new Date(),
-  options?: { allowPastByProfessional?: boolean }
+  options?: {
+    allowPastByProfessional?: boolean;
+    wakeTime?: TimeHHmm | null;
+    cycleClosed?: boolean;
+  }
 ): SaveDayGate {
   const asProfessional = options?.allowPastByProfessional === true;
   const todayIso = toIsoDate(now);
@@ -152,28 +214,42 @@ export function canSaveDay(
     return { ok: false, reason: "Não é possível preencher um dia futuro." };
   }
 
-  if (morningDateIso === todayIso) {
-    if (!asProfessional && getClinicDateParts(now).hour >= DIARY_CUTOFF_HOUR) {
-      return {
-        ok: false,
-        reason: `Após ${DIARY_CUTOFF_HOUR}:00 (horário de Brasília) não é mais possível adicionar os dados de hoje. Preencha pela manhã para manter a consistência.`,
-      };
-    }
-    return { ok: true };
-  }
-
-  // Passado — só a profissional
   if (asProfessional) {
     return { ok: true };
   }
 
-  return {
-    ok: false,
-    reason:
-      "Só é possível preencher o dia de hoje (antes do meio-dia). Peça à profissional para registrar dias anteriores.",
-  };
-}
+  if (options?.cycleClosed) {
+    return {
+      ok: false,
+      reason:
+        "Este ciclo já foi encerrado. Você pode rever os dias; a profissional corrige se for necessário.",
+    };
+  }
 
-export function isPastNoon(now: Date = new Date()): boolean {
-  return getClinicDateParts(now).hour >= DIARY_CUTOFF_HOUR;
+  if (morningDateIso !== todayIso) {
+    return {
+      ok: false,
+      reason:
+        "Só é possível preencher o dia de hoje, na janela combinada. Peça à profissional para registrar dias anteriores.",
+    };
+  }
+
+  const wakeTime = options?.wakeTime;
+  if (!wakeTime) {
+    return {
+      ok: false,
+      reason:
+        "Defina a hora de acordar deste ciclo antes de preencher o diário. Ela fica fixa pelos 7 dias.",
+    };
+  }
+
+  if (!isWithinFillWindow(wakeTime, now)) {
+    const w = fillWindow(wakeTime);
+    return {
+      ok: false,
+      reason: `A janela de hoje é das ${w.open} às ${w.close} (Brasília), a partir da hora de acordar do ciclo. Fora desse horário o dia fica bloqueado para você.`,
+    };
+  }
+
+  return { ok: true };
 }

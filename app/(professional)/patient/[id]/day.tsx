@@ -1,3 +1,4 @@
+import { showAppAlert } from "@/src/components/AppAlert";
 import { DayForm } from "@/src/components/DayForm";
 import {
   Card,
@@ -26,7 +27,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   Text,
   View,
@@ -69,7 +69,7 @@ export default function ProfessionalFillDayScreen() {
       setExisting(day);
       setForm(day ? day.input : emptyDayInput(dateIso));
     } catch (e) {
-      Alert.alert("Erro", e instanceof Error ? e.message : "Falha");
+      showAppAlert("Erro", e instanceof Error ? e.message : "Falha");
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ export default function ProfessionalFillDayScreen() {
   const onSave = async () => {
     if (!user || !id || !role) return;
     if (!gate.ok) {
-      Alert.alert("Bloqueado", gate.reason);
+      showAppAlert("Bloqueado", gate.reason);
       return;
     }
     try {
@@ -96,9 +96,9 @@ export default function ProfessionalFillDayScreen() {
         entrySource: "professional",
       });
       setExisting(saved);
-      Alert.alert("Salvo", "Registro do paciente atualizado.");
+      showAppAlert("Salvo", "Registro do paciente atualizado.");
     } catch (e) {
-      Alert.alert(
+      showAppAlert(
         "Não salvou",
         e instanceof Error ? e.message : "Erro desconhecido"
       );
@@ -141,7 +141,7 @@ export default function ProfessionalFillDayScreen() {
           ) : (
             <InfoBanner>
               Você pode preencher ou corrigir este dia a qualquer hora — inclusive
-              à noite ou em outra consulta. A regra do meio-dia vale só para o
+              à noite ou em outra consulta. A janela de 5 horas vale só para o
               paciente.
             </InfoBanner>
           )}

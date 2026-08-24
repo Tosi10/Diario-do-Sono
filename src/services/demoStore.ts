@@ -5,11 +5,13 @@
  */
 import { TERMS_VERSION } from "@/src/constants/collections";
 import { demoPersona } from "@/src/content/demoPersona";
+import { nextCycleStatus } from "@/src/domain/cycleProtocol";
 import { computeDayMetrics, computeWeekAverages } from "@/src/domain/sleepMetrics";
 import {
   addDays,
   canSaveDay,
   dayIndexInWeek,
+  parseIsoDate,
   startOfWeekMonday,
   toIsoDate,
   weekDateList,
@@ -24,6 +26,7 @@ import type {
   SonoRole,
   SonoUserProfile,
   SonoWeek,
+  TimeHHmm,
   TtsMode,
 } from "@/src/types";
 
@@ -159,6 +162,7 @@ function seedWriteDay(params: {
     ...week,
     filledDayIds,
     averages,
+    wakeTime: week.wakeTime ?? "07:00",
     status: filledDayIds.length >= 7 ? "complete" : week.status,
     updatedAt: now,
   });
@@ -182,6 +186,101 @@ function seedDay(
 ) {
   const date = toIsoDate(addDays(new Date(), -daysAgo));
   seedWriteDay({ patientUid, professionalId, date, patch });
+}
+
+/** Ciclos anteriores (válido + falho) para o histórico — Sprint 9. */
+function seedCycleArchive(
+  professionalId: string,
+  patientUid: string,
+  opts?: { alsoRegisterPatient?: boolean }
+) {
+  if (opts?.alsoRegisterPatient && !patients.has(patientUid)) {
+    const p: SonoPatient = {
+      patientUid,
+      professionalId,
+      displayName: demoPersona.patient.displayName,
+      email: demoPersona.patient.email,
+      activeWeekId: null,
+      filledDays: 0,
+      expectedDays: 7,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    };
+    patients.set(patientUid, p);
+    if (!users.has(patientUid)) {
+      users.set(patientUid, {
+        uid: patientUid,
+        email: demoPersona.patient.email,
+        displayName: demoPersona.patient.displayName,
+        role: "patient",
+        linkedProfessionalId: professionalId,
+        inviteCode: null,
+        termsVersion: TERMS_VERSION,
+        termsAcceptedAt: nowIso(),
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+      });
+    }
+  }
+
+  const thisMonday = startOfWeekMonday(new Date());
+  const validStart = toIsoDate(addDays(thisMonday, -14));
+  const failedStart = toIsoDate(addDays(thisMonday, -21));
+
+  // Ciclo válido (há 2 semanas): 5 noites
+  for (let i = 0; i < 5; i++) {
+    const date = toIsoDate(addDays(parseIsoDate(validStart), i));
+    seedWriteDay({
+      patientUid,
+      professionalId,
+      date,
+      patch: night({
+        q7: 360 + i * 5,
+        qualityFeel: 6 + (i % 2),
+        qualityEnjoy: 6,
+      }),
+    });
+  }
+  const validWeek = weeks.get(weekIdFor(patientUid, validStart));
+  if (validWeek) {
+    const all = demoListDays(validWeek.weekId);
+    weeks.set(validWeek.weekId, {
+      ...validWeek,
+      wakeTime: "07:00",
+      status: "complete",
+      filledDayIds: all.map((d) => d.dayId),
+      missedDayIds: weekDateList(validStart).slice(5),
+      averages: computeWeekAverages(all, "patient"),
+      closedAt: nowIso(),
+      updatedAt: nowIso(),
+    });
+  }
+
+  // Ciclo falho (há 3 semanas): 2 noites + 3 perdidos
+  for (let i = 0; i < 2; i++) {
+    const date = toIsoDate(addDays(parseIsoDate(failedStart), i));
+    seedWriteDay({
+      patientUid,
+      professionalId,
+      date,
+      patch: night({ q7: 300, qualityFeel: 4, qualityEnjoy: 4 }),
+    });
+  }
+  const failedWeek = weeks.get(weekIdFor(patientUid, failedStart));
+  if (failedWeek) {
+    const all = demoListDays(failedWeek.weekId);
+    const missed = weekDateList(failedStart).slice(2, 5);
+    weeks.set(failedWeek.weekId, {
+      ...failedWeek,
+      wakeTime: "06:30",
+      status: "failed",
+      filledDayIds: all.map((d) => d.dayId),
+      missedDayIds: missed,
+      averages: computeWeekAverages(all, "patient"),
+      closedAt: nowIso(),
+      updatedAt: nowIso(),
+    });
+  }
 }
 
 /** Pacientes fictícios + semana rica para a apresentação. */
@@ -293,6 +392,11 @@ function seedDemoPatients(professionalId: string) {
   ];
   elenaNights.forEach((patch, i) => {
     seedDay(professionalId, "demo-patient-5", i, patch);
+  });
+
+  seedCycleArchive(professionalId, "demo-patient-5");
+  seedCycleArchive(professionalId, demoPersona.patient.uid, {
+    alsoRegisterPatient: true,
   });
 
   // Carla — manhã de hoje (painel “hoje ok”)
@@ -476,20 +580,56 @@ export function demoEnsureWeek(params: {
   professionalId: string | null;
   around?: Date;
 }): SonoWeek {
-  const start = startOfWeekMonday(params.around ?? new Date());
+  if (params.around) {
+    const dateIso = toIsoDate(params.around);
+    const containing = demoFindWeekContaining(params.patientUid, dateIso);
+    if (containing) return containing;
+
+    const start = startOfWeekMonday(params.around);
+    const startIso = toIsoDate(start);
+    const weekId = weekIdFor(params.patientUid, startIso);
+    const existing = weeks.get(weekId);
+    if (existing) return existing;
+    return demoCreateWeek({
+      patientUid: params.patientUid,
+      professionalId: params.professionalId,
+      startIso,
+    });
+  }
+
+  const open = demoListWeeks(params.patientUid).find((w) => w.status === "open");
+  if (open) return open;
+
+  const start = startOfWeekMonday(new Date());
   const startIso = toIsoDate(start);
   const weekId = weekIdFor(params.patientUid, startIso);
   const existing = weeks.get(weekId);
   if (existing) return existing;
 
+  return demoCreateWeek({
+    patientUid: params.patientUid,
+    professionalId: params.professionalId,
+    startIso,
+  });
+}
+
+function demoCreateWeek(params: {
+  patientUid: string;
+  professionalId: string | null;
+  startIso: IsoDate;
+}): SonoWeek {
+  const start = parseIsoDate(params.startIso);
+  const weekId = weekIdFor(params.patientUid, params.startIso);
   const week: SonoWeek = {
     weekId,
     patientUid: params.patientUid,
     professionalId: params.professionalId,
-    startDate: startIso,
+    startDate: params.startIso,
     endDate: toIsoDate(addDays(start, 6)),
+    wakeTime: null,
     status: "open",
     filledDayIds: [],
+    missedDayIds: [],
     averages: null,
     ttsMode: "patient",
     source: "app",
@@ -497,11 +637,99 @@ export function demoEnsureWeek(params: {
     updatedAt: nowIso(),
   };
   weeks.set(weekId, week);
+
+  const patient = patients.get(params.patientUid);
+  if (patient) {
+    patients.set(params.patientUid, {
+      ...patient,
+      activeWeekId: weekId,
+      updatedAt: nowIso(),
+    });
+  }
   return week;
+}
+
+export function demoFindWeekContaining(
+  patientUid: string,
+  dateIso: IsoDate
+): SonoWeek | null {
+  for (const w of demoListWeeks(patientUid)) {
+    if (weekDateList(w.startDate).includes(dateIso)) return w;
+  }
+  return null;
+}
+
+export function demoListWeeks(patientUid: string): SonoWeek[] {
+  return [...weeks.values()]
+    .filter((w) => w.patientUid === patientUid)
+    .sort((a, b) => b.startDate.localeCompare(a.startDate));
+}
+
+export function demoStartNewCycle(params: {
+  patientUid: string;
+  professionalId: string | null;
+}): SonoWeek {
+  const open = demoListWeeks(params.patientUid).find((w) => w.status === "open");
+  if (open) {
+    throw new Error(
+      "Já existe um ciclo em andamento. Encerre-o antes de começar outro."
+    );
+  }
+  const startIso = toIsoDate(new Date());
+  return demoCreateWeek({
+    patientUid: params.patientUid,
+    professionalId: params.professionalId,
+    startIso,
+  });
 }
 
 export function demoGetWeek(weekId: string) {
   return weeks.get(weekId) ?? null;
+}
+
+export function demoSetWeekWakeTime(params: {
+  weekId: string;
+  wakeTime: TimeHHmm;
+}): SonoWeek {
+  const week = weeks.get(params.weekId);
+  if (!week) throw new Error("Ciclo não encontrado.");
+  if (week.wakeTime) {
+    throw new Error(
+      "A hora de acordar deste ciclo já foi definida e não pode ser alterada."
+    );
+  }
+  if (week.status !== "open") {
+    throw new Error("Este ciclo já foi encerrado.");
+  }
+  const updated: SonoWeek = {
+    ...week,
+    wakeTime: params.wakeTime,
+    updatedAt: nowIso(),
+  };
+  weeks.set(params.weekId, updated);
+  return updated;
+}
+
+export function demoRefreshWeekLifecycle(weekId: string): SonoWeek {
+  const week = weeks.get(weekId);
+  if (!week) throw new Error("Ciclo não encontrado.");
+  const all = demoListDays(weekId);
+  const filledDates = all.map((d) => d.date);
+  const next = nextCycleStatus(week, filledDates);
+  const now = nowIso();
+  const updated: SonoWeek = {
+    ...week,
+    filledDayIds: all.map((d) => d.dayId),
+    missedDayIds: next.missedDayIds,
+    status: next.status,
+    closedAt:
+      next.status === "complete" || next.status === "failed"
+        ? week.closedAt ?? now
+        : week.closedAt ?? null,
+    updatedAt: now,
+  };
+  weeks.set(weekId, updated);
+  return updated;
 }
 
 export function demoListDays(weekId: string) {
@@ -524,16 +752,21 @@ export function demoSaveDay(params: {
 }): SonoDay {
   const allowPast =
     params.actorRole === "professional" || params.actorRole === "admin";
-  const gate = canSaveDay(params.input.date, new Date(), {
-    allowPastByProfessional: allowPast,
-  });
-  if (!gate.ok) throw new Error(gate.reason);
 
   let week = demoEnsureWeek({
     patientUid: params.patientUid,
     professionalId: params.professionalId,
     around: new Date(params.input.date + "T12:00:00"),
   });
+  week = demoRefreshWeekLifecycle(week.weekId);
+
+  const gate = canSaveDay(params.input.date, new Date(), {
+    allowPastByProfessional: allowPast,
+    wakeTime: week.wakeTime,
+    cycleClosed: week.status === "failed" || week.status === "complete",
+  });
+  if (!gate.ok) throw new Error(gate.reason);
+
   const dates = weekDateList(week.startDate);
   if (!dates.includes(params.input.date)) {
     week = demoEnsureWeek({
@@ -570,11 +803,19 @@ export function demoSaveDay(params: {
   const all = demoListDays(week.weekId);
   const averages = computeWeekAverages(all, week.ttsMode as TtsMode);
   const filledDayIds = all.map((d) => d.dayId);
+  const filledDates = all.map((d) => d.date);
+  const lifecycle = nextCycleStatus({ ...week, filledDayIds }, filledDates);
+
   weeks.set(week.weekId, {
     ...week,
     filledDayIds,
+    missedDayIds: lifecycle.missedDayIds,
     averages,
-    status: filledDayIds.length >= 7 ? "complete" : week.status,
+    status: lifecycle.status,
+    closedAt:
+      lifecycle.status === "complete" || lifecycle.status === "failed"
+        ? now
+        : week.closedAt ?? null,
     updatedAt: now,
   });
 

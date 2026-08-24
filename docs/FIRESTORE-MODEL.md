@@ -48,12 +48,17 @@ Uma semana de diário (7 colunas).
 | `professionalId` | string \| null | |
 | `startDate` | string ISO | 1º dia da semana clínica |
 | `endDate` | string ISO | |
-| `status` | `'open' \| 'complete' \| 'reviewed'` | |
+| `wakeTime` | `'HH:mm'` \| null | Travada no início do ciclo |
+| `status` | `'open' \| 'complete' \| 'failed' \| 'reviewed'` | `failed` = impossível ≥5 dias |
 | `filledDayIds` | string[] | |
+| `missedDayIds` | string[] | Dias do ciclo sem registro no prazo |
 | `averages` | SleepWeekAverages \| null | médias das métricas |
 | `ttsMode` | `'patient' \| 'computed'` | preferência clínica |
 | `source` | `'app' \| 'ocr' \| 'mixed'` | |
+| `closedAt` | timestamp? | quando `complete` ou `failed` |
 | `createdAt` / `updatedAt` | timestamp | |
+
+Ciclos **não se apagam**. Paciente pode ter vários `sonoWeeks`; `sonoPatients.activeWeekId` aponta só para o aberto. Histórico = query por `patientUid` (completos **e** falhos).
 
 ### `sonoDays/{dayId}`
 

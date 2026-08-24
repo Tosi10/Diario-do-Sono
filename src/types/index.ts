@@ -7,7 +7,7 @@ export type Minutes = number;
 export type IsoDate = string; // "2026-07-30"
 
 export type EntrySource = "manual" | "ocr" | "professional";
-export type WeekStatus = "open" | "complete" | "reviewed";
+export type WeekStatus = "open" | "complete" | "failed" | "reviewed";
 export type TtsMode = "patient" | "computed";
 
 export interface SonoUserProfile {
@@ -86,11 +86,15 @@ export interface SonoWeek {
   professionalId: string | null;
   startDate: IsoDate;
   endDate: IsoDate;
+  /** Hora de acordar do ciclo (HH:mm). Travada no início. */
+  wakeTime: TimeHHmm | null;
   status: WeekStatus;
   filledDayIds: string[];
+  missedDayIds: string[];
   averages: SleepWeekAverages | null;
   ttsMode: TtsMode;
   source: "app" | "ocr" | "mixed";
+  closedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

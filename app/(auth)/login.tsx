@@ -1,3 +1,4 @@
+import { showAppAlert } from "@/src/components/AppAlert";
 import { BrandMark } from "@/src/components/BrandMark";
 import {
   Card,
@@ -17,7 +18,6 @@ import { Redirect, router } from "expo-router";
 import { useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -37,7 +37,7 @@ export default function LoginScreen() {
       setLoading(true);
       await signIn(email, password);
     } catch (e) {
-      Alert.alert(
+      showAppAlert(
         "Não foi possível entrar",
         e instanceof Error ? e.message : "Erro desconhecido"
       );
