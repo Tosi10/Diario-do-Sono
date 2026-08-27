@@ -22,7 +22,7 @@ export default function MaintenancePage() {
 
       <main className="relative z-10 flex w-full max-w-md flex-col items-center text-center">
         <img
-          src="/brand/logo/seal.png"
+          src="/brand/logo/oficial/selo-terra.png"
           alt="Ana Gonçalves"
           className="h-24 w-24 object-contain"
         />

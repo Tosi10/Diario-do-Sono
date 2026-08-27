@@ -29,15 +29,15 @@ Credenciais a confirmar com ela antes de publicar: CRM/PR e RQE (o PDF traz `CRM
 
 ## Paleta oficial
 
-Amostrada dos swatches do PDF (sRGB aproximado — pedir HEX/Pantone à Ananda se existir ficha técnica).
+Valores oficiais do *Manual de Marca* (HEX / RGB / CMYK).
 
-| # | Nome | Hex | Papel |
-|---|------|-----|--------|
-| 01 | Terra rosada | `#78484E` | Autoridade, base, headers, texto principal |
-| 02 | Marfim | `#F1ECDF` | Fundo principal, clareza, respiro |
-| 03 | Argila | `#AC665C` | Calor, proximidade, CTA humano |
-| 04 | Oliva | `#A29D79` | Crescimento, adaptação, acentos de saúde |
-| 05 | Areia | `#DFD5C1` | Superfícies, cards, “espaço seguro” |
+| # | Nome | Hex | RGB | Papel |
+|---|------|-----|-----|--------|
+| 01 | Terra rosada | `#78494E` | 120 73 78 | Autoridade, base, headers, texto principal |
+| 02 | Marfim | `#F2EDE0` | 242 237 224 | Fundo principal, clareza, respiro |
+| 03 | Argila | `#AD665C` | 173 102 92 | Calor, proximidade, CTA humano |
+| 04 | Oliva | `#A39D79` | 163 157 121 | Crescimento, adaptação, acentos de saúde |
+| 05 | Areia | `#E0D6C1` | 224 214 193 | Superfícies, cards, “espaço seguro” |
 
 **Uso no produto**
 

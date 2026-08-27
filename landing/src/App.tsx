@@ -1,12 +1,25 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { copy, nav, site } from "./content";
 
 const whatsappLabel = "Agendar consulta";
 
-function LogoMark({ className }: { className: string }) {
+function LogoMark({
+  className,
+  variant = "terra",
+}: {
+  className: string;
+  variant?: "terra" | "areia" | "oliva" | "argila";
+}) {
+  const src = {
+    terra: "/brand/logo/oficial/selo-terra.png",
+    areia: "/brand/logo/oficial/selo-areia.png",
+    oliva: "/brand/logo/oficial/selo-oliva.png",
+    argila: "/brand/logo/oficial/selo-argila.png",
+  }[variant];
+
   return (
     <img
-      src="/brand/logo/seal.png"
+      src={src}
       alt="Ana Gonçalves"
       className={`object-contain ${className}`}
     />
@@ -30,12 +43,43 @@ function EmailIcon({ className }: { className?: string }) {
   );
 }
 
-function InstagramIcon({ className }: { className?: string }) {
+function MapPinIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+      <path
+        d="M12 21s-6-5.4-6-10a6 6 0 1 1 12 0c0 4.6-6 10-6 10Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="11" r="2.2" />
+    </svg>
+  );
+}
+
+function InstagramIcon({ className }: { className?: string }) {
+  const uid = useId();
+  const gradId = `ig-grad-${uid}`;
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <defs>
+        <radialGradient id={gradId} cx="30%" cy="107%" r="150%">
+          <stop offset="0%" stopColor="#fdf497" />
+          <stop offset="5%" stopColor="#fdf497" />
+          <stop offset="45%" stopColor="#fd5949" />
+          <stop offset="60%" stopColor="#d6249f" />
+          <stop offset="90%" stopColor="#285AEB" />
+        </radialGradient>
+      </defs>
+      <rect x="2" y="2" width="20" height="20" rx="5.5" fill={`url(#${gradId})`} />
+      <circle
+        cx="12"
+        cy="12"
+        r="4.2"
+        fill="none"
+        stroke="#fff"
+        strokeWidth="1.7"
+      />
+      <circle cx="17.2" cy="6.8" r="1.15" fill="#fff" />
     </svg>
   );
 }
@@ -55,7 +99,7 @@ export default function App() {
       <header className="fixed inset-x-0 top-0 z-40 border-b border-terra/10 bg-marfim/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 md:px-8 md:py-[1.35rem]">
           <a href="#topo" className="flex items-center gap-3 text-terra">
-            <LogoMark className="h-11 w-11" />
+            <LogoMark className="h-14 w-14 md:h-16 md:w-16" />
             <span className="flex flex-col items-start leading-tight">
               <span className="-ml-[0.14em] font-display text-[1.15rem]">
                 Ana Gonçalves
@@ -127,14 +171,19 @@ export default function App() {
           id="topo"
           className="relative flex min-h-dvh w-full items-center overflow-hidden pt-24"
         >
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden bg-marfim">
+            {/* Mobile: 21 original (retrato). Desktop: 21-hero paisagem. */}
             <img
-              src="/brand/hero-floral.jpg"
+              src="/brand/oficial/21.jpg"
               alt=""
-              className="absolute left-1/2 top-1/2 h-[112%] w-[112%] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover object-[center_35%]"
+              className="absolute inset-0 h-full w-full object-cover object-center md:hidden"
             />
-            <div className="absolute inset-0 bg-marfim/40" />
-            <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-marfim to-transparent" />
+            <img
+              src="/brand/oficial/21-hero.jpg"
+              alt=""
+              className="absolute left-1/2 top-[62%] hidden h-[112%] w-[112%] max-w-none -translate-x-1/2 -translate-y-1/2 rotate-180 object-cover md:block"
+            />
+            <div className="absolute inset-0 bg-marfim/25" />
           </div>
 
           <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-6 py-10 text-center">
@@ -178,9 +227,12 @@ export default function App() {
 
         <section className="linen bg-terra px-6 py-16 text-marfim md:py-20">
           <blockquote className="mx-auto max-w-3xl text-center">
-            <LogoMark className="mx-auto mb-8 h-20 w-20" />
+            <LogoMark variant="areia" className="mx-auto mb-8 h-20 w-20" />
             <p className="font-script text-3xl leading-snug md:text-4xl">
               {site.tagline}
+            </p>
+            <p className="mt-6 font-script text-2xl leading-snug text-marfim/95 md:text-3xl">
+              {site.taglineSecondary}
             </p>
           </blockquote>
         </section>
@@ -220,10 +272,7 @@ export default function App() {
 
         <section id="cuidado" className="bg-areia/50 px-5 py-20 md:px-8 md:py-24">
           <div className="mx-auto max-w-3xl">
-            <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.28em] text-oliva-deep">
-              {copy.cuidado.eyebrow}
-            </p>
-            <h2 className="mt-3 font-display text-4xl text-terra md:text-5xl">
+            <h2 className="font-display text-4xl text-terra md:text-5xl">
               {copy.cuidado.title}
             </h2>
             <div className="mt-8 space-y-5 font-sans text-[15px] leading-relaxed text-ink/85">
@@ -240,7 +289,7 @@ export default function App() {
         >
           <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[1fr_1.1fr] md:items-center">
             <img
-              src="/brand/logo/vertical-oliva.png"
+              src="/brand/logo/oficial/logo-vertical-fundo-oliva.png"
               alt="Ana Gonçalves, psiquiatra"
               className="mx-auto max-h-56 w-full max-w-md object-contain md:max-h-72"
             />
@@ -255,18 +304,15 @@ export default function App() {
           </div>
         </section>
 
-        <section id="ciencia" className="mx-auto max-w-3xl px-5 py-20 md:px-8 md:py-28">
-          <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.28em] text-oliva-deep">
-            {copy.ciencia.eyebrow}
-          </p>
-          <h2 className="mt-3 font-display text-4xl text-terra md:text-5xl">
-            {copy.ciencia.title}
+        <section id="abordagens" className="mx-auto max-w-3xl px-5 py-20 md:px-8 md:py-28">
+          <h2 className="font-display text-4xl text-terra md:text-5xl">
+            {copy.abordagens.title}
           </h2>
           <p className="mt-5 font-script text-2xl leading-snug text-argila md:text-3xl">
-            {copy.ciencia.quote}
+            {copy.abordagens.quote}
           </p>
           <div className="mt-8 space-y-5 font-sans text-[15px] leading-relaxed text-ink/85">
-            {copy.ciencia.paragraphs.map((p) => (
+            {copy.abordagens.paragraphs.map((p) => (
               <p key={p.slice(0, 40)}>{p}</p>
             ))}
           </div>
@@ -300,14 +346,14 @@ export default function App() {
           </div>
         </section>
 
-        <section
-          className="relative overflow-hidden px-5 py-24 md:px-8"
-          style={{
-            backgroundImage: "url('/brand/flor.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
+        <section className="relative overflow-hidden px-5 py-24 md:px-8">
+          <div className="absolute inset-0 overflow-hidden">
+            <img
+              src="/brand/oficial/06.jpg"
+              alt=""
+              className="absolute left-1/2 top-1/2 h-[145%] w-[145%] max-w-none -translate-x-1/2 -translate-y-[66%] object-cover md:h-[120%] md:w-[120%] md:-translate-y-[42%]"
+            />
+          </div>
           <div className="absolute inset-0 bg-marfim/78" />
           <div className="relative mx-auto max-w-2xl text-center">
             <LogoMark className="mx-auto h-16 w-16" />
@@ -357,11 +403,11 @@ export default function App() {
         </section>
       </main>
 
-      <footer className="linen bg-terra px-5 py-8 text-marfim md:px-8 md:py-10">
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3 md:items-center md:gap-8">
-          <div className="flex min-w-0 items-center gap-3 md:pr-4">
-            <LogoMark className="h-16 w-16 shrink-0 md:h-20 md:w-20" />
-            <p className="font-sans text-base leading-[1.35] text-areia md:text-[17px]">
+      <footer className="linen bg-terra px-5 py-6 pb-24 text-marfim md:py-7 md:pb-7">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-6 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8">
+          <div className="flex items-center gap-3 md:translate-x-[50px]">
+            <LogoMark variant="areia" className="h-14 w-14 shrink-0 md:h-16 md:w-16" />
+            <p className="font-sans text-[15px] leading-snug text-areia md:text-base">
               {site.fullName}
               <br />
               {site.titleLong}
@@ -370,44 +416,74 @@ export default function App() {
             </p>
           </div>
 
-          <div className="font-sans text-sm text-areia md:justify-self-center md:text-left">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-oliva">
+          <div className="w-full max-w-sm font-sans text-sm leading-snug text-areia md:w-auto md:max-w-none md:-translate-x-[50px]">
+            <p className="text-center text-[11px] uppercase tracking-[0.2em] text-oliva">
               Contato
             </p>
-            <a
-              href={site.whatsappUrl}
-              className="mt-2 flex items-center gap-2.5 hover:text-marfim"
-            >
-              <WhatsAppIcon className="h-3.5 w-3.5 shrink-0 opacity-90" />
-              WhatsApp {site.whatsappDisplay}
-            </a>
-            <a
-              href={site.emailUrl}
-              className="mt-1.5 flex items-center gap-2.5 hover:text-marfim"
-            >
-              <EmailIcon className="h-3.5 w-3.5 shrink-0 opacity-90" />
-              {site.email}
-            </a>
-            <a
-              href={site.instagramUrl}
-              className="mt-1.5 flex items-center gap-2.5 hover:text-marfim"
-            >
-              <InstagramIcon className="h-3.5 w-3.5 shrink-0 opacity-90" />
-              @{site.instagram}
-            </a>
-          </div>
-
-          <div className="font-sans text-sm text-areia md:justify-self-end md:text-left">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-oliva">
-              Consultório
-            </p>
-            <p className="mt-1.5 max-w-xs">
-              {site.clinic}
-              <br />
-              {site.address}
-              <br />
-              Presencial e online
-            </p>
+            <div className="mt-1.5">
+              <p className="text-center text-marfim">{site.clinic}</p>
+              <div className="mt-1.5 space-y-1.5 pl-10">
+                <a
+                  href={site.whatsappUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2.5 hover:text-marfim"
+                >
+                  <span className="grid h-4 w-4 shrink-0 place-items-center">
+                    <WhatsAppIcon className="h-3.5 w-3.5 text-[#25D366]" />
+                  </span>
+                  WhatsApp {site.whatsappDisplay}
+                </a>
+                <a
+                  href={site.emailUrl}
+                  className="flex items-center gap-2.5 hover:text-marfim"
+                >
+                  <span className="grid h-4 w-4 shrink-0 place-items-center">
+                    <EmailIcon className="h-3.5 w-3.5 text-white" />
+                  </span>
+                  {site.email}
+                </a>
+                <a
+                  href={site.mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2.5 hover:text-marfim"
+                >
+                  <span className="relative grid h-4 w-4 shrink-0 place-items-center">
+                    <MapPinIcon className="absolute h-[18px] w-[18px] text-[#4285F4]" />
+                  </span>
+                  <span>
+                    Rua Ébano Pereira, 60, sala 1705,
+                    <br />
+                    Centro — {site.addressCity}
+                  </span>
+                </a>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                  <a
+                    href={site.clinicInstagramUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2.5 hover:text-marfim"
+                  >
+                    <span className="grid h-4 w-4 shrink-0 place-items-center">
+                      <InstagramIcon className="h-3.5 w-3.5" />
+                    </span>
+                    @{site.clinicInstagram}
+                  </a>
+                  <a
+                    href={site.instagramUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2.5 hover:text-marfim"
+                  >
+                    <span className="grid h-4 w-4 shrink-0 place-items-center">
+                      <InstagramIcon className="h-3.5 w-3.5" />
+                    </span>
+                    @{site.instagram}
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
