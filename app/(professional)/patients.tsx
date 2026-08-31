@@ -1,11 +1,11 @@
+import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
 import {
   Card,
-  Eyebrow,
-  InfoBanner,
+  PageHeader,
   Screen,
-  Subtitle,
-  Title,
+  screenScrollContent,
 } from "@/src/components/ui";
+import { brand } from "@/src/theme/brand";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { listPatientsForProfessional } from "@/src/services/patients";
 import type { SonoPatient } from "@/src/types";
@@ -47,38 +47,26 @@ export default function ProfessionalPatientsScreen() {
     <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
+        contentContainerStyle={screenScrollContent}
       >
-        <Eyebrow>{profile?.clinicName || "Clínica Cuidar"}</Eyebrow>
-        <Title>Pacientes</Title>
-        <Subtitle>
-          Toque para abrir a semana. Elena Prado já tem quase o ciclo completo —
-          bom para mostrar métricas.
-        </Subtitle>
-
-        <Card className="mt-5">
-          <Text className="font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-lavender">
-            Código de vínculo
-          </Text>
-          <Text className="mt-2 font-displayBold text-3xl text-sleep-rose tracking-[6px]">
-            {profile?.inviteCode || "MAPA01"}
-          </Text>
-          <Text className="mt-2 font-sans text-xs text-sleep-muted leading-5">
-            Na consulta, a paciente digita este código no Perfil dela.
-          </Text>
-        </Card>
+        <PageHeader
+          eyebrow={profile?.clinicName || "Clínica Cuidar"}
+          title="Pacientes"
+          subtitle="Toque para abrir o diário. Elena Prado já tem quase o ciclo completo — bom para mostrar métricas."
+        />
 
         {loading ? (
           <View className="mt-10 items-center">
-            <ActivityIndicator color="#AC665C" />
+            <ActivityIndicator color={brand.argila} />
           </View>
         ) : patients.length === 0 ? (
-          <View className="mt-6">
-            <InfoBanner>
-              Ainda não há pacientes vinculados. Peça para eles criarem conta e
-              digitarem o seu código.
-            </InfoBanner>
-          </View>
+          <Card className="mt-6">
+            <EmptyState
+              image={emptyStateImages.rest}
+              title="Aguardando pacientes"
+              message="Peça para criarem conta no app e digitarem o código do seu Perfil para se vincular."
+            />
+          </Card>
         ) : (
           <View className="mt-5 gap-3">
             {patients.map((p) => (

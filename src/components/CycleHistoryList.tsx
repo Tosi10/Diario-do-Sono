@@ -1,5 +1,6 @@
 import { cycleStatusLabel } from "@/src/domain/cycleProtocol";
 import { formatIsoDatePt } from "@/src/domain/timeHelpers";
+import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
 import type { SonoWeek } from "@/src/types";
 import { Pressable, Text, View } from "react-native";
 
@@ -14,9 +15,11 @@ export function CycleHistoryList({
 }) {
   if (!weeks.length) {
     return (
-      <Text className="font-sans text-sm text-sleep-muted">
-        Nenhum ciclo registrado ainda.
-      </Text>
+      <EmptyState
+        image={emptyStateImages.rest}
+        title="Nenhum ciclo ainda"
+        message="Quando a paciente completar a primeira semana, o histórico aparece aqui — válidos e incompletos."
+      />
     );
   }
 

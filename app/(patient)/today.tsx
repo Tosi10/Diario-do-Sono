@@ -1,13 +1,14 @@
 import { showAppAlert } from "@/src/components/AppAlert";
+import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
 import {
   Card,
-  Eyebrow,
   DangerBanner,
   InfoBanner,
+  PageHeader,
   PrimaryButton,
   Screen,
-  Subtitle,
-  Title,
+  SecondaryButton,
+  screenScrollContent,
 } from "@/src/components/ui";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { patientWindowCopy } from "@/src/domain/cycleProtocol";
@@ -39,7 +40,10 @@ import {
 } from "react-native";
 
 export default function PatientDayScreen() {
-  const { date: dateParam } = useLocalSearchParams<{ date?: string }>();
+  const { date: dateParam, weekId: weekIdParam } = useLocalSearchParams<{
+    date?: string;
+    weekId?: string;
+  }>();
   const { user, profile } = useAuth();
   const todayIso = toIsoDate(new Date());
   const dateIso =
@@ -129,11 +133,26 @@ export default function PatientDayScreen() {
     }
   };
 
+  const goBack = () => {
+    if (typeof weekIdParam === "string" && weekIdParam) {
+      router.push({
+        pathname: "/(patient)/week",
+        params: { weekId: weekIdParam },
+      });
+      return;
+    }
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.push("/(patient)/");
+  };
+
   if (loading) {
     return (
       <Screen edges="top">
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#AC665C" />
+          <ActivityIndicator color="#AD665C" />
         </View>
       </Screen>
     );
@@ -142,17 +161,19 @@ export default function PatientDayScreen() {
   if (isFuture) {
     return (
       <Screen edges="top">
-        <View className="flex-1 px-5 pt-8">
-          <Pressable onPress={() => router.back()} className="mb-2">
-            <Text className="font-sansMed text-sm text-sleep-accent">
-              ← Voltar
-            </Text>
-          </Pressable>
-          <Title>Dia futuro</Title>
-          <InfoBanner>
-            Ainda não é possível abrir um dia que não chegou.
-          </InfoBanner>
-        </View>
+        <AppScrollView
+          className="flex-1 px-5"
+          contentContainerStyle={screenScrollContent}
+        >
+          <PageHeader title="Dia futuro" onBack={goBack} backLabel="Diário" />
+          <Card className="mt-4">
+            <EmptyState
+              image={emptyStateImages.rest}
+              title="Este dia ainda não chegou"
+              message="Quando for a manhã correspondente, você poderá registrar como dormiu na noite anterior."
+            />
+          </Card>
+        </AppScrollView>
       </Screen>
     );
   }
@@ -165,24 +186,22 @@ export default function PatientDayScreen() {
     <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
+        contentContainerStyle={screenScrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <Pressable onPress={() => router.back()} className="mb-2">
-          <Text className="font-sansMed text-sm text-sleep-accent">
-            ← Voltar
-          </Text>
-        </Pressable>
-        <Eyebrow>{isToday ? "Registro de hoje" : "Histórico"}</Eyebrow>
-        <Title>{isToday ? "Esta manhã" : "Dia registrado"}</Title>
-        <Subtitle>
-          {formatIsoDatePt(dateIso)}
-          {isToday
-            ? windowLabel
-              ? ` · janela ${windowLabel.open}–${windowLabel.close}`
-              : " · defina a hora do ciclo no Início"
-            : " · só consulta — sem edição."}
-        </Subtitle>
+        <PageHeader
+          eyebrow={isToday ? "Registro de hoje" : "Histórico"}
+          title={isToday ? "Esta manhã" : "Dia registrado"}
+          subtitle={`${formatIsoDatePt(dateIso)}${
+            isToday
+              ? windowLabel
+                ? ` · janela ${windowLabel.open}–${windowLabel.close}`
+                : " · defina a hora do ciclo no Início"
+              : " · só consulta — sem edição."
+          }`}
+          onBack={goBack}
+          backLabel="Diário"
+        />
 
         <View className="mt-4 gap-3">
           {isPast ? (
@@ -200,10 +219,19 @@ export default function PatientDayScreen() {
           ) : null}
 
           {!profile?.linkedProfessionalId ? (
-            <InfoBanner>
-              Ainda sem vínculo com a profissional. Vá em Perfil e use o código
-              dela.
-            </InfoBanner>
+            <Card>
+              <EmptyState
+                compact
+                image={emptyStateImages.ginkgo}
+                title="Vínculo pendente"
+                message="Conecte-se à Dra. Ana em Perfil com o código da consulta para registrar seus dias."
+              >
+                <SecondaryButton
+                  label="Ir para Perfil"
+                  onPress={() => router.push("/(patient)/profile")}
+                />
+              </EmptyState>
+            </Card>
           ) : null}
 
           {existing ? (
@@ -215,10 +243,14 @@ export default function PatientDayScreen() {
               Métricas e médias da semana ficam na aba Diário.
             </InfoBanner>
           ) : isPast ? (
-            <InfoBanner>
-              Não há registro neste dia. Se precisar preencher depois, fale com
-              a profissional.
-            </InfoBanner>
+            <Card>
+              <EmptyState
+                compact
+                image={emptyStateImages.rest}
+                title="Sem registro neste dia"
+                message="Se precisar preencher depois, fale com a Dra. Ana — ela pode registrar por você."
+              />
+            </Card>
           ) : null}
 
           {existing || canEdit ? (

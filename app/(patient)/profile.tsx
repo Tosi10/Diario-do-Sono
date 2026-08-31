@@ -1,13 +1,14 @@
 import { showAppAlert } from "@/src/components/AppAlert";
+import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
 import { TextField } from "@/src/components/TextField";
 import {
   Card,
   InfoBanner,
+  PageHeader,
   PrimaryButton,
   Screen,
   SecondaryButton,
-  Subtitle,
-  Title,
+  screenScrollContent,
 } from "@/src/components/ui";
 import { demoPersona } from "@/src/content/demoPersona";
 import { useAuth } from "@/src/contexts/AuthContext";
@@ -47,10 +48,9 @@ export default function PatientProfileScreen() {
     <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
+        contentContainerStyle={screenScrollContent}
       >
-        <Title>Perfil</Title>
-        <Subtitle>{profile?.displayName}</Subtitle>
+        <PageHeader title="Perfil" subtitle={profile?.displayName} />
 
         <Card className="mt-5">
           <Text className="font-sans text-sm text-sleep-muted">E-mail</Text>
@@ -70,10 +70,12 @@ export default function PatientProfileScreen() {
             </InfoBanner>
           ) : (
             <>
-              <Text className="mb-3 font-sans text-sm text-sleep-muted leading-5">
-                Digite o código que ela passou. Na demonstração use{" "}
-                {demoPersona.professional.inviteCode}.
-              </Text>
+              <EmptyState
+                compact
+                image={emptyStateImages.ginkgo}
+                title="Código da consulta"
+                message={`Digite o código que a Dra. Ana passou. Na demonstração use ${demoPersona.professional.inviteCode}.`}
+              />
               <TextField
                 label="Código dela"
                 value={code}

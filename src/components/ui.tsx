@@ -1,8 +1,11 @@
 import { brand } from "@/src/theme/brand";
+import { BrandMark } from "@/src/components/BrandMark";
+import { BackButton } from "@/src/components/BackButton";
 import { ContentFrame } from "@/src/components/ContentFrame";
+import { SegmentTabs } from "@/src/components/SegmentTabs";
 import { LinearGradient } from "expo-linear-gradient";
 import { ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function Screen({
@@ -23,14 +26,17 @@ export function Screen({
       style={{
         // Em telas com tab bar use edges="top": o bottom inset fica na barra,
         // senão aparece uma faixa vazia (fundo) entre o conteúdo e as abas.
-        paddingTop: edges === "none" ? 0 : insets.top,
+        paddingTop:
+          edges === "none"
+            ? 0
+            : Math.max(insets.top, Platform.OS === "android" ? 28 : 0) + 10,
         paddingBottom: edges === "top" || edges === "none" ? 0 : insets.bottom,
       }}
     >
       <LinearGradient
-        colors={[brand.marfim, brand.areia, "#E8DFCF"]}
-        start={{ x: 0.1, y: 0 }}
-        end={{ x: 0.9, y: 1 }}
+        colors={[brand.marfim, brand.marfimDeep, brand.areia]}
+        start={{ x: 0.15, y: 0 }}
+        end={{ x: 0.85, y: 1 }}
         style={{
           position: "absolute",
           top: 0,
@@ -39,22 +45,13 @@ export function Screen({
           bottom: 0,
         }}
       />
-      {/* Textura linho sutil */}
       <View
         pointerEvents="none"
-        className="absolute inset-0 opacity-[0.35]"
-        style={{
-          backgroundColor: "transparent",
-          borderWidth: 0,
-        }}
+        className="absolute -right-20 top-24 h-64 w-64 rounded-full bg-sleep-lavender/12"
       />
       <View
         pointerEvents="none"
-        className="absolute -right-16 -top-10 h-56 w-56 rounded-full bg-sleep-lavender/25"
-      />
-      <View
-        pointerEvents="none"
-        className="absolute -bottom-8 -left-12 h-48 w-48 rounded-full bg-sleep-accent/15"
+        className="absolute -bottom-16 -left-16 h-52 w-52 rounded-full bg-sleep-accent/10"
       />
       <ContentFrame maxWidth={contentMaxWidth} className="flex-1">
         {children}
@@ -73,7 +70,91 @@ export function Eyebrow({ children }: { children: ReactNode }) {
 
 export function Title({ children }: { children: ReactNode }) {
   return (
-    <Text className="font-displayBold text-[34px] leading-10 text-sleep-ink tracking-tight">
+    <Text
+      className="font-display text-[34px] text-sleep-ink tracking-tight"
+      style={{ lineHeight: 44, paddingTop: 4 }}
+    >
+      {children}
+    </Text>
+  );
+}
+
+export function PageHeader({
+  eyebrow,
+  title,
+  subtitle,
+  onBack,
+  backLabel = "Voltar",
+}: {
+  eyebrow?: ReactNode;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  onBack?: () => void;
+  backLabel?: string;
+}) {
+  return (
+    <View className="pb-1">
+      {onBack ? (
+        <BackButton onPress={onBack} label={backLabel} />
+      ) : null}
+      {eyebrow ? (
+        <View className="mb-1.5">
+          {typeof eyebrow === "string" ? <Eyebrow>{eyebrow}</Eyebrow> : eyebrow}
+        </View>
+      ) : null}
+      <Title>{title}</Title>
+      {subtitle ? (
+        typeof subtitle === "string" ? (
+          <Subtitle>{subtitle}</Subtitle>
+        ) : (
+          subtitle
+        )
+      ) : null}
+    </View>
+  );
+}
+
+export { BackButton } from "@/src/components/BackButton";
+export { SegmentTabs } from "@/src/components/SegmentTabs";
+
+/** Padding padrão do conteúdo rolável (safe area já vem do Screen). */
+export const screenScrollContent = { paddingBottom: 40 } as const;
+
+export function GreetingBlock({
+  eyebrow,
+  name,
+}: {
+  eyebrow: string;
+  name: string;
+}) {
+  return (
+    <View className="mb-5 items-center">
+      <BrandMark size="sm" />
+      <View className="mt-3 items-center">
+        <Eyebrow>{eyebrow}</Eyebrow>
+        <Text
+          className="mt-2 text-center font-display text-2xl text-sleep-ink"
+          style={{ lineHeight: 32 }}
+        >
+          Olá, {name}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+export function SectionTitle({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <Text
+      className={`font-display text-xl text-sleep-ink ${className}`}
+      style={{ lineHeight: 28 }}
+    >
       {children}
     </Text>
   );

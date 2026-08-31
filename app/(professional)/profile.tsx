@@ -1,10 +1,10 @@
 import {
   Card,
   InfoBanner,
+  PageHeader,
   Screen,
   SecondaryButton,
-  Subtitle,
-  Title,
+  screenScrollContent,
 } from "@/src/components/ui";
 import { demoPersona } from "@/src/content/demoPersona";
 import { useAuth } from "@/src/contexts/AuthContext";
@@ -18,10 +18,9 @@ export default function ProfessionalProfile() {
     <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
+        contentContainerStyle={screenScrollContent}
       >
-        <Title>Perfil</Title>
-        <Subtitle>{profile?.displayName}</Subtitle>
+        <PageHeader title="Perfil" subtitle={profile?.displayName} />
 
         <Card className="mt-5">
           <Text className="font-sans text-sm text-sleep-muted">Papel</Text>
@@ -52,7 +51,10 @@ export default function ProfessionalProfile() {
           <Text className="font-sans text-sm text-sleep-muted mt-4">
             Código para pacientes
           </Text>
-          <Text className="font-displayBold text-2xl text-sleep-ink mt-1 tracking-widest">
+          <Text
+            className="mt-1 font-display text-2xl text-sleep-ink tracking-widest"
+            style={{ lineHeight: 32 }}
+          >
             {profile?.inviteCode ?? demoPersona.professional.inviteCode}
           </Text>
           <Text className="mt-2 font-sans text-xs text-sleep-muted leading-5">

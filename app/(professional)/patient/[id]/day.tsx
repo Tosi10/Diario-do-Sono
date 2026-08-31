@@ -4,10 +4,11 @@ import {
   Card,
   DangerBanner,
   InfoBanner,
+  PageHeader,
   PrimaryButton,
   Screen,
   SecondaryButton,
-  Title,
+  screenScrollContent,
 } from "@/src/components/ui";
 import { useAuth } from "@/src/contexts/AuthContext";
 import {
@@ -27,15 +28,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
 import {
   ActivityIndicator,
-  Pressable,
-  Text,
   View,
 } from "react-native";
 
 export default function ProfessionalFillDayScreen() {
-  const { id, date: dateParam } = useLocalSearchParams<{
+  const { id, date: dateParam, weekId: weekIdParam } = useLocalSearchParams<{
     id: string;
     date?: string;
+    weekId?: string;
   }>();
   const { user, role } = useAuth();
   const dateIso = (dateParam as string) || toIsoDate(new Date());
@@ -107,11 +107,24 @@ export default function ProfessionalFillDayScreen() {
     }
   };
 
+  const goBack = () => {
+    if (!id) return;
+    router.push({
+      pathname: "/(professional)/patient/[id]",
+      params: {
+        id,
+        ...(typeof weekIdParam === "string" && weekIdParam
+          ? { weekId: weekIdParam }
+          : {}),
+      },
+    });
+  };
+
   if (loading) {
     return (
       <Screen edges="top">
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#AC665C" />
+          <ActivityIndicator color="#AD665C" />
         </View>
       </Screen>
     );
@@ -123,17 +136,15 @@ export default function ProfessionalFillDayScreen() {
     <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
-        contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}
+        contentContainerStyle={screenScrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <Pressable onPress={() => router.back()}>
-          <Text className="font-sansMed text-sleep-accent mb-2">← Voltar</Text>
-        </Pressable>
-        <Title>Registrar dia</Title>
-        <Text className="mt-1 font-sans text-sleep-muted">
-          {formatIsoDatePt(dateIso)}
-          {isToday ? " · hoje" : ""}
-        </Text>
+        <PageHeader
+          title="Registrar dia"
+          subtitle={`${formatIsoDatePt(dateIso)}${isToday ? " · hoje" : ""}`}
+          onBack={goBack}
+          backLabel="Diário"
+        />
 
         <View className="mt-4 gap-3">
           {!gate.ok ? (
@@ -151,7 +162,13 @@ export default function ProfessionalFillDayScreen() {
             onPress={() =>
               router.push({
                 pathname: "/(professional)/ocr",
-                params: { patientId: id, date: dateIso },
+                params: {
+                  patientId: id,
+                  date: dateIso,
+                  ...(typeof weekIdParam === "string" && weekIdParam
+                    ? { weekId: weekIdParam }
+                    : {}),
+                },
               })
             }
           />

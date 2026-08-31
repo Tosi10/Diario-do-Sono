@@ -1,12 +1,12 @@
-import { BrandMark } from "@/src/components/BrandMark";
+import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
 import {
   Card,
-  Eyebrow,
-  InfoBanner,
+  GreetingBlock,
+  PageHeader,
   Screen,
-  Subtitle,
-  Title,
+  screenScrollContent,
 } from "@/src/components/ui";
+import { brand } from "@/src/theme/brand";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { formatIsoDatePt, toIsoDate } from "@/src/domain/timeHelpers";
 import {
@@ -53,32 +53,30 @@ export default function ProfessionalHomeScreen() {
     <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
-        contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}
+        contentContainerStyle={screenScrollContent}
       >
-        <View className="mb-5 items-center">
-          <BrandMark size="sm" />
-          <Eyebrow>{brandCopy.appName}</Eyebrow>
-          <Text className="mt-2 text-center font-displayBold text-2xl text-sleep-ink">
-            Olá, {profile?.displayName?.split(" ")[0] || "doutora"}
-          </Text>
-        </View>
+        <GreetingBlock
+          eyebrow={brandCopy.appName}
+          name={profile?.displayName?.split(" ")[0] || "doutora"}
+        />
 
-        <Title>Início</Title>
-        <Subtitle>
-          {formatIsoDatePt(todayIso)} · atualizações dos seus pacientes.
-        </Subtitle>
+        <PageHeader
+          title="Início"
+          subtitle={`${formatIsoDatePt(todayIso)} · atualizações dos seus pacientes.`}
+        />
 
         {loading || !data ? (
           <View className="mt-10 items-center">
-            <ActivityIndicator color="#AC665C" />
+            <ActivityIndicator color={brand.argila} />
           </View>
         ) : data.totalPatients === 0 ? (
-          <View className="mt-6">
-            <InfoBanner>
-              Nenhum paciente vinculado ainda. Em Pacientes você vê o código de
-              convite.
-            </InfoBanner>
-          </View>
+          <Card className="mt-6">
+            <EmptyState
+              image={emptyStateImages.rest}
+              title="Sua clínica digital"
+              message="Compartilhe o código de vínculo em Pacientes. Quando alguém se conectar, o painel começa a mostrar aderência e registros."
+            />
+          </Card>
         ) : (
           <View className="mt-6 gap-2">
             <View className="w-full flex-row gap-2">
@@ -113,9 +111,13 @@ export default function ProfessionalHomeScreen() {
             </Text>
 
             {data.updates.length === 0 ? (
-              <InfoBanner>
-                Ainda não há registros novos nesta semana.
-              </InfoBanner>
+              <Card className="mt-2">
+                <EmptyState
+                  image={emptyStateImages.ginkgo}
+                  title="Semana tranquila"
+                  message="Nenhum registro novo nesta semana. Quando alguém preencher o diário, aparece aqui."
+                />
+              </Card>
             ) : (
               data.updates.map((u) => (
                 <Pressable

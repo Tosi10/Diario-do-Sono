@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/brand/seal.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F1ECDF"
+      "backgroundColor": "#F2EDE0"
     },
     "ios": {
       "supportsTablet": true,
@@ -20,7 +20,7 @@
     "android": {
       "package": "com.mapadosono.app",
       "adaptiveIcon": {
-        "backgroundColor": "#F1ECDF",
+        "backgroundColor": "#F2EDE0",
         "foregroundImage": "./assets/brand/seal.png"
       },
       "permissions": [
@@ -47,7 +47,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F1ECDF",
+          "backgroundColor": "#F2EDE0",
           "image": "./assets/brand/seal.png",
           "imageWidth": 200,
           "resizeMode": "contain"
@@ -57,7 +57,7 @@
         "expo-notifications",
         {
           "icon": "./assets/brand/seal.png",
-          "color": "#AC665C",
+          "color": "#AD665C",
           "sounds": []
         }
       ]

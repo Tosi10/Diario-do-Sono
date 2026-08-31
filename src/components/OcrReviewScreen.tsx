@@ -1,13 +1,16 @@
 import { showAppAlert } from "@/src/components/AppAlert";
 import { DayForm } from "@/src/components/DayForm";
+import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
 import { MetricsPanel } from "@/src/components/MetricsPanel";
 import {
   Card,
   DangerBanner,
   InfoBanner,
+  PageHeader,
   PrimaryButton,
   Screen,
-  Title,
+  SecondaryButton,
+  screenScrollContent,
 } from "@/src/components/ui";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { computeDayMetrics } from "@/src/domain/sleepMetrics";
@@ -19,20 +22,38 @@ import type { OcrJob } from "@/src/types/ocr";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
-import {
-  Image,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 
 export function OcrReviewScreen() {
-  const { jobId } = useLocalSearchParams<{ jobId: string }>();
+  const { jobId, patientId, weekId, date: dateParam } = useLocalSearchParams<{
+    jobId: string;
+    patientId?: string;
+    weekId?: string;
+    date?: string;
+  }>();
   const { user, profile, role } = useAuth();
   const initial = jobId ? getOcrJob(jobId) : null;
   const [job, setJob] = useState<OcrJob | null>(initial);
   const [dayIndex, setDayIndex] = useState(0);
   const [saving, setSaving] = useState(false);
+
+  const weekIdParam =
+    typeof weekId === "string" && weekId ? weekId : undefined;
+  const patientIdParam =
+    typeof patientId === "string" && patientId
+      ? patientId
+      : job?.patientUid;
+
+  const goBackToOcr = () => {
+    router.replace({
+      pathname: "/(professional)/ocr",
+      params: {
+        ...(patientIdParam ? { patientId: patientIdParam } : {}),
+        ...(weekIdParam ? { weekId: weekIdParam } : {}),
+        ...(typeof dateParam === "string" ? { date: dateParam } : {}),
+      },
+    });
+  };
 
   const draft = job?.draftDays[dayIndex];
   const form: SleepDayInput | null = draft
@@ -65,13 +86,19 @@ export function OcrReviewScreen() {
   if (!job || !form || !draft) {
     return (
       <Screen edges="top">
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="font-sans text-sleep-muted text-center">
-            Leitura não encontrada.
-          </Text>
-          <Pressable className="mt-4" onPress={() => router.back()}>
-            <Text className="font-sansMed text-sleep-accent">Voltar</Text>
-          </Pressable>
+        <View className="flex-1 px-5">
+          <PageHeader
+            title="Leitura não encontrada"
+            onBack={() => router.back()}
+          />
+          <EmptyState
+            image={emptyStateImages.rest}
+            title="Sem dados para revisar"
+            message="Volte e fotografe a folha de novo, ou escolha uma leitura recente."
+          />
+          <View className="mt-4">
+            <SecondaryButton label="Voltar" onPress={() => router.back()} />
+          </View>
         </View>
       </Screen>
     );
@@ -113,7 +140,11 @@ export function OcrReviewScreen() {
             if (role === "professional" || role === "admin") {
               router.replace({
                 pathname: "/(professional)/patient/[id]/day",
-                params: { id: job.patientUid, date: form.date },
+                params: {
+                  id: job.patientUid,
+                  date: form.date,
+                  ...(weekIdParam ? { weekId: weekIdParam } : {}),
+                },
               });
             } else {
               router.back();
@@ -137,20 +168,20 @@ export function OcrReviewScreen() {
     <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
-        contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}
+        contentContainerStyle={screenScrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <Pressable onPress={() => router.back()}>
-          <Text className="font-sansMed text-sleep-accent mb-2">← Voltar</Text>
-        </Pressable>
-        <Title>Revisar leitura</Title>
-        <Text className="mt-1 font-sans text-sleep-muted">
-          {job.patientName} · {formatIsoDatePt(form.date)}
-        </Text>
+        <PageHeader
+          eyebrow="Conferir antes de gravar"
+          title="Revisar leitura"
+          subtitle={`${job.patientName} · ${formatIsoDatePt(form.date)}`}
+          onBack={goBackToOcr}
+          backLabel="Folha em papel"
+        />
 
         <Image
           source={{ uri: job.imageUri }}
-          className="mt-4 h-44 w-full rounded-xl"
+          className="mt-2 h-44 w-full rounded-xl"
           resizeMode="cover"
         />
 
@@ -191,7 +222,7 @@ export function OcrReviewScreen() {
         ) : null}
 
         <Card className="mt-4">
-          <Text className="font-sansMed text-sleep-ink mb-2">
+          <Text className="mb-2 font-sansMed text-sleep-ink">
             Métricas previstas
           </Text>
           <MetricsPanel metrics={metrics} />

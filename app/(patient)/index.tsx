@@ -1,17 +1,20 @@
 import { showAppAlert } from "@/src/components/AppAlert";
-import { BrandMark } from "@/src/components/BrandMark";
 import {
   CycleOutcomeCard,
   CycleWakeSetupCard,
 } from "@/src/components/CycleCards";
+import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
 import {
   Card,
   Eyebrow,
-  InfoBanner,
+  GreetingBlock,
+  PageHeader,
   PrimaryButton,
   Screen,
-  Subtitle,
+  SecondaryButton,
+  SectionTitle,
   Title,
+  screenScrollContent,
 } from "@/src/components/ui";
 import { mapaDoSono } from "@/src/content/mapaDoSono";
 import { useAuth } from "@/src/contexts/AuthContext";
@@ -134,20 +137,17 @@ export default function PatientHomeScreen() {
     <Screen edges="top">
       <AppScrollView
         className="flex-1 px-5"
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
+        contentContainerStyle={screenScrollContent}
       >
-        <View className="mb-6 items-center">
-          <BrandMark size="sm" />
-          <Eyebrow>{mapaDoSono.title}</Eyebrow>
-          <Text className="mt-2 text-center font-displayBold text-2xl text-sleep-ink">
-            Olá, {profile?.displayName?.split(" ")[0] || "bem-vindo"}
-          </Text>
-        </View>
+        <GreetingBlock
+          eyebrow={mapaDoSono.title}
+          name={profile?.displayName?.split(" ")[0] || "bem-vindo"}
+        />
 
-        <Title>Início</Title>
-        <Subtitle>
-          {formatIsoDatePt(todayIso)} · {mapaDoSono.subtitle}
-        </Subtitle>
+        <PageHeader
+          title="Início"
+          subtitle={`${formatIsoDatePt(todayIso)} · ${mapaDoSono.subtitle}`}
+        />
 
         {loading || !week ? (
           <View className="mt-10 items-center">
@@ -156,10 +156,18 @@ export default function PatientHomeScreen() {
         ) : (
           <View className="mt-6 gap-3">
             {!profile?.linkedProfessionalId ? (
-              <InfoBanner>
-                Ainda sem vínculo com a profissional. Em Perfil, use o código
-                dela.
-              </InfoBanner>
+              <Card>
+                <EmptyState
+                  image={emptyStateImages.rest}
+                  title="Conecte-se à Dra. Ana"
+                  message="No Perfil, digite o código que ela passou na consulta. Assim ela acompanha seu diário de sono."
+                >
+                  <SecondaryButton
+                    label="Ir para Perfil"
+                    onPress={() => router.push("/(patient)/profile")}
+                  />
+                </EmptyState>
+              </Card>
             ) : null}
 
             {week.status === "complete" || week.status === "failed" ? (
@@ -188,9 +196,7 @@ export default function PatientHomeScreen() {
                 <Text className="font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-lavender">
                   Ciclo atual
                 </Text>
-                <Text className="mt-2 font-displayBold text-xl text-sleep-ink">
-                  Acordar às {week.wakeTime}
-                </Text>
+                <SectionTitle className="mt-2">Acordar às {week.wakeTime}</SectionTitle>
                 <Text className="mt-2 font-sans text-sm text-sleep-muted leading-5">
                   {cycleProgressLabel(
                     week.filledDayIds.length,
@@ -207,9 +213,7 @@ export default function PatientHomeScreen() {
               <Text className="font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-lavender">
                 Sobre o Sono à Vista
               </Text>
-              <Text className="mt-2 font-displayBold text-xl text-sleep-ink">
-                {mapaDoSono.welcomeTitle}
-              </Text>
+              <SectionTitle className="mt-2">{mapaDoSono.welcomeTitle}</SectionTitle>
               <Text className="mt-2 font-sans text-sm text-sleep-muted leading-5">
                 {mapaDoSono.welcomeBody[0]}
               </Text>
@@ -228,7 +232,7 @@ export default function PatientHomeScreen() {
               <Text className="font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-lavender">
                 Manhã de hoje
               </Text>
-              <Text className="mt-2 font-displayBold text-2xl text-sleep-ink">
+              <Title>
                 {filledToday
                   ? "Registro feito"
                   : needsWake
@@ -238,7 +242,7 @@ export default function PatientHomeScreen() {
                       : windowOpen
                         ? "Janela aberta"
                         : "Fora da janela"}
-              </Text>
+              </Title>
               <Text className="mt-2 font-sans text-sm text-sleep-muted leading-5">
                 {filledToday
                   ? windowOpen

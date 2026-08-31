@@ -3,11 +3,6 @@ import { AppAlertHost } from "@/src/components/AppAlert";
 import { AuthProvider } from "@/src/contexts/AuthContext";
 import { brand } from "@/src/theme/brand";
 import {
-  BodoniModa_500Medium,
-  BodoniModa_500Medium_Italic,
-  BodoniModa_600SemiBold,
-} from "@expo-google-fonts/bodoni-moda";
-import {
   WorkSans_400Regular,
   WorkSans_500Medium,
   WorkSans_600SemiBold,
@@ -26,9 +21,8 @@ if (Platform.OS !== "web") {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    BodoniModa_500Medium,
-    BodoniModa_500Medium_Italic,
-    BodoniModa_600SemiBold,
+    BethanyElingston: require("../assets/fonts/BethanyElingston.ttf"),
+    "BethanyElingston-Italic": require("../assets/fonts/BethanyElingston-Italic.ttf"),
     WorkSans_400Regular,
     WorkSans_500Medium,
     WorkSans_600SemiBold,

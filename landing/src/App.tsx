@@ -84,6 +84,47 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
+function StarRating({ light = false }: { light?: boolean }) {
+  const starClass = light ? "text-areia" : "text-argila";
+  const scoreClass = light ? "text-marfim" : "text-terra";
+  const labelClass = light ? "text-marfim/60" : "text-terra/55";
+
+  return (
+    <div
+      className="flex items-center gap-2.5"
+      aria-label="Avaliação 5 de 5 estrelas, verificada"
+    >
+      <div className={`flex gap-1 ${starClass}`} aria-hidden>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <svg key={i} viewBox="0 0 20 20" className="h-[18px] w-[18px] fill-current">
+            <path d="M10 1.5 12.6 7l6 0.9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6L1.4 7.9l6-.9L10 1.5Z" />
+          </svg>
+        ))}
+      </div>
+      <span className={`font-display text-lg leading-none ${scoreClass}`}>
+        5,0
+      </span>
+      <span
+        className={`hidden font-sans text-[10px] font-medium uppercase tracking-[0.18em] sm:inline ${labelClass}`}
+      >
+        · verificado
+      </span>
+    </div>
+  );
+}
+
+/** Grid editorial 12 col — larguras diferentes por depoimento. */
+const depoimentoGridClass: Record<string, string> = {
+  "G.":
+    "md:col-span-7 lg:col-span-8",
+  "K. B.":
+    "md:col-span-5 lg:col-span-4",
+  "E. S.":
+    "md:col-span-4 lg:col-span-5",
+  "A. C.":
+    "md:col-span-8 lg:col-span-7",
+};
+
 export default function App() {
   const [open, setOpen] = useState(false);
 
@@ -99,7 +140,7 @@ export default function App() {
       <header className="fixed inset-x-0 top-0 z-40 border-b border-terra/10 bg-marfim/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 md:px-8 md:py-[1.35rem]">
           <a href="#topo" className="flex items-center gap-3 text-terra">
-            <LogoMark className="h-14 w-14 md:h-16 md:w-16" />
+            <LogoMark variant="oliva" className="h-14 w-14 md:h-16 md:w-16" />
             <span className="flex flex-col items-start leading-tight">
               <span className="-ml-[0.14em] font-display text-[1.15rem]">
                 Ana Gonçalves
@@ -187,20 +228,12 @@ export default function App() {
           </div>
 
           <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-6 py-10 text-center">
-            <LogoMark className="mb-1 h-14 w-14 md:h-16 md:w-16" />
-            <h1 className="font-display text-[2.6rem] leading-[0.9] text-terra md:text-6xl">
-              <span className="inline-flex flex-col items-start text-left">
-                <span className="flex items-center">
-                  <span className="invisible select-none" aria-hidden="true">
-                    G
-                  </span>
-                  <span>Ana</span>
-                  <span className="ml-2.5 translate-y-1.5 font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-terra/70 md:translate-y-2 md:text-[11px]">
-                    {site.title}
-                  </span>
-                </span>
-                <span>Gonçalves</span>
-              </span>
+            <h1 className="mb-1">
+              <img
+                src="/brand/logo/oficial/logo-vertical-claro.png"
+                alt="Ana Gonçalves, psiquiatra"
+                className="mx-auto h-auto w-full max-w-[240px] object-contain sm:max-w-[280px] md:max-w-[320px]"
+              />
             </h1>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
               <a
@@ -373,6 +406,81 @@ export default function App() {
               <WhatsAppIcon className="h-4 w-4" />
               Falar no WhatsApp
             </a>
+          </div>
+        </section>
+
+        <section
+          id="depoimentos"
+          className="relative overflow-hidden border-y border-terra/8 px-5 py-20 md:px-8 md:py-28"
+        >
+          {/* Mobile: portrait original · Desktop: rotacionada em paisagem */}
+          <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+            <img
+              src="/brand/oficial/11.jpg"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover object-center md:hidden"
+              aria-hidden
+            />
+            <div
+              className="absolute left-1/2 top-1/2 hidden h-[110vw] w-[130vh] max-w-none -translate-x-1/2 -translate-y-1/2 rotate-90 scale-110 bg-cover bg-center md:block"
+              style={{ backgroundImage: "url(/brand/oficial/11.jpg)" }}
+              aria-hidden
+            />
+          </div>
+          <div className="pointer-events-none absolute inset-0 z-[1] bg-marfim/42" />
+          <div className="relative z-10 mx-auto max-w-6xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.28em] text-oliva-deep">
+                {copy.depoimentos.eyebrow}
+              </p>
+              <h2 className="mt-3 font-display text-4xl text-terra md:text-5xl">
+                {copy.depoimentos.title}
+              </h2>
+              <p className="mt-4 font-script text-2xl leading-snug text-argila md:text-3xl">
+                {copy.depoimentos.subtitle}
+              </p>
+            </div>
+
+            <div className="mt-14 grid grid-cols-1 items-start gap-6 md:grid-cols-12 md:gap-x-7 md:gap-y-7 lg:gap-x-8 lg:gap-y-8">
+              {copy.depoimentos.items.map((item) => (
+                  <blockquote
+                    key={item.initials}
+                    className={`relative rounded-2xl border border-terra/12 bg-marfim/94 px-7 py-6 shadow-[0_8px_32px_rgb(120_72_78/0.12)] md:px-8 md:py-7 ${
+                      depoimentoGridClass[item.initials] ?? "md:col-span-6"
+                    }`}
+                  >
+                    <span
+                      className="pointer-events-none absolute inset-y-5 left-0 w-1 rounded-full bg-argila"
+                      aria-hidden
+                    />
+                    <StarRating />
+                    <p className="mt-4 font-sans text-[15px] leading-relaxed text-ink/88">
+                      <span
+                        className="mr-1 font-script text-3xl leading-none text-argila/55"
+                        aria-hidden
+                      >
+                        “
+                      </span>
+                      {item.text}
+                      <span
+                        className="ml-0.5 font-script text-3xl leading-none text-argila/55"
+                        aria-hidden
+                      >
+                        ”
+                      </span>
+                    </p>
+                    <footer className="mt-5 flex items-center gap-3">
+                      <span className="font-sans text-sm font-medium text-terra">
+                        {item.initials}
+                      </span>
+                      <span className="h-px w-6 bg-terra/15" aria-hidden />
+                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-oliva-deep">
+                        Paciente
+                      </span>
+                    </footer>
+                  </blockquote>
+              ))}
+            </div>
           </div>
         </section>
 

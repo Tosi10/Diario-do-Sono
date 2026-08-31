@@ -3,6 +3,7 @@ import {
   DangerBanner,
   InfoBanner,
   PrimaryButton,
+  SectionTitle,
 } from "@/src/components/ui";
 import { MIN_FILLED_DAYS } from "@/src/domain/cycleProtocol";
 import type { SonoWeek } from "@/src/types";
@@ -18,7 +19,10 @@ export function CycleOutcomeCard({ week }: { week: SonoWeek }) {
         <Text className="text-center font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-ok">
           Ciclo concluído
         </Text>
-        <Text className="mt-2 text-center font-displayBold text-3xl text-sleep-ink">
+        <Text
+          className="mt-2 text-center font-display text-3xl text-sleep-ink"
+          style={{ lineHeight: 40 }}
+        >
           Parabéns!
         </Text>
         <Text className="mt-3 text-center font-sans text-sm leading-6 text-sleep-muted">
@@ -70,9 +74,7 @@ export function CycleWakeSetupCard({
       <Text className="font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-lavender">
         Início do ciclo
       </Text>
-      <Text className="mt-2 font-displayBold text-2xl text-sleep-ink">
-        Hora de acordar desta semana
-      </Text>
+      <SectionTitle className="mt-2">Hora de acordar desta semana</SectionTitle>
       <Text className="mt-2 font-sans text-sm leading-5 text-sleep-muted">
         Para o tratamento e os cálculos fazerem sentido, escolha o horário em
         que você vai acordar nos próximos 7 dias. Depois de confirmar, ele{" "}

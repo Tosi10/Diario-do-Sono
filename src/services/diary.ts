@@ -156,9 +156,11 @@ export async function listWeeksForPatient(
     where("patientUid", "==", patientUid)
   );
   const snap = await getDocs(q);
-  return snap.docs
+  const listed = snap.docs
     .map((d) => d.data() as SonoWeek)
     .sort((a, b) => b.startDate.localeCompare(a.startDate));
+
+  return Promise.all(listed.map((w) => applyWeekLifecycle(w)));
 }
 
 export async function startNewCycle(params: {
@@ -273,7 +275,7 @@ export async function getWeek(weekId: string): Promise<SonoWeek | null> {
   if (isDemoMode()) return demoGetWeek(weekId);
   const snap = await getDoc(doc(requireDb(), COLLECTIONS.weeks, weekId));
   if (!snap.exists()) return null;
-  return snap.data() as SonoWeek;
+  return applyWeekLifecycle(snap.data() as SonoWeek);
 }
 
 export async function listDaysForWeek(weekId: string): Promise<SonoDay[]> {

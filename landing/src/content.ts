@@ -43,6 +43,7 @@ export const nav = [
   { href: "#para-quem", label: "Para quem" },
   { href: "#abordagens", label: "Abordagens" },
   { href: "#consulta", label: "A consulta" },
+  { href: "#depoimentos", label: "Depoimentos" },
   { href: "#faq", label: "Dúvidas" },
 ];
 
@@ -70,14 +71,14 @@ export const copy = {
   paraQuem: {
     eyebrow: "Para quem",
     title: "Para quem",
-    body: "Atendo adultos que vivenciam sofrimento emocional, alterações do humor, ansiedade, dificuldades relacionadas ao sono ou prejuízos em sua rotina e qualidade de vida.",
+    body: "Atendo adultos que vivenciam sofrimento emocional, transtornos de humor, ansiedade, transtornos obsessivos, déficit de atenção, dificuldades relacionadas ao sono ou prejuízos em sua rotina e qualidade de vida.",
   },
   abordagens: {
     title: "Abordagens",
     quote: "Assim como a vida, conhecimento se renova",
     paragraphs: [
       "Ao conhecimento construído ao longo dos anos de prática em Psiquiatria, venho incorporando também princípios da Medicina do Estilo de Vida, que contempla, principalmente, a ciência do comportamento.",
-      "Nos últimos tempos, também tenho aprofundado meus estudos na área do sono, especialmente no tratamento da insônia, integrando à prática estratégias baseadas na Terapia Cognitivo-Comportamental para Insônia (TCC-I) e na Terapia de Aceitação e Compromisso (ACT).",
+      "Nos últimos tempos, também tenho aprofundado meus estudos na área do sono, especialmente no tratamento da insônia, integrando à prática, estratégias baseadas na Terapia Cognitivo-Comportamental para Insônia (TCC-I) e na Terapia de Aceitação e Compromisso (ACT).",
       "Depois de tantos anos exercendo a Psiquiatria, continuo encontrando nela aquilo que despertou meu interesse desde o início: a possibilidade de compreender cada pessoa para além de um diagnóstico e construir, junto com ela, caminhos possíveis para viver com mais saúde, autonomia e qualidade de vida.",
     ],
   },
@@ -93,11 +94,34 @@ export const copy = {
       },
       {
         t: "Caminhos possíveis",
-        d: "Explico benefícios, limites e alternativas. O plano pode incluir medicação, mudanças sustentáveis e trabalho em rede com outros profissionais.",
+        d: "Explico benefícios, limites e alternativas. O plano pode incluir medicação, mudanças comportamentais e trabalho em rede com outros profissionais.",
       },
       {
         t: "Acompanhamento",
         d: "Tratamento é processo. Reavaliamos o que funciona e o que precisa ser ajustado à sua realidade.",
+      },
+    ],
+  },
+  depoimentos: {
+    eyebrow: "Depoimentos",
+    title: "O que pacientes compartilham",
+    subtitle: "Experiências reais, publicadas com autorização",
+    items: [
+      {
+        initials: "G.",
+        text: "Dra. Ana é uma profissional excepcional! É atenciosa, proporcionando um atendimento humanizado, focada em lhe ajudar com o melhor tratamento possível e de forma personalizada. Ela me acompanha desde 2013 e está sempre atualizada. Já passei por outros especialistas e em nenhum momento recebi a atenção e apresentei as melhoras que tive com ela. Super recomendo para quem busca uma avaliação por completo. Ela solicita exames e se preocupa com sua saúde de forma geral. Sem dúvidas tem um grande diferencial!",
+      },
+      {
+        initials: "K. B.",
+        text: "Excelente profissional e super humana. Depois de anos de tratamento com outros profissionais, foi com ela que consegui retomar minha vida e minha saúde mental. Maravilhosa.",
+      },
+      {
+        initials: "E. S.",
+        text: "Excelente profissional e dedicada no acompanhamento do paciente. Demonstra preocupação com o tratamento, seguimento terapêutico e, mais importante, com o paciente.",
+      },
+      {
+        initials: "A. C.",
+        text: "Recomendo fortemente a Dra. Ana, profissional atenta e humanizada, oferece atendimento personalizado, dedica tempo ao paciente e explica com detalhes. Seu amplo conhecimento e experiência tornam suas prescrições e orientações muito bem fundamentadas, transmitindo segurança e confiança.",
       },
     ],
   },
@@ -108,7 +132,7 @@ export const copy = {
     },
     {
       q: "Qual é o público?",
-      a: "Adultos que vivenciam sofrimento emocional, alterações do humor, ansiedade, dificuldades relacionadas ao sono ou prejuízos em sua rotina e qualidade de vida.",
+      a: "Adultos que vivenciam sofrimento emocional, transtornos de humor, ansiedade, transtornos obsessivos, déficit de atenção, dificuldades relacionadas ao sono ou prejuízos em sua rotina e qualidade de vida.",
     },
     {
       q: "Atende convênio?",

@@ -57,18 +57,15 @@ export function AdaptiveTabBar({
           width: WEB_SIDEBAR_WIDTH,
           backgroundColor: brand.terraDeep,
           borderRightWidth: 1,
-          borderRightColor: "rgba(241,236,223,0.15)",
+          borderRightColor: "rgba(242,237,224,0.15)",
           paddingTop: 28,
           paddingBottom: 24,
           paddingHorizontal: 16,
         }}
       >
         <View className="mb-8 items-center px-2">
-          <BrandMark size="sm" />
-          <Text className="mt-3 text-center font-displayBold text-lg text-sleep-bg leading-5">
-            {brandCopy.appName}
-          </Text>
-          <Text className="mt-1 text-center font-sans text-[10px] uppercase tracking-[2px] text-sleep-lavender">
+          <BrandMark variant="logoVertical" size="sm" />
+          <Text className="mt-3 text-center font-sans text-[10px] uppercase tracking-[2px] text-sleep-lavender">
             {brandCopy.category}
           </Text>
         </View>
@@ -81,7 +78,7 @@ export function AdaptiveTabBar({
                 ? options.tabBarLabel
                 : options.title ?? route.name;
             const focused = state.routes[state.index]?.key === route.key;
-            const color = focused ? brand.marfim : "rgba(241,236,223,0.7)";
+            const color = focused ? brand.marfim : "rgba(242,237,224,0.7)";
 
             return (
               <Pressable

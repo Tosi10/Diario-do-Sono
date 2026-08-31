@@ -62,7 +62,7 @@ export default function LoginScreen() {
           }}
           keyboardShouldPersistTaps="handled"
         >
-          <BrandMark size="lg" showWordmark />
+          <BrandMark variant="logoVertical" size="lg" />
 
           <View className="mt-10">
             <Eyebrow>{brandCopy.appName}</Eyebrow>

@@ -4,8 +4,12 @@
  * Seed personalizado para apresentação à Dra. Ana Gonçalves.
  */
 import { TERMS_VERSION } from "@/src/constants/collections";
+import { MIN_FILLED_DAYS } from "@/src/constants/collections";
 import { demoPersona } from "@/src/content/demoPersona";
-import { nextCycleStatus } from "@/src/domain/cycleProtocol";
+import {
+  evaluateMissedDays,
+  nextCycleStatus,
+} from "@/src/domain/cycleProtocol";
 import { computeDayMetrics, computeWeekAverages } from "@/src/domain/sleepMetrics";
 import {
   addDays,
@@ -163,9 +167,9 @@ function seedWriteDay(params: {
     filledDayIds,
     averages,
     wakeTime: week.wakeTime ?? "07:00",
-    status: filledDayIds.length >= 7 ? "complete" : week.status,
     updatedAt: now,
   });
+  demoRefreshWeekLifecycle(week.weekId);
 
   const patient = patients.get(params.patientUid);
   if (patient) {
@@ -580,6 +584,8 @@ export function demoEnsureWeek(params: {
   professionalId: string | null;
   around?: Date;
 }): SonoWeek {
+  demoRefreshAllWeekLifecycles(params.patientUid);
+
   if (params.around) {
     const dateIso = toIsoDate(params.around);
     const containing = demoFindWeekContaining(params.patientUid, dateIso);
@@ -597,7 +603,7 @@ export function demoEnsureWeek(params: {
     });
   }
 
-  const open = demoListWeeks(params.patientUid).find((w) => w.status === "open");
+  const open = demoListWeeksRaw(params.patientUid).find((w) => w.status === "open");
   if (open) return open;
 
   const start = startOfWeekMonday(new Date());
@@ -660,9 +666,8 @@ export function demoFindWeekContaining(
 }
 
 export function demoListWeeks(patientUid: string): SonoWeek[] {
-  return [...weeks.values()]
-    .filter((w) => w.patientUid === patientUid)
-    .sort((a, b) => b.startDate.localeCompare(a.startDate));
+  demoRefreshAllWeekLifecycles(patientUid);
+  return demoListWeeksRaw(patientUid);
 }
 
 export function demoStartNewCycle(params: {
@@ -684,6 +689,8 @@ export function demoStartNewCycle(params: {
 }
 
 export function demoGetWeek(weekId: string) {
+  const week = weeks.get(weekId);
+  if (week) demoRefreshAllWeekLifecycles(week.patientUid);
   return weeks.get(weekId) ?? null;
 }
 
@@ -717,19 +724,67 @@ export function demoRefreshWeekLifecycle(weekId: string): SonoWeek {
   const filledDates = all.map((d) => d.date);
   const next = nextCycleStatus(week, filledDates);
   const now = nowIso();
+  const averages = computeWeekAverages(all, week.ttsMode as TtsMode);
   const updated: SonoWeek = {
     ...week,
     filledDayIds: all.map((d) => d.dayId),
     missedDayIds: next.missedDayIds,
     status: next.status,
+    averages,
     closedAt:
       next.status === "complete" || next.status === "failed"
         ? week.closedAt ?? now
-        : week.closedAt ?? null,
+        : null,
     updatedAt: now,
   };
   weeks.set(weekId, updated);
   return updated;
+}
+
+/** Recalcula status de todos os ciclos do paciente (fecha os que já passaram da data). */
+export function demoRefreshAllWeekLifecycles(patientUid: string): void {
+  const ids = [...weeks.values()]
+    .filter((w) => w.patientUid === patientUid)
+    .map((w) => w.weekId);
+  for (const id of ids) {
+    demoRefreshWeekLifecycle(id);
+  }
+  demoEnforceSingleOpenWeek(patientUid);
+}
+
+/** Só pode existir um ciclo `open` por paciente. */
+function demoEnforceSingleOpenWeek(patientUid: string): void {
+  const open = [...weeks.values()].filter(
+    (w) => w.patientUid === patientUid && w.status === "open"
+  );
+  if (open.length <= 1) return;
+
+  const today = toIsoDate(new Date());
+  open.sort((a, b) => b.startDate.localeCompare(a.startDate));
+
+  const keeper =
+    open.find((w) => w.startDate <= today && w.endDate >= today) ?? open[0];
+
+  for (const w of open) {
+    if (w.weekId === keeper.weekId) continue;
+    const all = demoListDays(w.weekId);
+    const filledDates = all.map((d) => d.date);
+    const filledCount = filledDates.length;
+    const status = filledCount >= MIN_FILLED_DAYS ? "complete" : "failed";
+    weeks.set(w.weekId, {
+      ...w,
+      status,
+      missedDayIds: evaluateMissedDays(w, filledDates),
+      closedAt: w.closedAt ?? nowIso(),
+      updatedAt: nowIso(),
+    });
+  }
+}
+
+function demoListWeeksRaw(patientUid: string): SonoWeek[] {
+  return [...weeks.values()]
+    .filter((w) => w.patientUid === patientUid)
+    .sort((a, b) => b.startDate.localeCompare(a.startDate));
 }
 
 export function demoListDays(weekId: string) {

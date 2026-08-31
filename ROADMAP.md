@@ -14,16 +14,94 @@ Docs de suporte: [`README.md`](README.md) · [`docs/ARQUITETURA.md`](docs/ARQUIT
 | Área | Situação |
 |------|----------|
 | Nome + copy oficial | **Feito** — Sono à Vista (`src/content/mapaDoSono.ts`) |
-| Identidade visual no app | **Feito** — Marfim/Terra/Argila/Oliva, Bodoni + Work Sans, selo |
-| Landing Ana Gonçalves | **Em revisão** — textos do doc; site em manutenção até ela aprovar |
+| Identidade visual no app | **Feito** — Manual 2026: Bethany Elingston + Work Sans, HEX oficiais, selo + logo vertical |
+| Landing Ana Gonçalves | **Deployado** — https://ana-goncalves.web.app (31 ago/2026, para revisão da Dra. Ana) |
 | Sprints 1–3 (código) | **Feito** em modo demo (sem Firebase `.env`) |
 | Sprint 4 métricas | **Parcial** — LIS…EF no app; validar com ela |
 | Sprint 5 OCR | **Parcial** — UI + mock demo; Gemini/Storage pendente |
 | Protocolo de ciclo (hora de acordar + 5h + push) | **Sprints 8–10 feitos em demo** · validar push no APK |
-| Firebase real / piloto APK | **Depois** — estrutura já pensada; conectar só quando o protocolo estiver ok em demo |
+| UI polish (rebrand + Diário em abas) | **Em andamento** — empty states + modal padrão; ver registro |
+| Firebase real / piloto APK | **Depois** — aguarda CNPJ + novo projeto Firebase |
+| Admin clínico (aprovar / bloquear / remover paciente) | **Definido** — implementar com Firebase (ver Sprint 11) |
 
 **MVP clínico útil (form + painel + métricas)** ≈ pronto em demo.  
-**Próximo bloqueio de produto:** protocolo de ciclo (acordar fixo, janela de 5h, histórico, push Android). Firebase continua **depois**.
+**Próximo bloqueio de produto:** validação clínica com a Dra. Ana (Sprint 4) + polish visual restante. Firebase continua **depois**.
+
+---
+
+## Registro de mudanças
+
+Histórico para saber o que mudou entre sessões (mais recente primeiro).
+
+### 31 ago/2026 — Polish UI + Diário em abas (sem Firebase)
+
+**Identidade visual (app)**
+- [x] HEX oficiais do Manual 2026 em `src/theme/brand.ts` e `tailwind.config.js` (Terra `#78494E`, Marfim `#F2EDE0`, Argila `#AD665C`, Oliva `#A39D79`, Areia `#E0D6C1`)
+- [x] Fontes Bethany Elingston (regular + itálico) em `assets/fonts/`; Bodoni Moda substituída no `_layout.tsx`
+- [x] Assets oficiais: `seal.png` (selo terra), `logo-vertical-claro.png`
+- [x] Splash / ícone Android / cor de notificação atualizados em `app.json`
+- [x] Login com logo vertical (`BrandMark variant="logoVertical"`)
+- [x] Sidebar web com logo vertical (`AdaptiveTabBar`)
+
+**Layout e componentes compartilhados**
+- [x] `PageHeader` — título + subtítulo + voltar; corrige corte no topo (safe area + lineHeight Bethany)
+- [x] `Screen` — padding superior extra no Android
+- [x] `GreetingBlock`, `SectionTitle`, `screenScrollContent` — padrão nas telas principais
+- [x] `SegmentTabs` — abas com `StyleSheet` nativo (evita crash do NativeWind com classes dinâmicas)
+- [x] `DiaryCycleScreenBody` — corpo compartilhado paciente + profissional
+
+**Diário reorganizado (paciente + profissional)**
+- [x] Três abas abaixo do título: **Semana atual** · **Estatísticas** · **Histórico**
+- [x] Estatísticas vazias mostram mensagem explicativa (não quebra)
+- [x] Ao escolher ciclo no histórico → volta para aba Semana atual
+- [x] Telas: `app/(patient)/week.tsx`, `app/(professional)/patient/[id]/index.tsx`
+
+**Polish de telas**
+- [x] Início paciente e profissional — `GreetingBlock` + `PageHeader`
+- [x] Pacientes, Perfil (ambos papéis), formulário do dia — `PageHeader`
+- [x] Cards de ciclo (`CycleCards`), modal (`AppAlert`) — tipografia Bethany consistente
+- [x] Spinners com cor Argila oficial (`#AD665C`)
+
+**Correções**
+- [x] Crash ao trocar abas Estatísticas/Histórico (NativeWind + `shadow-sm` dinâmico)
+- [x] Aba da grade muda o rótulo: **Semana atual** (ciclo aberto) ou **17/08–23/08** (ciclo passado)
+- [x] Voltar do dia → retorna ao paciente/semana corretos (`weekId` na navegação; Tabs do Expo Router não empilham stack)
+- [x] Lifecycle de ciclo: semanas passadas fecham automaticamente (`complete`/`failed`); só **1** ciclo `open` por paciente
+- [x] `BackButton` — pill compacto com chevron; rótulos contextuais (Pacientes, Diário, etc.)
+
+### 31 ago/2026 (continuação) — OCR + empty states
+
+- [x] `EmptyState` — componente editorial com fotos oficiais (`empty-ginkgo.jpg`, `empty-rest.jpg`)
+- [x] OCR profissional — `PageHeader`, placeholder de foto, lista vazia de pacientes
+- [x] Revisão OCR — voltar explícito para folha; `weekId` ao confirmar e gravar
+- [x] Início profissional, Pacientes, Histórico de ciclos — empty states com foto
+
+### 31 ago/2026 (continuação) — Empty states paciente + modal
+
+- [x] `EmptyState` — variante `compact` para cards internos
+- [x] Início paciente — sem vínculo com profissional (foto + CTA Perfil)
+- [x] Perfil paciente — estado vazio antes do código de vínculo
+- [x] Diário — aba Estatísticas sem médias (`DiaryCycleScreenBody`)
+- [x] Dia (`today`) — futuro, sem vínculo e dia passado sem registro
+- [x] `AppAlert` — modal padrão refinado (barra argila, backdrop, botões em linha)
+
+**Pendente (próximo polish)**
+- [ ] Remover dependência `@expo-google-fonts/bodoni-moda` do `package.json`
+- [ ] Atualizar `docs/IDENTIDADE-VISUAL.md` (app section)
+- [ ] Roteiro de validação clínica com a Dra. Ana (Sprint 4)
+
+### Landing (31 ago/2026 — deploy para Dra. Ana)
+- Site publicado: **https://ana-goncalves.web.app**
+- Depoimentos editorial (grid assimétrico), fundo `11.jpg`, rodapé oliva original
+- Aguardando feedback da Dra. Ana antes de considerar versão final
+
+### 31 ago/2026 — Decisão: app mono-doutora, sem código
+
+- App exclusivo da **Dra. Ana Heloisa Gonçalves** — paciente cadastra e entra **pendente** na fila dela
+- **Remover** fluxo de `inviteCode` / MAPA01 na UI (demo mantido até Firebase; refatorar no Sprint 11)
+- Portão real = **aprovação + bloqueio/remoção** dela, não código na consulta
+- Config futura: `CLINIC_PROFESSIONAL_UID` no `.env` (hoje hardcoded demo Ana)
+- Multi-doutor: backlog pós-MVP, se necessário
 
 ---
 
@@ -47,9 +125,43 @@ Docs de suporte: [`README.md`](README.md) · [`docs/ARQUITETURA.md`](docs/ARQUIT
 
 ## Papéis (não esquecer)
 
-- **Paciente:** inicia ciclo (escolhe hora de acordar **uma vez**), preenche cada dia na janela de **5 horas**; vê histórico dos ciclos.
-- **Profissional (ela = admin da clínica):** vê pacientes, ciclos atuais e antigos (válidos e falhos); preenche/corrige **qualquer dia, a qualquer hora**; lê folha por dia.
-- **Admin técnico (você):** Firebase Console no piloto (ainda não).
+- **Paciente:** cria conta → **vinculado automaticamente** à Dra. Ana (pendente); só usa o diário **depois da aprovação** dela. Sem código. Inicia ciclo, preenche na janela de **5 horas**; vê histórico dos ciclos.
+- **Profissional / admin (Dra. Ana — dona do app):** **controle total** da clínica — aprovar ou recusar pedidos, ver pacientes ativos, **bloquear** ou **remover** quem não deve mais usar o app; vê ciclos atuais e antigos; preenche/corrige **qualquer dia, a qualquer hora**; recebe **e-mail** quando há confirmação pendente.
+- **Admin técnico (você):** Firebase Console, Functions, domínio de e-mail — no piloto.
+
+> **Decisão ago/2026:** app **mono-doutora** — só a Dra. Ana Heloisa Gonçalves. Quem baixa, cadastra como paciente e **cai automaticamente na fila dela** (status **pendente**). **Sem código de vínculo.** Aprovação dela é o único portão. Multi-profissional fica para uma versão futura, se existir.
+
+### Fluxo de vínculo (alvo — com Firebase)
+
+```
+Paciente baixa o app → cadastro (nome + e-mail + senha)
+       ↓
+Sistema associa automaticamente à Dra. Ana (professionalId fixo no app)
+       ↓
+Status: pendente — EmptyState “Aguardando confirmação da Dra. Ana”
+       ↓
+Dra. Ana: badge Pendentes + e-mail “Novo cadastro aguardando”
+       ↓
+Ela escolhe:  [ Aprovar ]  [ Recusar ]
+       ↓
+Aprovado → diário, ciclo e push liberados
+Recusado → mensagem clara; conta existe, mas sem acesso clínico
+```
+
+**Gestão contínua (lista Pacientes):**
+
+| Ação | Efeito para o paciente | Dados clínicos |
+|------|------------------------|----------------|
+| **Bloquear** | Não preenche mais; vê aviso | Histórico **preservado** (consulta / LGPD) |
+| **Remover da clínica** | Perde vínculo; conta pode existir | Semanas/dias **mantidos** no Firestore (arquivo clínico) |
+| **Excluir definitivo** | Só se ela confirmar + LGPD | Function de export/apagar (Sprint 7) |
+
+**E-mails (Cloud Functions + domínio clínico):**
+
+- Para **ela:** novo pedido pendente; resumo opcional diário de pendentes.
+- Para **paciente:** “Vínculo aprovado” / “Pedido recusado” (tom profissional, curto).
+
+**UI simples para ela:** badge **Pendentes (N)** no Início ou aba Pacientes; cards com nome, e-mail, data; um toque para aprovar; menu ⋮ em cada paciente → Bloquear / Remover.
 
 ### Protocolo clínico do ciclo (reunião ago/2026 — substitui o meio-dia)
 
@@ -115,10 +227,10 @@ Fuso: **`America/Sao_Paulo`**.
 
 ---
 
-## Sprint 3 — Vínculo + painel da profissional `[FEITO no código]`
+## Sprint 3 — Vínculo + painel da profissional `[FEITO no código — demo]`
 
-- [x] Código de convite (`inviteCode`)
-- [x] Paciente vincula → `sonoPatients`
+- [x] Código de convite (`inviteCode`) — **legado demo; remover no Sprint 11**
+- [x] Paciente vincula → `sonoPatients` **(demo: instantâneo + código — substituído por cadastro → pendente → Ana)**
 - [x] Lista de pacientes + aderência
 - [x] Profissional preenche/edita dia do paciente
 - [x] Dias passados liberados para ela; hoje após 12h também (corte só no paciente) — Sprint 8: ela continua livre a qualquer hora
@@ -169,12 +281,17 @@ Fuso: **`America/Sao_Paulo`**.
 
 ---
 
-## Sprint 7 — Polish, LGPD e valor de clínica `[PARCIAL — branding]`
+## Sprint 7 — Polish, LGPD e valor de clínica `[PARCIAL — branding + UI]`
 
 **Meta:** base para continuidade / possível loja ou white-label.
 
 - [x] Branding app: cores Terra/Marfim/Argila/Oliva, tipografia, selo, splash claro
+- [x] Rebrand Manual 2026: Bethany Elingston, HEX oficiais, logo vertical, assets copiados da landing
+- [x] Diário em 3 abas (Semana atual / Estatísticas / Histórico) — paciente + profissional
+- [x] `PageHeader`, safe area, tipografia consistente nas telas principais
 - [x] Landing da marca pessoal (Ana Gonçalves) — separado do produto
+- [x] Fotos oficiais no app (empty states — paciente + profissional)
+- [ ] Polish OCR + telas secundárias profissionais
 - [ ] App Check
 - [ ] Exportar / apagar dados (LGPD Functions)
 - [ ] Notificação local “lembrete manhã” → **substituído pelo Sprint 10** (protocolo de push)
@@ -186,7 +303,7 @@ Fuso: **`America/Sao_Paulo`**.
 
 ---
 
-## Sprint 8 — Protocolo de ciclo (acordar + janela 5h) `[EM ANDAMENTO]`
+## Sprint 8 — Protocolo de ciclo (acordar + janela 5h) `[FEITO no código — demo]`
 
 **Meta:** o meio-dia some. O ciclo vira um tratamento com hora fixa e prazo de 5h — ainda **em demo**, sem Firebase.
 
@@ -212,8 +329,9 @@ Fuso: **`America/Sao_Paulo`**.
 - [x] Encerrar ciclo `complete` + tela de parabéns (efeito visual)
 - [x] DemoStore: lifecycle + Elena com `wakeTime`; Marina define no Início
 - [x] Copy: explicar por que a hora é fixa (cálculos / tratamento)
-- [ ] Push (Sprint 10)
-- [ ] Histórico multi-ciclo (Sprint 9)
+- [x] Push local (Sprint 10)
+- [x] Histórico multi-ciclo (Sprint 9)
+- [ ] Validar janela 5h + falha/parabéns com a Dra. Ana em sessão demo
 
 **Critério de pronto:** paciente demo inicia ciclo, preenche na janela, perde prazo, profissional ainda edita; falha e parabéns aparecem.
 
@@ -262,6 +380,51 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 
 ---
 
+## Sprint 11 — Admin clínico (Dra. Ana dona do app) `[DEFINIDO — implementar com Firebase]`
+
+**Meta:** autonomia total da profissional — cadastro do paciente **já cai na fila dela** (sem código); ela **aceita**, **bloqueia** e **remove**; e-mails de pendências.
+
+**Config (app mono-doutora):**
+
+- `EXPO_PUBLIC_CLINIC_PROFESSIONAL_UID` — UID fixo da Dra. Ana no Firebase
+- Registro paciente → `linkStatus: 'pending'`, `linkedProfessionalId: <Ana>`, cria `sonoLinkRequest`
+- **Sem** `inviteCode` na jornada do paciente; campo pode permanecer no schema só para versão multi-clínica futura
+
+**Modelo de dados (Firestore):**
+
+- `sonoUsers.linkStatus`: `'none' | 'pending' | 'active' | 'blocked' | 'removed'`
+- `sonoLinkRequests/{id}` — fila: `patientUid`, `professionalId`, `status`, `requestedAt`, `resolvedAt`, `resolvedBy`
+- `sonoPatients.status` — espelha vínculo ativo; histórico clínico **nunca apaga** ao bloquear/remover
+
+**App — paciente:**
+
+- [ ] Remover tela/campo de código no Perfil
+- [ ] Após cadastro: status **pendente** (EmptyState + “A Dra. Ana vai confirmar em breve”)
+- [ ] Bloqueado: aviso claro, sem formulário
+- [ ] Aprovado: fluxo atual (ciclo, diário, push)
+
+**App — profissional:**
+
+- [ ] Seção **Pendentes** com badge no Início / Pacientes
+- [ ] Aprovar / Recusar (com confirmação `AppAlert`)
+- [ ] Por paciente: **Bloquear** · **Remover da clínica** (menu ou swipe)
+- [ ] Empty states quando fila vazia
+
+**Backend (Firebase):**
+
+- [ ] Firestore rules: só ela (`professionalId`) altera status dos seus pacientes
+- [ ] Cloud Function `onLinkRequestCreated` → e-mail para `pro.email`
+- [ ] Cloud Function `onLinkResolved` → e-mail opcional ao paciente
+- [ ] Domínio remetente: `contato@cuidar.med.br` ou noreply clínica
+
+**Critério de pronto:** paciente teste **só se cadastra** → Ana recebe e-mail → aprova no app → paciente preenche; bloqueio impede novo registro; remover tira da lista sem apagar semanas.
+
+**Estimativa:** 4–6 dias (junto com setup Firebase + CNPJ).
+
+**Depende de:** projeto Firebase dedicado, `.env`, CNPJ.
+
+---
+
 ## Ordem de prioridade (resumo)
 
 | Prioridade | Item | Status |
@@ -269,12 +432,13 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 | P0 | Auth + formulário paciente = folha / Sono à Vista | ✅ demo |
 | P0 | Painel profissional + vínculo | ✅ demo |
 | P0 | Cálculos LIS…EF | ✅ código / ⏳ validar com ela |
-| **P0** | **Protocolo de ciclo (Sprint 8)** | ⏳ **agora** |
-| **P0** | **Histórico de ciclos (Sprint 9)** | ⏳ |
-| **P1** | **Push Android (Sprint 10)** | ⏳ |
+| **P0** | **Protocolo de ciclo (Sprint 8)** | ✅ demo · ⏳ validar com ela |
+| **P0** | **Histórico de ciclos (Sprint 9)** | ✅ demo |
+| **P1** | **Push Android (Sprint 10)** | ✅ código · ⏳ APK |
+| **P1** | **Polish UI (Sprint 7)** | ⏳ em andamento |
 | P1 | OCR com revisão (Gemini) | ⏳ UI pronta |
 | P1 | Piloto APK | ⏳ |
-| P2 | Firebase real + `.env` | ⏳ depois do protocolo em demo |
+| P2 | Firebase real + `.env` + **Sprint 11 admin** | ⏳ aguarda CNPJ |
 | P2 | Push iOS | ⏳ pós-piloto |
 | P2 | Relatório PDF / loja | ⏳ |
 
@@ -291,9 +455,10 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 | S4 | Métricas | 🟡 parcial |
 | S5–S6 | OCR | 🟡 UI/demo |
 | — | Identidade + Sono à Vista | ✅ |
-| **S8** | **Protocolo de ciclo (demo)** | ⏳ **próximo** |
-| **S9** | **Histórico de ciclos** | ⏳ |
-| **S10** | **Push Android** | ⏳ |
+| **S8** | **Protocolo de ciclo (demo)** | ✅ |
+| **S9** | **Histórico de ciclos** | ✅ |
+| **S10** | **Push Android** | ✅ código · ⏳ APK |
+| **S7** | **Polish UI + rebrand app** | ⏳ em andamento |
 | Depois | Firebase + piloto APK | ⏳ |
 | Depois | Push iOS + polish / LGPD | ⏳ |
 
@@ -329,7 +494,8 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 
 ## Próxima ação imediata
 
-1. **Sprint 8** — protocolo de ciclo em demo (hora de acordar + janela 5h + falha/parabéns).
-2. **Sprint 9** — histórico (paciente + doutora; ciclos falhos inclusive).
-3. **Sprint 10** — push Android.
-4. Firebase / APK piloto **depois** que o protocolo estiver estável em demo.
+1. **Aguardar CNPJ + Firebase** — conectar `.env` e implementar **Sprint 11** (aprovação, bloqueio, e-mails).
+2. **Landing** — feedback da Dra. Ana nos depoimentos e textos.
+3. **Sprint 4** — sessão demo: validar métricas, formulário e fluxo do ciclo.
+4. **Sprint 6** — EAS APK para push no Android real.
+5. Polish UI restante — opcional enquanto aguarda Firebase.

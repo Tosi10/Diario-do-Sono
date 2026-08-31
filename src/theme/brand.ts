@@ -1,24 +1,24 @@
-/** Tokens oficiais — Ana Gonçalves / Sono à Vista */
+/** Tokens oficiais — Manual de Marca 2026 (Ana Gonçalves / Sono à Vista) */
 export const brand = {
-  terra: "#78484E",
+  terra: "#78494E",
   terraDeep: "#5C383D",
-  marfim: "#F1ECDF",
-  marfimDeep: "#E6DCC8",
-  argila: "#AC665C",
-  oliva: "#A29D79",
+  marfim: "#F2EDE0",
+  marfimDeep: "#E8E0CF",
+  argila: "#AD665C",
+  oliva: "#A39D79",
   olivaDeep: "#8D8864",
-  areia: "#DFD5C1",
-  ink: "#5C383D",
+  areia: "#E0D6C1",
+  ink: "#5A383C",
   muted: "#8A6A6E",
   line: "#D4C8B4",
-  card: "#FAF6ED",
-  onAccent: "#F1ECDF",
+  card: "#FAF7F0",
+  onAccent: "#F2EDE0",
   // aliases usados por ContentFrame / sidebar
-  indigo: "#F1ECDF",
+  indigo: "#F2EDE0",
   indigoDeep: "#E8E0CF",
-  lavender: "#A29D79",
-  sage: "#AC665C",
-  rose: "#78484E",
+  lavender: "#A39D79",
+  sage: "#AD665C",
+  rose: "#78494E",
 } as const;
 
 export const brandCopy = {
