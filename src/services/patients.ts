@@ -1,8 +1,16 @@
 import { COLLECTIONS } from "@/src/constants/collections";
 import {
+  demoApprovePatient,
+  demoBlockPatient,
+  demoCountPendingApprovals,
   demoFindByInviteCode,
   demoGetPatient,
+  demoListBlockedPatients,
   demoListPatients,
+  demoListPendingPatients,
+  demoRejectPatient,
+  demoRemovePatient,
+  demoUnblockPatient,
   demoUpsertPatient,
 } from "@/src/services/demoStore";
 import { isDemoMode, requireDb } from "@/src/services/firebase.config";
@@ -71,6 +79,7 @@ export async function upsertSonoPatient(params: {
     professionalId: params.professionalId,
     displayName: params.displayName,
     email: params.email,
+    status: "active",
     activeWeekId: null,
     filledDays: 0,
     expectedDays: 7,
@@ -97,7 +106,72 @@ export async function listPatientsForProfessional(
   const snap = await getDocs(q);
   return snap.docs
     .map((d) => d.data() as SonoPatient)
+    .filter((p) => (p.status ?? "active") === "active")
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "pt-BR"));
+}
+
+export async function listPendingPatientsForProfessional(
+  professionalId: string
+): Promise<SonoPatient[]> {
+  if (isDemoMode()) return demoListPendingPatients(professionalId);
+  // Firebase: Sprint 11
+  return [];
+}
+
+export async function listBlockedPatientsForProfessional(
+  professionalId: string
+): Promise<SonoPatient[]> {
+  if (isDemoMode()) return demoListBlockedPatients(professionalId);
+  return [];
+}
+
+export async function countPendingApprovals(
+  professionalId: string
+): Promise<number> {
+  if (isDemoMode()) return demoCountPendingApprovals(professionalId);
+  return 0;
+}
+
+export async function approvePatient(patientUid: string): Promise<void> {
+  if (isDemoMode()) {
+    demoApprovePatient(patientUid);
+    return;
+  }
+  throw new Error("Aprovação exige Firebase (Sprint 11).");
+}
+
+export async function rejectPatient(patientUid: string): Promise<void> {
+  if (isDemoMode()) {
+    demoRejectPatient(patientUid);
+    return;
+  }
+  throw new Error("Recusa exige Firebase (Sprint 11).");
+}
+
+export async function blockPatient(patientUid: string): Promise<void> {
+  if (isDemoMode()) {
+    demoBlockPatient(patientUid);
+    return;
+  }
+  throw new Error("Bloqueio exige Firebase (Sprint 11).");
+}
+
+export async function unblockPatient(patientUid: string): Promise<void> {
+  if (isDemoMode()) {
+    demoUnblockPatient(patientUid);
+    return;
+  }
+  throw new Error("Desbloqueio exige Firebase (Sprint 11).");
+}
+
+export async function removePatientFromClinic(
+  patientUid: string
+): Promise<void> {
+  if (isDemoMode()) {
+    demoRemovePatient(patientUid);
+    return;
+  }
+  throw new Error("Remoção exige Firebase (Sprint 11).");
 }
 
 export async function getPatient(

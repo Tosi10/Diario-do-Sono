@@ -241,14 +241,19 @@ export function PrimaryButton({
 export function SecondaryButton({
   label,
   onPress,
+  disabled,
 }: {
   label: string;
   onPress: () => void;
+  disabled?: boolean;
 }) {
   return (
     <Pressable
       onPress={onPress}
-      className="rounded-2xl border border-sleep-rose/25 bg-sleep-lavenderSoft/80 px-4 py-3.5"
+      disabled={disabled}
+      className={`rounded-2xl border border-sleep-rose/25 bg-sleep-lavenderSoft/80 px-4 py-3.5 ${
+        disabled ? "opacity-50" : ""
+      }`}
     >
       <Text className="text-center font-sansMed text-[15px] text-sleep-rose">
         {label}

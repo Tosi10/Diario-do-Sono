@@ -1,0 +1,5 @@
+# Gerado por scripts/generate-seo.mjs — não editar à mão
+User-agent: *
+Allow: /
+
+Sitemap: https://anagoncalvespsiquiatra.com.br/sitemap.xml

@@ -1,0 +1,59 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://anagoncalvespsiquiatra.com.br/#website",
+      "url": "https://anagoncalvespsiquiatra.com.br/",
+      "name": "Ana Gonçalves · Psiquiatra em Curitiba",
+      "description": "Dra. Ana Heloisa Gonçalves, médica psiquiatra em Curitiba. Consultas presenciais na Cuidar! Espaço Saúde e telemedicina. CRM/PR 23.313 · RQE 190.",
+      "inLanguage": "pt-BR"
+    },
+    {
+      "@type": "Physician",
+      "@id": "https://anagoncalvespsiquiatra.com.br/#physician",
+      "name": "Ana Heloisa Gonçalves",
+      "givenName": "Ana Heloisa",
+      "familyName": "Gonçalves",
+      "jobTitle": "Médica Psiquiatra",
+      "medicalSpecialty": "Psychiatric",
+      "image": "https://anagoncalvespsiquiatra.com.br/brand/retrato.jpg",
+      "url": "https://anagoncalvespsiquiatra.com.br/",
+      "telephone": "+5541992873260",
+      "email": "contato@cuidar.med.br",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Rua Ébano Pereira, 60, sala 1705",
+        "addressLocality": "Curitiba",
+        "addressRegion": "PR",
+        "postalCode": "80420-000",
+        "addressCountry": "BR"
+      },
+      "worksFor": {
+        "@type": "MedicalBusiness",
+        "@id": "https://anagoncalvespsiquiatra.com.br/#clinic"
+      }
+    },
+    {
+      "@type": "MedicalBusiness",
+      "@id": "https://anagoncalvespsiquiatra.com.br/#clinic",
+      "name": "Cuidar! Espaço Saúde",
+      "url": "https://anagoncalvespsiquiatra.com.br/",
+      "telephone": "+5541992873260",
+      "email": "contato@cuidar.med.br",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Rua Ébano Pereira, 60, sala 1705",
+        "addressLocality": "Curitiba",
+        "addressRegion": "PR",
+        "postalCode": "80420-000",
+        "addressCountry": "BR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -25.4284,
+        "longitude": -49.2733
+      }
+    }
+  ]
+}

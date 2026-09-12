@@ -15,5 +15,5 @@ export const demoPersona = {
     displayName: "Marina Costa",
   },
   loginBlurb:
-    "Protótipo para a Dra. Ana Gonçalves — Clínica Cuidar. Dados de exemplo, sem banco ainda. Código de vínculo: MAPA01.",
+    "Protótipo para a Dra. Ana Gonçalves — Clínica Cuidar. Dados de exemplo, sem banco ainda. Pacientes novos entram pendentes até ela aprovar.",
 } as const;

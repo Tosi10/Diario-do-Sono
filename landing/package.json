@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "node scripts/generate-seo.mjs",
     "build": "tsc -b && vite build",
+    "prebuild": "node scripts/generate-seo.mjs",
     "preview": "vite preview",
     "deploy": "npm run build && firebase deploy --only hosting --project futeba-96395"
   },

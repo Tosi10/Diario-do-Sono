@@ -114,12 +114,13 @@ export default function RegisterScreen() {
 
             {role === "patient" ? (
               <InfoBanner>
-                Depois do cadastro você poderá vincular-se com o código da
-                profissional.
+                Depois do cadastro, seu pedido vai automaticamente para a Dra.
+                Ana. O diário libera quando ela aprovar.
               </InfoBanner>
             ) : (
               <InfoBanner>
-                Você receberá um código de convite para seus pacientes.
+                Como profissional, você aprova, bloqueia e remove pacientes em
+                Pacientes — o app é da sua clínica.
               </InfoBanner>
             )}
 

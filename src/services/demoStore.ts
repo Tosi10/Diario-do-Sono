@@ -24,6 +24,7 @@ import { emptyDayInput } from "@/src/types";
 import type {
   EntrySource,
   IsoDate,
+  LinkStatus,
   SleepDayInput,
   SonoDay,
   SonoPatient,
@@ -70,6 +71,7 @@ export function demoCreateProfile(params: {
         ? demoPersona.professional.clinicName
         : null),
     linkedProfessionalId: null,
+    linkStatus: params.role === "patient" ? "none" : undefined,
     inviteCode:
       params.role === "professional" || params.role === "admin"
         ? (params.inviteCode ?? demoPersona.professional.inviteCode)
@@ -83,6 +85,17 @@ export function demoCreateProfile(params: {
 
   if (params.role === "professional" || params.role === "admin") {
     seedDemoPatients(params.uid);
+  }
+
+  // Paciente novo → fila automática da Dra. Ana (sem código).
+  if (params.role === "patient") {
+    demoEnsureProfessional();
+    demoRequestClinicLink({
+      patientUid: params.uid,
+      displayName: params.displayName,
+      email: params.email,
+    });
+    return demoGetUser(params.uid) ?? profile;
   }
 
   return profile;
@@ -204,6 +217,8 @@ function seedCycleArchive(
       professionalId,
       displayName: demoPersona.patient.displayName,
       email: demoPersona.patient.email,
+      status: "active",
+      requestedAt: null,
       activeWeekId: null,
       filledDays: 0,
       expectedDays: 7,
@@ -218,6 +233,7 @@ function seedCycleArchive(
         displayName: demoPersona.patient.displayName,
         role: "patient",
         linkedProfessionalId: professionalId,
+        linkStatus: "active",
         inviteCode: null,
         termsVersion: TERMS_VERSION,
         termsAcceptedAt: nowIso(),
@@ -305,6 +321,8 @@ function seedDemoPatients(professionalId: string) {
       professionalId,
       displayName: s.name,
       email: s.email,
+      status: "active",
+      requestedAt: null,
       activeWeekId: null,
       filledDays: 0,
       expectedDays: 7,
@@ -318,11 +336,56 @@ function seedDemoPatients(professionalId: string) {
       displayName: s.name,
       role: "patient",
       linkedProfessionalId: professionalId,
+      linkStatus: "active",
       inviteCode: null,
       termsVersion: TERMS_VERSION,
       termsAcceptedAt: nowIso(),
       createdAt: nowIso(),
       updatedAt: nowIso(),
+    });
+  }
+
+  // Fila de aprovação — pedidos aguardando a Dra. Ana (demo).
+  const pendingSamples = [
+    {
+      uid: "demo-pending-1",
+      name: "Júlia Torres",
+      email: "julia.torres@mapadosono.demo",
+    },
+    {
+      uid: "demo-pending-2",
+      name: "Pedro Alves",
+      email: "pedro.alves@mapadosono.demo",
+    },
+  ];
+  for (const s of pendingSamples) {
+    if (patients.has(s.uid) || users.has(s.uid)) continue;
+    const requestedAt = nowIso();
+    patients.set(s.uid, {
+      patientUid: s.uid,
+      professionalId,
+      displayName: s.name,
+      email: s.email,
+      status: "pending",
+      requestedAt,
+      activeWeekId: null,
+      filledDays: 0,
+      expectedDays: 7,
+      createdAt: requestedAt,
+      updatedAt: requestedAt,
+    });
+    users.set(s.uid, {
+      uid: s.uid,
+      email: s.email,
+      displayName: s.name,
+      role: "patient",
+      linkedProfessionalId: professionalId,
+      linkStatus: "pending",
+      inviteCode: null,
+      termsVersion: TERMS_VERSION,
+      termsAcceptedAt: requestedAt,
+      createdAt: requestedAt,
+      updatedAt: requestedAt,
     });
   }
 
@@ -544,6 +607,8 @@ export function demoUpsertPatient(params: {
   professionalId: string;
   displayName: string;
   email: string;
+  status?: LinkStatus;
+  requestedAt?: string | null;
 }) {
   const existing = patients.get(params.patientUid);
   const now = nowIso();
@@ -551,6 +616,11 @@ export function demoUpsertPatient(params: {
     patients.set(params.patientUid, {
       ...existing,
       ...params,
+      status: params.status ?? existing.status ?? "active",
+      requestedAt:
+        params.requestedAt !== undefined
+          ? params.requestedAt
+          : existing.requestedAt,
       updatedAt: now,
     });
     return;
@@ -560,6 +630,8 @@ export function demoUpsertPatient(params: {
     professionalId: params.professionalId,
     displayName: params.displayName,
     email: params.email,
+    status: params.status ?? "active",
+    requestedAt: params.requestedAt ?? null,
     activeWeekId: null,
     filledDays: 0,
     expectedDays: 7,
@@ -568,11 +640,134 @@ export function demoUpsertPatient(params: {
   });
 }
 
+/** Pacientes ativos (diário) — pendentes e bloqueados ficam fora. */
 export function demoListPatients(professionalId: string) {
   seedDemoPatients(professionalId);
   return [...patients.values()]
-    .filter((p) => p.professionalId === professionalId)
+    .filter(
+      (p) =>
+        p.professionalId === professionalId &&
+        (p.status ?? "active") === "active"
+    )
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "pt-BR"));
+}
+
+export function demoListPendingPatients(professionalId: string) {
+  seedDemoPatients(professionalId);
+  return [...patients.values()]
+    .filter(
+      (p) =>
+        p.professionalId === professionalId && p.status === "pending"
+    )
+    .sort((a, b) =>
+      (b.requestedAt ?? b.createdAt).localeCompare(
+        a.requestedAt ?? a.createdAt
+      )
+    );
+}
+
+export function demoListBlockedPatients(professionalId: string) {
+  seedDemoPatients(professionalId);
+  return [...patients.values()]
+    .filter(
+      (p) =>
+        p.professionalId === professionalId && p.status === "blocked"
+    )
+    .sort((a, b) => a.displayName.localeCompare(b.displayName, "pt-BR"));
+}
+
+export function demoCountPendingApprovals(professionalId: string) {
+  return demoListPendingPatients(professionalId).length;
+}
+
+/** Cadastro → fila da Dra. Ana (sem código). */
+export function demoRequestClinicLink(params: {
+  patientUid: string;
+  displayName: string;
+  email: string;
+}): void {
+  const pro = demoEnsureProfessional();
+  const now = nowIso();
+  demoUpdateUser(params.patientUid, {
+    linkedProfessionalId: pro.uid,
+    linkStatus: "pending",
+  });
+  demoUpsertPatient({
+    patientUid: params.patientUid,
+    professionalId: pro.uid,
+    displayName: params.displayName,
+    email: params.email,
+    status: "pending",
+    requestedAt: now,
+  });
+}
+
+export function demoApprovePatient(patientUid: string): void {
+  const p = patients.get(patientUid);
+  if (!p || p.status !== "pending") {
+    throw new Error("Pedido não encontrado ou já resolvido.");
+  }
+  const now = nowIso();
+  patients.set(patientUid, {
+    ...p,
+    status: "active",
+    updatedAt: now,
+  });
+  demoUpdateUser(patientUid, {
+    linkedProfessionalId: p.professionalId,
+    linkStatus: "active",
+  });
+}
+
+export function demoRejectPatient(patientUid: string): void {
+  const p = patients.get(patientUid);
+  if (!p || p.status !== "pending") {
+    throw new Error("Pedido não encontrado ou já resolvido.");
+  }
+  patients.delete(patientUid);
+  demoUpdateUser(patientUid, {
+    linkedProfessionalId: null,
+    linkStatus: "removed",
+  });
+}
+
+export function demoBlockPatient(patientUid: string): void {
+  const p = patients.get(patientUid);
+  if (!p || (p.status ?? "active") !== "active") {
+    throw new Error("Só é possível bloquear pacientes ativos.");
+  }
+  patients.set(patientUid, {
+    ...p,
+    status: "blocked",
+    updatedAt: nowIso(),
+  });
+  demoUpdateUser(patientUid, { linkStatus: "blocked" });
+}
+
+export function demoUnblockPatient(patientUid: string): void {
+  const p = patients.get(patientUid);
+  if (!p || p.status !== "blocked") {
+    throw new Error("Paciente não está bloqueado.");
+  }
+  patients.set(patientUid, {
+    ...p,
+    status: "active",
+    updatedAt: nowIso(),
+  });
+  demoUpdateUser(patientUid, { linkStatus: "active" });
+}
+
+export function demoRemovePatient(patientUid: string): void {
+  const p = patients.get(patientUid);
+  if (!p) {
+    throw new Error("Paciente não encontrado.");
+  }
+  // Remove da lista clínica; semanas/dias permanecem no store (arquivo).
+  patients.delete(patientUid);
+  demoUpdateUser(patientUid, {
+    linkedProfessionalId: null,
+    linkStatus: "removed",
+  });
 }
 
 export function demoGetPatient(patientUid: string) {
@@ -897,12 +1092,17 @@ export function demoLinkByCode(params: {
   if (!pro) {
     throw new Error("Nenhuma profissional encontrada com este código.");
   }
-  demoUpdateUser(params.patientUid, { linkedProfessionalId: pro.uid });
+  demoUpdateUser(params.patientUid, {
+    linkedProfessionalId: pro.uid,
+    linkStatus: "active",
+  });
   demoUpsertPatient({
     patientUid: params.patientUid,
     professionalId: pro.uid,
     displayName: params.patientName,
     email: params.patientEmail,
+    status: "active",
+    requestedAt: null,
   });
   return pro.uid;
 }

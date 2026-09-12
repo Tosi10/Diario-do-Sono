@@ -15,14 +15,14 @@ Docs de suporte: [`README.md`](README.md) · [`docs/ARQUITETURA.md`](docs/ARQUIT
 |------|----------|
 | Nome + copy oficial | **Feito** — Sono à Vista (`src/content/mapaDoSono.ts`) |
 | Identidade visual no app | **Feito** — Manual 2026: Bethany Elingston + Work Sans, HEX oficiais, selo + logo vertical |
-| Landing Ana Gonçalves | **Deployado** — https://ana-goncalves.web.app (31 ago/2026, para revisão da Dra. Ana) |
+| Landing Ana Gonçalves | **Deployado** — [anagoncalvespsiquiatra.com.br](https://anagoncalvespsiquiatra.com.br) (+ Firebase `ana-goncalves.web.app`) |
 | Sprints 1–3 (código) | **Feito** em modo demo (sem Firebase `.env`) |
 | Sprint 4 métricas | **Parcial** — LIS…EF no app; validar com ela |
 | Sprint 5 OCR | **Parcial** — UI + mock demo; Gemini/Storage pendente |
 | Protocolo de ciclo (hora de acordar + 5h + push) | **Sprints 8–10 feitos em demo** · validar push no APK |
 | UI polish (rebrand + Diário em abas) | **Em andamento** — empty states + modal padrão; ver registro |
 | Firebase real / piloto APK | **Depois** — aguarda CNPJ + novo projeto Firebase |
-| Admin clínico (aprovar / bloquear / remover paciente) | **Definido** — implementar com Firebase (ver Sprint 11) |
+| Admin clínico (aprovar / bloquear / remover paciente) | **Demo UI feita** — Pacientes com Pendentes; Firebase depois |
 
 **MVP clínico útil (form + painel + métricas)** ≈ pronto em demo.  
 **Próximo bloqueio de produto:** validação clínica com a Dra. Ana (Sprint 4) + polish visual restante. Firebase continua **depois**.
@@ -91,9 +91,30 @@ Histórico para saber o que mudou entre sessões (mais recente primeiro).
 - [ ] Roteiro de validação clínica com a Dra. Ana (Sprint 4)
 
 ### Landing (31 ago/2026 — deploy para Dra. Ana)
-- Site publicado: **https://ana-goncalves.web.app**
+- Site: **https://anagoncalvespsiquiatra.com.br** (domínio) · espelho Firebase: `ana-goncalves.web.app`
 - Depoimentos editorial (grid assimétrico), fundo `11.jpg`, rodapé oliva original
 - Aguardando feedback da Dra. Ana antes de considerar versão final
+
+### 12 set/2026 — Admin clínico em demo (Sprint 11 UI)
+
+- [x] `LinkStatus`: `none | pending | active | blocked | removed`
+- [x] Cadastro paciente → fila automática da Dra. Ana (**sem código**)
+- [x] Demo seed: Júlia Torres + Pedro Alves em **Pendentes**
+- [x] Aba **Pacientes**: Pendentes (Aprovar/Recusar) · Ativos (Gerir → Bloquear/Remover) · Bloqueados (Desbloquear)
+- [x] Início profissional: card “Aguardando você” com contagem
+- [x] Perfil paciente: status do vínculo (sem campo de código)
+- [x] Perfil profissional: copy mono-doutora (sem código)
+- [ ] Firebase + e-mails — quando CNPJ / projeto empresarial
+
+### 02 set/2026 — SEO técnico (landing)
+
+- [x] `robots.txt` + `sitemap.xml` gerados no build (`scripts/generate-seo.mjs`)
+- [x] Meta tags: canonical, Open Graph, Twitter Card, `theme-color`
+- [x] JSON-LD (`Physician` + `MedicalBusiness` + `WebSite`) inline no HTML
+- [x] `VITE_SITE_URL` em `.env.production` — trocar ao migrar domínio/Firebase
+- [ ] Google Search Console — cadastrar URL provisória e depois domínio final
+- [ ] Google Business Profile (Cuidar / Dra. Ana) — linkar site
+- [ ] Migração semana que vem: DNS → Firebase empresarial + redirect 301 do `.web.app`
 
 ### 31 ago/2026 — Decisão: app mono-doutora, sem código
 
@@ -398,17 +419,17 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 
 **App — paciente:**
 
-- [ ] Remover tela/campo de código no Perfil
-- [ ] Após cadastro: status **pendente** (EmptyState + “A Dra. Ana vai confirmar em breve”)
-- [ ] Bloqueado: aviso claro, sem formulário
-- [ ] Aprovado: fluxo atual (ciclo, diário, push)
+- [x] Remover tela/campo de código no Perfil (demo)
+- [x] Após cadastro: status **pendente** (EmptyState) (demo)
+- [x] Bloqueado: aviso claro, sem formulário (demo)
+- [x] Aprovado: fluxo atual (ciclo, diário, push) (demo)
 
 **App — profissional:**
 
-- [ ] Seção **Pendentes** com badge no Início / Pacientes
-- [ ] Aprovar / Recusar (com confirmação `AppAlert`)
-- [ ] Por paciente: **Bloquear** · **Remover da clínica** (menu ou swipe)
-- [ ] Empty states quando fila vazia
+- [x] Seção **Pendentes** com badge no Início / Pacientes (demo)
+- [x] Aprovar / Recusar (com confirmação `AppAlert`) (demo)
+- [x] Por paciente: **Bloquear** · **Remover da clínica** (demo)
+- [x] Empty states quando fila vazia / sem ativos (demo)
 
 **Backend (Firebase):**
 
@@ -417,9 +438,10 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 - [ ] Cloud Function `onLinkResolved` → e-mail opcional ao paciente
 - [ ] Domínio remetente: `contato@cuidar.med.br` ou noreply clínica
 
-**Critério de pronto:** paciente teste **só se cadastra** → Ana recebe e-mail → aprova no app → paciente preenche; bloqueio impede novo registro; remover tira da lista sem apagar semanas.
+**Critério de pronto (demo UI):** Dra. Ana vê Pendentes, aprova/recusa, bloqueia/remove — ✅  
+**Critério de pronto (produção):** + e-mail + Auth real — ⏳ Firebase/CNPJ
 
-**Estimativa:** 4–6 dias (junto com setup Firebase + CNPJ).
+**Estimativa restante:** 2–3 dias ao ligar Firebase.
 
 **Depende de:** projeto Firebase dedicado, `.env`, CNPJ.
 

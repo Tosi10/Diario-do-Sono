@@ -2,7 +2,10 @@ import {
   ensureActiveWeek,
   listDaysForWeek,
 } from "@/src/services/diary";
-import { listPatientsForProfessional } from "@/src/services/patients";
+import {
+  countPendingApprovals,
+  listPatientsForProfessional,
+} from "@/src/services/patients";
 import { toIsoDate } from "@/src/domain/timeHelpers";
 import type { SonoDay, SonoPatient } from "@/src/types";
 
@@ -18,13 +21,18 @@ export type ProfessionalHomeData = {
   totalPatients: number;
   filledToday: number;
   pendingToday: number;
+  /** Pedidos de vínculo aguardando aprovação. */
+  pendingApprovals: number;
   updates: PatientUpdateCard[];
 };
 
 export async function getProfessionalHomeData(
   professionalId: string
 ): Promise<ProfessionalHomeData> {
-  const patients = await listPatientsForProfessional(professionalId);
+  const [patients, pendingApprovals] = await Promise.all([
+    listPatientsForProfessional(professionalId),
+    countPendingApprovals(professionalId),
+  ]);
   const today = toIsoDate(new Date());
   const updates: PatientUpdateCard[] = [];
 
@@ -53,13 +61,13 @@ export async function getProfessionalHomeData(
   });
 
   const filledToday = updates.filter((u) => u.filledToday).length;
-  // Só quem realmente registrou algo — não é a lista completa de pacientes
   const recentUpdates = updates.filter((u) => u.lastDay !== null);
 
   return {
     totalPatients: patients.length,
     filledToday,
     pendingToday: Math.max(0, patients.length - filledToday),
+    pendingApprovals,
     updates: recentUpdates,
   };
 }

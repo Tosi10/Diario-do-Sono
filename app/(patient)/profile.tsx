@@ -1,48 +1,28 @@
-import { showAppAlert } from "@/src/components/AppAlert";
 import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
-import { TextField } from "@/src/components/TextField";
 import {
   Card,
   InfoBanner,
   PageHeader,
-  PrimaryButton,
   Screen,
   SecondaryButton,
   screenScrollContent,
 } from "@/src/components/ui";
 import { demoPersona } from "@/src/content/demoPersona";
 import { useAuth } from "@/src/contexts/AuthContext";
-import { linkPatientToProfessionalByCode } from "@/src/services/users";
-import { useState } from "react";
+import type { LinkStatus } from "@/src/types";
 import { AppScrollView } from "@/src/components/AppScrollView";
 import { Text, View } from "react-native";
 
-export default function PatientProfileScreen() {
-  const { user, profile, signOut, refreshProfile, demoMode } = useAuth();
-  const [code, setCode] = useState(
-    demoMode ? demoPersona.professional.inviteCode : ""
-  );
-  const [linking, setLinking] = useState(false);
+function resolveLinkStatus(
+  profile: { linkStatus?: LinkStatus; linkedProfessionalId?: string | null }
+): LinkStatus {
+  if (profile.linkStatus) return profile.linkStatus;
+  return profile.linkedProfessionalId ? "active" : "none";
+}
 
-  const onLink = async () => {
-    if (!user || !profile) return;
-    try {
-      setLinking(true);
-      await linkPatientToProfessionalByCode({
-        patientUid: user.uid,
-        patientName: profile.displayName,
-        patientEmail: profile.email,
-        inviteCode: code,
-      });
-      await refreshProfile();
-      showAppAlert("Vinculado", "Você está conectada à Dra. Ana Gonçalves.");
-      setCode("");
-    } catch (e) {
-      showAppAlert("Código", e instanceof Error ? e.message : "Falha");
-    } finally {
-      setLinking(false);
-    }
-  };
+export default function PatientProfileScreen() {
+  const { profile, signOut } = useAuth();
+  const status = profile ? resolveLinkStatus(profile) : "none";
 
   return (
     <Screen edges="top">
@@ -63,32 +43,32 @@ export default function PatientProfileScreen() {
           <Text className="font-sansMed text-sleep-ink mb-2">
             Vínculo com a profissional
           </Text>
-          {profile?.linkedProfessionalId ? (
+          {status === "active" ? (
             <InfoBanner>
               Vinculada à Dra. Ana Gonçalves ({demoPersona.professional.clinicName}
               ). Qualquer dúvida, fale com ela na consulta.
             </InfoBanner>
+          ) : status === "pending" ? (
+            <EmptyState
+              compact
+              image={emptyStateImages.ginkgo}
+              title="Aguardando a Dra. Ana"
+              message="Seu cadastro já chegou até ela. Assim que aprovar, o diário será liberado."
+            />
+          ) : status === "blocked" ? (
+            <EmptyState
+              compact
+              image={emptyStateImages.rest}
+              title="Acesso pausado"
+              message="A Dra. Ana bloqueou temporariamente o uso do diário. Fale com ela na consulta."
+            />
           ) : (
-            <>
-              <EmptyState
-                compact
-                image={emptyStateImages.ginkgo}
-                title="Código da consulta"
-                message={`Digite o código que a Dra. Ana passou. Na demonstração use ${demoPersona.professional.inviteCode}.`}
-              />
-              <TextField
-                label="Código dela"
-                value={code}
-                onChangeText={(t) => setCode(t.toUpperCase())}
-                placeholder={demoPersona.professional.inviteCode}
-                autoCapitalize="none"
-              />
-              <PrimaryButton
-                label={linking ? "Vinculando…" : "Vincular"}
-                onPress={onLink}
-                disabled={linking || code.length < 4}
-              />
-            </>
+            <EmptyState
+              compact
+              image={emptyStateImages.ginkgo}
+              title="Sem vínculo ativo"
+              message="Ao criar a conta, o pedido vai automaticamente para a Dra. Ana. Se foi recusado, fale com ela."
+            />
           )}
         </Card>
 

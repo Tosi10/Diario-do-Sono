@@ -1,0 +1,24 @@
+{
+  "title": "Ana Gonçalves · Psiquiatra em Curitiba",
+  "description": "Dra. Ana Heloisa Gonçalves, médica psiquiatra em Curitiba. Consultas presenciais na Cuidar! Espaço Saúde e telemedicina. CRM/PR 23.313 · RQE 190.",
+  "keywords": "psiquiatra Curitiba, psiquiatra online, saúde mental, Dra Ana Gonçalves, Cuidar Espaço Saúde, consulta psiquiatria",
+  "defaultSiteUrl": "https://anagoncalvespsiquiatra.com.br",
+  "locale": "pt_BR",
+  "ogImagePath": "/brand/retrato.jpg",
+  "physician": {
+    "name": "Ana Heloisa Gonçalves",
+    "givenName": "Ana Heloisa",
+    "familyName": "Gonçalves",
+    "jobTitle": "Médica Psiquiatra",
+    "telephone": "+5541992873260",
+    "email": "contato@cuidar.med.br"
+  },
+  "clinic": {
+    "name": "Cuidar! Espaço Saúde",
+    "streetAddress": "Rua Ébano Pereira, 60, sala 1705",
+    "addressLocality": "Curitiba",
+    "addressRegion": "PR",
+    "postalCode": "80420-000",
+    "addressCountry": "BR"
+  }
+}

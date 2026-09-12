@@ -10,6 +10,14 @@ export type EntrySource = "manual" | "ocr" | "professional";
 export type WeekStatus = "open" | "complete" | "failed" | "reviewed";
 export type TtsMode = "patient" | "computed";
 
+/** Vínculo clínico com a Dra. Ana (app mono-doutora). */
+export type LinkStatus =
+  | "none"
+  | "pending"
+  | "active"
+  | "blocked"
+  | "removed";
+
 export interface SonoUserProfile {
   uid: string;
   email: string;
@@ -17,6 +25,8 @@ export interface SonoUserProfile {
   role: SonoRole;
   clinicName?: string | null;
   linkedProfessionalId?: string | null;
+  /** Status do vínculo com a clínica (paciente). */
+  linkStatus?: LinkStatus;
   inviteCode?: string | null;
   termsVersion: string;
   termsAcceptedAt?: string | null;
@@ -73,6 +83,10 @@ export interface SonoPatient {
   professionalId: string;
   displayName: string;
   email: string;
+  /** Espelha o vínculo clínico. Ativos entram na lista de diário. */
+  status?: LinkStatus;
+  /** Quando o paciente pediu vínculo (fila de aprovação). */
+  requestedAt?: string | null;
   activeWeekId: string | null;
   filledDays: number;
   expectedDays: number;

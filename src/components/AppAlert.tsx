@@ -113,13 +113,14 @@ export function AppAlertHost() {
           <View
             style={[
               styles.actions,
-              buttons.length > 1 ? styles.actionsRow : null,
+              buttons.length === 2 ? styles.actionsRow : null,
             ]}
           >
             {buttons.map((btn, i) => {
               const isPrimary =
                 btn.style !== "cancel" &&
-                (buttons.length === 1 || i === buttons.length - 1);
+                (buttons.length === 1 ||
+                  (buttons.length === 2 && i === buttons.length - 1));
               const isDestructive = btn.style === "destructive";
 
               if (isPrimary && !isDestructive) {
@@ -129,7 +130,7 @@ export function AppAlertHost() {
                     onPress={() => onButton(btn)}
                     style={[
                       styles.primaryWrap,
-                      buttons.length > 1 ? styles.actionFlex : null,
+                      buttons.length === 2 ? styles.actionFlex : null,
                     ]}
                   >
                     <LinearGradient
@@ -148,11 +149,11 @@ export function AppAlertHost() {
                 <Pressable
                   key={`${btn.text}-${i}`}
                   onPress={() => onButton(btn)}
-                  style={[
-                    styles.secondaryBtn,
-                    buttons.length > 1 ? styles.actionFlex : null,
-                  ]}
-                >
+                    style={[
+                      styles.secondaryBtn,
+                      buttons.length === 2 ? styles.actionFlex : null,
+                    ]}
+                  >
                   <Text
                     style={[
                       styles.secondaryLabel,
