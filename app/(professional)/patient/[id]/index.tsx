@@ -91,7 +91,7 @@ export default function PatientDetailScreen() {
 
   if (loading || !week) {
     return (
-      <Screen edges="top">
+      <Screen edges="top" atmosphere="soft">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color="#AD665C" />
         </View>
@@ -110,7 +110,7 @@ export default function PatientDetailScreen() {
   ].filter(Boolean);
 
   return (
-    <Screen edges="top">
+    <Screen edges="top" atmosphere="soft">
       <DiaryCycleScreenBody
         mode="professional"
         header={{

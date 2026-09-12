@@ -25,7 +25,7 @@ Docs de suporte: [`README.md`](README.md) · [`docs/ARQUITETURA.md`](docs/ARQUIT
 | Admin clínico (aprovar / bloquear / remover paciente) | **Demo UI feita** — Pacientes com Pendentes; Firebase depois |
 
 **MVP clínico útil (form + painel + métricas)** ≈ pronto em demo.  
-**Próximo bloqueio de produto:** validação clínica com a Dra. Ana (Sprint 4) + polish visual restante. Firebase continua **depois**.
+**Próximo bloqueio de produto:** validação clínica com a Dra. Ana (Sprint 4). UI clínica editorial **congelada em demo**. Firebase continua **depois**.
 
 ---
 
@@ -94,6 +94,18 @@ Histórico para saber o que mudou entre sessões (mais recente primeiro).
 - Site: **https://anagoncalvespsiquiatra.com.br** (domínio) · espelho Firebase: `ana-goncalves.web.app`
 - Depoimentos editorial (grid assimétrico), fundo `11.jpg`, rodapé oliva original
 - Aguardando feedback da Dra. Ana antes de considerar versão final
+
+### 12 set/2026 — UI clínica editorial (demo)
+
+- [x] `Screen atmosphere="soft"` — fundo foto de marca + lavagem marfim (contraste ajustado)
+- [x] `ClinicChrome` — faixa de stats, callout de pendentes, cards/linhas de pacientes e atualizações
+- [x] Início + Pacientes (profissional): hierarquia editorial, sem cards idênticos em massa
+- [x] Stats do Início: só **Ativas** + **Hoje ok** (sem “Sem diário”, redundante)
+- [x] Ativos: `1/7` + **Gerir** alinhados na mesma linha à direita
+- [x] Soft atmosphere no ciclo (paciente/profissional), perfis e Início do paciente
+- [x] Scroll da grade (semana/stats/histórico) full-bleed — indicador na borda da tela
+- [ ] Soft atmosphere em OCR / dia avulso (opcional)
+- [ ] Roteiro de validação clínica com a Dra. Ana
 
 ### 12 set/2026 — Admin clínico em demo (Sprint 11 UI)
 
@@ -457,7 +469,7 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 | **P0** | **Protocolo de ciclo (Sprint 8)** | ✅ demo · ⏳ validar com ela |
 | **P0** | **Histórico de ciclos (Sprint 9)** | ✅ demo |
 | **P1** | **Push Android (Sprint 10)** | ✅ código · ⏳ APK |
-| **P1** | **Polish UI (Sprint 7)** | ⏳ em andamento |
+| **P1** | **Polish UI (Sprint 7)** | ✅ editorial soft + ClinicChrome · OCR/dia opcional |
 | P1 | OCR com revisão (Gemini) | ⏳ UI pronta |
 | P1 | Piloto APK | ⏳ |
 | P2 | Firebase real + `.env` + **Sprint 11 admin** | ⏳ aguarda CNPJ |
@@ -518,6 +530,6 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 
 1. **Aguardar CNPJ + Firebase** — conectar `.env` e implementar **Sprint 11** (aprovação, bloqueio, e-mails).
 2. **Landing** — feedback da Dra. Ana nos depoimentos e textos.
-3. **Sprint 4** — sessão demo: validar métricas, formulário e fluxo do ciclo.
+3. **Sprint 4** — sessão demo: validar métricas, formulário e fluxo do ciclo (+ admin Pacientes).
 4. **Sprint 6** — EAS APK para push no Android real.
-5. Polish UI restante — opcional enquanto aguarda Firebase.
+5. Polish UI restante — OCR / dia avulso com `atmosphere="soft"` (opcional).

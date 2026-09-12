@@ -2,28 +2,56 @@ import { brand } from "@/src/theme/brand";
 import { BrandMark } from "@/src/components/BrandMark";
 import { BackButton } from "@/src/components/BackButton";
 import { ContentFrame } from "@/src/components/ContentFrame";
+import { emptyStateImages } from "@/src/components/EmptyState";
 import { SegmentTabs } from "@/src/components/SegmentTabs";
 import { LinearGradient } from "expo-linear-gradient";
 import { ReactNode } from "react";
-import { Pressable, Text, View, Platform } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+function SoftAtmosphere() {
+  return (
+    <View pointerEvents="none" style={styles.atmosphereRoot}>
+      <Image
+        source={emptyStateImages.ginkgo}
+        style={styles.atmosphereImage}
+        resizeMode="cover"
+      />
+      <LinearGradient
+        colors={[
+          "rgba(242, 237, 224, 0.80)",
+          "rgba(242, 237, 224, 0.63)",
+          "rgba(232, 224, 207, 0.71)",
+        ]}
+        locations={[0, 0.5, 1]}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+    </View>
+  );
+}
 
 export function Screen({
   children,
   className = "",
   edges = "both",
   contentMaxWidth = 720,
+  atmosphere = "plain",
 }: {
   children: ReactNode;
   className?: string;
   edges?: "both" | "top" | "none";
   contentMaxWidth?: number;
+  /** plain = gradiente marca · soft = foto editorial suave (telas clínicas) */
+  atmosphere?: "plain" | "soft";
 }) {
   const insets = useSafeAreaInsets();
   return (
     <View
-      className={`flex-1 bg-sleep-bg ${className}`}
+      className={`flex-1 ${atmosphere === "soft" ? "" : "bg-sleep-bg"} ${className}`}
       style={{
+        backgroundColor: atmosphere === "soft" ? brand.marfim : undefined,
         // Em telas com tab bar use edges="top": o bottom inset fica na barra,
         // senão aparece uma faixa vazia (fundo) entre o conteúdo e as abas.
         paddingTop:
@@ -33,27 +61,33 @@ export function Screen({
         paddingBottom: edges === "top" || edges === "none" ? 0 : insets.bottom,
       }}
     >
-      <LinearGradient
-        colors={[brand.marfim, brand.marfimDeep, brand.areia]}
-        start={{ x: 0.15, y: 0 }}
-        end={{ x: 0.85, y: 1 }}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }}
-      />
-      <View
-        pointerEvents="none"
-        className="absolute -right-20 top-24 h-64 w-64 rounded-full bg-sleep-lavender/12"
-      />
-      <View
-        pointerEvents="none"
-        className="absolute -bottom-16 -left-16 h-52 w-52 rounded-full bg-sleep-accent/10"
-      />
-      <ContentFrame maxWidth={contentMaxWidth} className="flex-1">
+      {atmosphere === "soft" ? (
+        <SoftAtmosphere />
+      ) : (
+        <>
+          <LinearGradient
+            colors={[brand.marfim, brand.marfimDeep, brand.areia]}
+            start={{ x: 0.15, y: 0 }}
+            end={{ x: 0.85, y: 1 }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
+          />
+          <View
+            pointerEvents="none"
+            className="absolute -right-20 top-24 h-64 w-64 rounded-full bg-sleep-lavender/12"
+          />
+          <View
+            pointerEvents="none"
+            className="absolute -bottom-16 -left-16 h-52 w-52 rounded-full bg-sleep-accent/10"
+          />
+        </>
+      )}
+      <ContentFrame maxWidth={contentMaxWidth} className="flex-1 z-10">
         {children}
       </ContentFrame>
     </View>
@@ -289,3 +323,16 @@ export function SectionLabel({ children }: { children: ReactNode }) {
     </Text>
   );
 }
+
+const styles = StyleSheet.create({
+  atmosphereRoot: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
+  atmosphereImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
+    opacity: 0.42,
+  },
+});

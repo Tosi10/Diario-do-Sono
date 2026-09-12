@@ -1,9 +1,13 @@
 import { showAppAlert } from "@/src/components/AppAlert";
+import {
+  ActivePatientRow,
+  ClinicSectionLabel,
+  PendingRequestCard,
+} from "@/src/components/ClinicChrome";
 import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
 import {
   Card,
   PageHeader,
-  PrimaryButton,
   Screen,
   SecondaryButton,
   screenScrollContent,
@@ -27,7 +31,7 @@ import { useCallback, useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
 import {
   ActivityIndicator,
-  Pressable,
+  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -197,7 +201,7 @@ export default function ProfessionalPatientsScreen() {
   };
 
   return (
-    <Screen edges="top">
+    <Screen edges="top" atmosphere="soft">
       <AppScrollView
         className="flex-1 px-5"
         contentContainerStyle={screenScrollContent}
@@ -213,61 +217,42 @@ export default function ProfessionalPatientsScreen() {
             <ActivityIndicator color={brand.argila} />
           </View>
         ) : (
-          <View className="mt-5 gap-5">
+          <View className="mt-5 gap-6">
             {pending.length > 0 ? (
               <View className="gap-3">
-                <View className="flex-row items-center justify-between">
-                  <Text className="font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-lavender">
-                    Pendentes
-                  </Text>
-                  <View className="rounded-full bg-sleep-accentSoft px-2.5 py-1">
-                    <Text className="font-sansMed text-xs text-sleep-accent">
-                      {pending.length}
-                    </Text>
-                  </View>
-                </View>
-                {pending.map((p) => (
-                  <Card key={p.patientUid}>
-                    <Text className="font-sansBold text-lg text-sleep-ink">
-                      {p.displayName}
-                    </Text>
-                    <Text className="mt-1 font-sans text-sm text-sleep-muted">
-                      {p.email}
-                    </Text>
-                    {p.requestedAt ? (
-                      <Text className="mt-1 font-sans text-xs text-sleep-muted">
-                        Pedido em {formatIsoDatePt(p.requestedAt.slice(0, 10))}
+                <ClinicSectionLabel
+                  trailing={
+                    <View style={styles.pendingBadge}>
+                      <Text style={styles.pendingBadgeText}>
+                        {pending.length}
                       </Text>
-                    ) : null}
-                    <View className="mt-4 flex-row gap-2">
-                      <View className="flex-1">
-                        <SecondaryButton
-                          label="Recusar"
-                          onPress={() => onReject(p)}
-                          disabled={busyUid === p.patientUid}
-                        />
-                      </View>
-                      <View className="flex-1">
-                        <PrimaryButton
-                          label={
-                            busyUid === p.patientUid ? "…" : "Aprovar"
-                          }
-                          onPress={() => onApprove(p)}
-                          disabled={busyUid === p.patientUid}
-                        />
-                      </View>
                     </View>
-                  </Card>
+                  }
+                >
+                  Pendentes
+                </ClinicSectionLabel>
+                {pending.map((p) => (
+                  <PendingRequestCard
+                    key={p.patientUid}
+                    name={p.displayName}
+                    email={p.email}
+                    requestedLabel={
+                      p.requestedAt
+                        ? `Pedido em ${formatIsoDatePt(p.requestedAt.slice(0, 10))}`
+                        : undefined
+                    }
+                    busy={busyUid === p.patientUid}
+                    onApprove={() => onApprove(p)}
+                    onReject={() => onReject(p)}
+                  />
                 ))}
               </View>
             ) : null}
 
-            <View className="gap-3">
-              <Text className="font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-lavender">
-                Ativos
-              </Text>
+            <View>
+              <ClinicSectionLabel>Ativos</ClinicSectionLabel>
               {patients.length === 0 ? (
-                <Card>
+                <Card className="mt-2">
                   <EmptyState
                     compact
                     image={emptyStateImages.rest}
@@ -280,71 +265,42 @@ export default function ProfessionalPatientsScreen() {
                   />
                 </Card>
               ) : (
-                patients.map((p) => (
-                  <Card key={p.patientUid}>
-                    <View className="flex-row items-start justify-between gap-2">
-                      <Pressable
-                        className="min-w-0 flex-1 pr-2"
-                        onPress={() =>
-                          router.push(
-                            `/(professional)/patient/${p.patientUid}`
-                          )
-                        }
-                      >
-                        <Text className="font-sansBold text-lg text-sleep-ink">
-                          {p.displayName}
-                        </Text>
-                        <Text className="mt-1 font-sans text-sm text-sleep-muted">
-                          {p.email}
-                        </Text>
-                      </Pressable>
-                      <View className="items-end gap-2">
-                        <View className="rounded-full bg-sleep-accentSoft px-3 py-1.5">
-                          <Text className="font-sansMed text-xs text-sleep-accent">
-                            {p.filledDays}/{p.expectedDays || 7}
-                          </Text>
-                        </View>
-                        <Pressable
-                          onPress={() => openManageMenu(p)}
-                          hitSlop={8}
-                          className="rounded-full border border-sleep-line px-3 py-1.5"
-                        >
-                          <Text className="font-sansMed text-xs text-sleep-rose">
-                            Gerir
-                          </Text>
-                        </Pressable>
-                      </View>
-                    </View>
-                  </Card>
-                ))
+                <View style={styles.activeList}>
+                  {patients.map((p) => (
+                    <ActivePatientRow
+                      key={p.patientUid}
+                      name={p.displayName}
+                      email={p.email}
+                      progress={`${p.filledDays}/${p.expectedDays || 7}`}
+                      onOpen={() =>
+                        router.push(
+                          `/(professional)/patient/${p.patientUid}`
+                        )
+                      }
+                      onManage={() => openManageMenu(p)}
+                    />
+                  ))}
+                </View>
               )}
             </View>
 
             {blocked.length > 0 ? (
-              <View className="gap-3">
-                <Text className="font-sansMed text-[11px] uppercase tracking-[2px] text-sleep-lavender">
-                  Bloqueados
-                </Text>
+              <View className="gap-2">
+                <ClinicSectionLabel>Bloqueados</ClinicSectionLabel>
                 {blocked.map((p) => (
-                  <Card key={p.patientUid}>
-                    <Text className="font-sansBold text-lg text-sleep-ink">
-                      {p.displayName}
-                    </Text>
-                    <Text className="mt-1 font-sans text-sm text-sleep-muted">
-                      {p.email}
-                    </Text>
-                    <View className="mt-3">
-                      <SecondaryButton
-                        label={
-                          busyUid === p.patientUid
-                            ? "…"
-                            : "Desbloquear"
-                        }
-                        onPress={() => onUnblock(p)}
-                        disabled={busyUid === p.patientUid}
-                      />
+                  <View key={p.patientUid} style={styles.blockedRow}>
+                    <View style={styles.blockedMain}>
+                      <Text style={styles.blockedName}>{p.displayName}</Text>
+                      <Text style={styles.blockedEmail}>{p.email}</Text>
                     </View>
-                  </Card>
+                    <SecondaryButton
+                      label={
+                        busyUid === p.patientUid ? "…" : "Desbloquear"
+                      }
+                      onPress={() => onUnblock(p)}
+                      disabled={busyUid === p.patientUid}
+                    />
+                  </View>
                 ))}
               </View>
             ) : null}
@@ -354,3 +310,46 @@ export default function ProfessionalPatientsScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  pendingBadge: {
+    minWidth: 22,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(173, 102, 92, 0.18)",
+    alignItems: "center",
+  },
+  pendingBadgeText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 12,
+    color: brand.argila,
+  },
+  activeList: {
+    marginTop: 8,
+  },
+  blockedRow: {
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(212, 200, 180, 0.85)",
+    backgroundColor: "rgba(250, 247, 240, 0.95)",
+  },
+  blockedMain: {
+    marginBottom: 4,
+  },
+  blockedName: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 15,
+    color: brand.ink,
+  },
+  blockedEmail: {
+    marginTop: 2,
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    color: brand.muted,
+  },
+});

@@ -14,10 +14,10 @@ export default function ProfessionalProfile() {
   const { profile, signOut, demoMode } = useAuth();
 
   return (
-    <Screen edges="top">
+    <Screen edges="top" atmosphere="soft">
       <AppScrollView
-        className="flex-1 px-5"
-        contentContainerStyle={screenScrollContent}
+        className="flex-1"
+        contentContainerStyle={[screenScrollContent, { paddingHorizontal: 20 }]}
       >
         <PageHeader title="Perfil" subtitle={profile?.displayName} />
 

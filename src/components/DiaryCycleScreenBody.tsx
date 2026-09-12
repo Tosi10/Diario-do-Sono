@@ -85,20 +85,22 @@ export function DiaryCycleScreenBody({
   };
 
   return (
-    <View className="flex-1 px-5">
-      <PageHeader
-        eyebrow={header.eyebrow}
-        title={header.title}
-        subtitle={header.subtitle}
-        onBack={header.onBack}
-        backLabel={header.backLabel}
-      />
+    <View className="flex-1">
+      <View className="px-5">
+        <PageHeader
+          eyebrow={header.eyebrow}
+          title={header.title}
+          subtitle={header.subtitle}
+          onBack={header.onBack}
+          backLabel={header.backLabel}
+        />
 
-      <SegmentTabs tabs={diaryTabs} active={tab} onChange={setTab} />
+        <SegmentTabs tabs={diaryTabs} active={tab} onChange={setTab} />
+      </View>
 
       <AppScrollView
         className="mt-3 flex-1"
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
       >
         <View style={{ display: tab === "week" ? "flex" : "none" }}>
           {isHistorical ? (

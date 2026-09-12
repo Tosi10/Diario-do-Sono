@@ -143,10 +143,10 @@ export default function PatientHomeScreen() {
   const clinicallyActive = linkStatus === "active";
 
   return (
-    <Screen edges="top">
+    <Screen edges="top" atmosphere="soft">
       <AppScrollView
-        className="flex-1 px-5"
-        contentContainerStyle={screenScrollContent}
+        className="flex-1"
+        contentContainerStyle={[screenScrollContent, { paddingHorizontal: 20 }]}
       >
         <GreetingBlock
           eyebrow={mapaDoSono.title}
