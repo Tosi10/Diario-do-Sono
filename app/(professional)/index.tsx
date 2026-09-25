@@ -1,4 +1,4 @@
-import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
+import { EmptyState } from "@/src/components/EmptyState";
 import {
   ClinicStatsStrip,
   ClinicSectionLabel,
@@ -43,6 +43,20 @@ export default function ProfessionalHomeScreen() {
         try {
           const home = await getProfessionalHomeData(user.uid);
           if (alive) setData(home);
+        } catch (e) {
+          if (alive) {
+            setData({
+              totalPatients: 0,
+              filledToday: 0,
+              pendingToday: 0,
+              pendingApprovals: 0,
+              updates: [],
+            });
+          }
+          console.warn(
+            "Início profissional",
+            e instanceof Error ? e.message : e
+          );
         } finally {
           if (alive) setLoading(false);
         }
@@ -85,7 +99,6 @@ export default function ProfessionalHomeScreen() {
             {data.totalPatients === 0 && data.pendingApprovals === 0 ? (
               <Card>
                 <EmptyState
-                  image={emptyStateImages.rest}
                   title="Sua clínica digital"
                   message="Quando alguém se cadastrar no app, o pedido aparece em Pacientes para você aprovar."
                 />
@@ -109,7 +122,6 @@ export default function ProfessionalHomeScreen() {
                     <Card className="mt-2">
                       <EmptyState
                         compact
-                        image={emptyStateImages.ginkgo}
                         title="Semana tranquila"
                         message="Nenhum registro novo nesta semana. Quando alguém preencher o diário, aparece aqui."
                       />

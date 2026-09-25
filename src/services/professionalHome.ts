@@ -37,21 +37,31 @@ export async function getProfessionalHomeData(
   const updates: PatientUpdateCard[] = [];
 
   for (const patient of patients) {
-    const week = await ensureActiveWeek({
-      patientUid: patient.patientUid,
-      professionalId,
-    });
-    const days = await listDaysForWeek(week.weekId);
-    const sorted = [...days].sort((a, b) =>
-      b.updatedAt.localeCompare(a.updatedAt)
-    );
-    updates.push({
-      patient,
-      filledDays: days.length,
-      expectedDays: patient.expectedDays || 7,
-      filledToday: days.some((d) => d.date === today),
-      lastDay: sorted[0] ?? null,
-    });
+    try {
+      const week = await ensureActiveWeek({
+        patientUid: patient.patientUid,
+        professionalId,
+      });
+      const days = await listDaysForWeek(week.weekId);
+      const sorted = [...days].sort((a, b) =>
+        b.updatedAt.localeCompare(a.updatedAt)
+      );
+      updates.push({
+        patient,
+        filledDays: days.length,
+        expectedDays: patient.expectedDays || 7,
+        filledToday: days.some((d) => d.date === today),
+        lastDay: sorted[0] ?? null,
+      });
+    } catch {
+      updates.push({
+        patient,
+        filledDays: patient.filledDays ?? 0,
+        expectedDays: patient.expectedDays || 7,
+        filledToday: false,
+        lastDay: null,
+      });
+    }
   }
 
   updates.sort((a, b) => {

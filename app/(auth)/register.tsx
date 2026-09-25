@@ -12,13 +12,7 @@ import type { SonoRole } from "@/src/types";
 import { Redirect, router } from "expo-router";
 import { useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 export default function RegisterScreen() {
   const { signUp, user, profile, configured } = useAuth();
@@ -55,11 +49,8 @@ export default function RegisterScreen() {
 
   return (
     <Screen>
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
         <AppScrollView
+          keepFocusedVisible
           className="flex-1 px-5"
           contentContainerStyle={{ paddingTop: 40, paddingBottom: 48 }}
           keyboardShouldPersistTaps="handled"
@@ -137,7 +128,6 @@ export default function RegisterScreen() {
             </Pressable>
           </View>
         </AppScrollView>
-      </KeyboardAvoidingView>
     </Screen>
   );
 }

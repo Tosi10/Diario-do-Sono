@@ -4,10 +4,12 @@ import {
   ClinicSectionLabel,
   PendingRequestCard,
 } from "@/src/components/ClinicChrome";
-import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
+import { EmptyState } from "@/src/components/EmptyState";
+import { TextField } from "@/src/components/TextField";
 import {
   Card,
   PageHeader,
+  PrimaryButton,
   Screen,
   SecondaryButton,
   screenScrollContent,
@@ -16,6 +18,7 @@ import { brand } from "@/src/theme/brand";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { formatIsoDatePt } from "@/src/domain/timeHelpers";
 import {
+  addPatientByProfessional,
   approvePatient,
   blockPatient,
   listBlockedPatientsForProfessional,
@@ -37,12 +40,16 @@ import {
 } from "react-native";
 
 export default function ProfessionalPatientsScreen() {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState<SonoPatient[]>([]);
   const [patients, setPatients] = useState<SonoPatient[]>([]);
   const [blocked, setBlocked] = useState<SonoPatient[]>([]);
   const [busyUid, setBusyUid] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [draftName, setDraftName] = useState("");
+  const [draftEmail, setDraftEmail] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -82,6 +89,30 @@ export default function ProfessionalPatientsScreen() {
       showAppAlert("Não foi possível", e instanceof Error ? e.message : "Erro");
     } finally {
       setBusyUid(null);
+    }
+  };
+
+  const onAdd = async () => {
+    if (!user) return;
+    try {
+      setSaving(true);
+      const created = await addPatientByProfessional({
+        professionalId: user.uid,
+        displayName: draftName,
+        email: draftEmail,
+      });
+      setDraftName("");
+      setDraftEmail("");
+      setAdding(false);
+      await load();
+      showAppAlert(
+        "Paciente adicionada",
+        `${created.displayName} já está em Ativos. Abra o nome para preencher o diário, inclusive pela folha de papel.`
+      );
+    } catch (e) {
+      showAppAlert("Não foi possível", e instanceof Error ? e.message : "Erro");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -203,13 +234,13 @@ export default function ProfessionalPatientsScreen() {
   return (
     <Screen edges="top" atmosphere="soft">
       <AppScrollView
+        keepFocusedVisible
         className="flex-1 px-5"
         contentContainerStyle={screenScrollContent}
       >
         <PageHeader
-          eyebrow={profile?.clinicName || "Clínica Cuidar"}
           title="Pacientes"
-          subtitle="Aprove pedidos novos e gerencie quem pode usar o diário. Toque no nome para abrir o ciclo."
+          subtitle="Adicione pacientes e preencha o diário, inclusive quem só entrega a folha. Toque no nome para abrir o ciclo."
         />
 
         {loading ? (
@@ -218,6 +249,46 @@ export default function ProfessionalPatientsScreen() {
           </View>
         ) : (
           <View className="mt-5 gap-6">
+            {adding ? (
+              <Card>
+                <TextField
+                  label="Nome"
+                  value={draftName}
+                  onChangeText={setDraftName}
+                  placeholder="Nome da paciente"
+                  autoCapitalize="words"
+                />
+                <TextField
+                  label="E-mail"
+                  value={draftEmail}
+                  onChangeText={setDraftEmail}
+                  placeholder="Opcional, se um dia usar o app"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <Text className="mb-4 font-sans text-xs leading-5 text-sleep-muted">
+                  Sem e-mail, o acompanhamento fica só com você, pela folha de
+                  papel.
+                </Text>
+                <PrimaryButton
+                  label={saving ? "Salvando…" : "Salvar paciente"}
+                  onPress={() => void onAdd()}
+                  disabled={saving || draftName.trim().length < 2}
+                />
+                <View className="h-3" />
+                <SecondaryButton
+                  label="Cancelar"
+                  onPress={() => setAdding(false)}
+                  disabled={saving}
+                />
+              </Card>
+            ) : (
+              <PrimaryButton
+                label="Adicionar paciente"
+                onPress={() => setAdding(true)}
+              />
+            )}
+
             {pending.length > 0 ? (
               <View className="gap-3">
                 <ClinicSectionLabel
@@ -255,12 +326,11 @@ export default function ProfessionalPatientsScreen() {
                 <Card className="mt-2">
                   <EmptyState
                     compact
-                    image={emptyStateImages.rest}
                     title="Nenhuma paciente ativa"
                     message={
                       pending.length > 0
                         ? "Aprove os pedidos acima para liberar o diário."
-                        : "Quando alguém se cadastrar no app, o pedido aparece em Pendentes."
+                        : "Toque em Adicionar paciente para começar o acompanhamento, inclusive só pela folha de papel."
                     }
                   />
                 </Card>
@@ -270,7 +340,7 @@ export default function ProfessionalPatientsScreen() {
                     <ActivePatientRow
                       key={p.patientUid}
                       name={p.displayName}
-                      email={p.email}
+                      email={p.email || "Acompanhamento pela folha"}
                       progress={`${p.filledDays}/${p.expectedDays || 7}`}
                       onOpen={() =>
                         router.push(

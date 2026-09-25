@@ -56,6 +56,13 @@ export default function PatientDetailScreen() {
           setWeeks(history);
           setWeek(w);
           setDays(d);
+        } catch (e) {
+          if (alive) {
+            showAppAlert(
+              "Não foi possível abrir",
+              e instanceof Error ? e.message : "Erro"
+            );
+          }
         } finally {
           if (alive) setLoading(false);
         }

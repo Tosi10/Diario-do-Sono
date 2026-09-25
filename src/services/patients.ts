@@ -174,6 +174,71 @@ export async function removePatientFromClinic(
   throw new Error("Remoção exige Firebase (Sprint 11).");
 }
 
+/** Prontuário criado pela doutora. Pode não ter conta no app (folha de papel). */
+export async function addPatientByProfessional(params: {
+  professionalId: string;
+  displayName: string;
+  email?: string;
+}): Promise<SonoPatient> {
+  const displayName = params.displayName.trim();
+  if (displayName.length < 2) {
+    throw new Error("Informe o nome da paciente.");
+  }
+  const email = (params.email ?? "").trim().toLowerCase();
+  if (email && !email.includes("@")) {
+    throw new Error("E-mail inválido.");
+  }
+
+  if (isDemoMode()) {
+    const patientUid = `chart-${Date.now()}`;
+    demoUpsertPatient({
+      patientUid,
+      professionalId: params.professionalId,
+      displayName,
+      email,
+      status: "active",
+    });
+    const created = demoGetPatient(patientUid);
+    if (!created) throw new Error("Não foi possível criar a paciente.");
+    return created;
+  }
+
+  const db = requireDb();
+  const listed = await getDocs(
+    query(
+      collection(db, COLLECTIONS.patients),
+      where("professionalId", "==", params.professionalId)
+    )
+  );
+  if (
+    email &&
+    listed.docs.some((d) => (d.data().email ?? "").toLowerCase() === email)
+  ) {
+    throw new Error("Já existe uma paciente com este e-mail.");
+  }
+
+  const ref = doc(collection(db, COLLECTIONS.patients));
+  const now = new Date().toISOString();
+  const patient: SonoPatient = {
+    patientUid: ref.id,
+    professionalId: params.professionalId,
+    displayName,
+    email,
+    status: "active",
+    activeWeekId: null,
+    filledDays: 0,
+    expectedDays: 7,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await setDoc(ref, {
+    ...patient,
+    createdAtServer: serverTimestamp(),
+    updatedAtServer: serverTimestamp(),
+  });
+  return patient;
+}
+
 export async function getPatient(
   patientUid: string
 ): Promise<SonoPatient | null> {

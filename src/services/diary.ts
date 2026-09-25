@@ -21,7 +21,7 @@ import {
   demoSetWeekWakeTime,
   demoStartNewCycle,
 } from "@/src/services/demoStore";
-import { isDemoMode, requireDb } from "@/src/services/firebase.config";
+import { isDemoMode, requireAuth, requireDb } from "@/src/services/firebase.config";
 import type {
   EntrySource,
   IsoDate,
@@ -101,9 +101,9 @@ export async function ensureActiveWeek(params: {
   }
 
   const db = requireDb();
+  const listed = await listWeeksForPatient(params.patientUid);
 
   if (!params.around) {
-    const listed = await listWeeksForPatient(params.patientUid);
     const open = listed.find((w) => w.status === "open");
     if (open) return applyWeekLifecycle(open);
   }
@@ -112,38 +112,41 @@ export async function ensureActiveWeek(params: {
   const startIso = toIsoDate(start);
   const endIso = toIsoDate(addDays(start, 6));
   const weekId = weekIdFor(params.patientUid, startIso);
-  const ref = doc(db, COLLECTIONS.weeks, weekId);
-  const snap = await getDoc(ref);
+  const existing = listed.find((w) => w.weekId === weekId);
+  if (existing) return applyWeekLifecycle(existing);
 
-  let week: SonoWeek;
-  if (snap.exists()) {
-    week = snap.data() as SonoWeek;
-  } else {
-    const now = new Date().toISOString();
-    week = {
-      weekId,
-      patientUid: params.patientUid,
-      professionalId: params.professionalId,
-      startDate: startIso,
-      endDate: endIso,
-      wakeTime: null,
-      status: "open",
-      filledDayIds: [],
-      missedDayIds: [],
-      averages: null,
-      ttsMode: "patient",
-      source: "app",
-      createdAt: now,
-      updatedAt: now,
-    };
-    await setDoc(ref, {
-      ...week,
-      createdAtServer: serverTimestamp(),
-      updatedAtServer: serverTimestamp(),
-    });
-  }
+  const now = new Date().toISOString();
+  const week: SonoWeek = {
+    weekId,
+    patientUid: params.patientUid,
+    professionalId: params.professionalId,
+    startDate: startIso,
+    endDate: endIso,
+    wakeTime: null,
+    status: "open",
+    filledDayIds: [],
+    missedDayIds: [],
+    averages: null,
+    ttsMode: "patient",
+    source: "app",
+    createdAt: now,
+    updatedAt: now,
+  };
+  await setDoc(doc(db, COLLECTIONS.weeks, weekId), {
+    ...week,
+    createdAtServer: serverTimestamp(),
+    updatedAtServer: serverTimestamp(),
+  });
 
   return applyWeekLifecycle(week);
+}
+
+function viewerUid(): string | null {
+  try {
+    return requireAuth().currentUser?.uid ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function listWeeksForPatient(
@@ -151,13 +154,18 @@ export async function listWeeksForPatient(
 ): Promise<SonoWeek[]> {
   if (isDemoMode()) return demoListWeeks(patientUid);
 
+  const uid = viewerUid();
+  const asPatient = !uid || uid === patientUid;
   const q = query(
     collection(requireDb(), COLLECTIONS.weeks),
-    where("patientUid", "==", patientUid)
+    asPatient
+      ? where("patientUid", "==", patientUid)
+      : where("professionalId", "==", uid)
   );
   const snap = await getDocs(q);
   const listed = snap.docs
     .map((d) => d.data() as SonoWeek)
+    .filter((w) => w.patientUid === patientUid)
     .sort((a, b) => b.startDate.localeCompare(a.startDate));
 
   return Promise.all(listed.map((w) => applyWeekLifecycle(w)));
@@ -281,13 +289,26 @@ export async function getWeek(weekId: string): Promise<SonoWeek | null> {
 export async function listDaysForWeek(weekId: string): Promise<SonoDay[]> {
   if (isDemoMode()) return demoListDays(weekId);
 
+  const db = requireDb();
+  const uid = viewerUid();
+  let week: SonoWeek | null = null;
+  try {
+    const weekSnap = await getDoc(doc(db, COLLECTIONS.weeks, weekId));
+    week = weekSnap.exists() ? (weekSnap.data() as SonoWeek) : null;
+  } catch {
+    week = null;
+  }
+  const asPatient = !!week && uid === week.patientUid;
   const q = query(
-    collection(requireDb(), COLLECTIONS.days),
-    where("weekId", "==", weekId)
+    collection(db, COLLECTIONS.days),
+    asPatient
+      ? where("patientUid", "==", week.patientUid)
+      : where("professionalId", "==", uid ?? "__none__")
   );
   const snap = await getDocs(q);
   return snap.docs
     .map((d) => d.data() as SonoDay)
+    .filter((d) => d.weekId === weekId)
     .sort((a, b) => a.dayIndex - b.dayIndex);
 }
 
@@ -374,6 +395,7 @@ export async function saveDayEntry(params: {
     dayId,
     weekId: targetWeek.weekId,
     patientUid: params.patientUid,
+    professionalId: params.professionalId ?? targetWeek.professionalId,
     dayIndex,
     date: params.input.date,
     input: params.input,

@@ -2,32 +2,24 @@ import { brand } from "@/src/theme/brand";
 import { BrandMark } from "@/src/components/BrandMark";
 import { BackButton } from "@/src/components/BackButton";
 import { ContentFrame } from "@/src/components/ContentFrame";
-import { emptyStateImages } from "@/src/components/EmptyState";
 import { SegmentTabs } from "@/src/components/SegmentTabs";
 import { LinearGradient } from "expo-linear-gradient";
 import { ReactNode } from "react";
-import { Image, Pressable, StyleSheet, Text, View, Platform } from "react-native";
+import { Pressable, StyleSheet, Text, View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function SoftAtmosphere() {
   return (
     <View pointerEvents="none" style={styles.atmosphereRoot}>
-      <Image
-        source={emptyStateImages.ginkgo}
-        style={styles.atmosphereImage}
-        resizeMode="cover"
-      />
       <LinearGradient
-        colors={[
-          "rgba(242, 237, 224, 0.80)",
-          "rgba(242, 237, 224, 0.63)",
-          "rgba(232, 224, 207, 0.71)",
-        ]}
-        locations={[0, 0.5, 1]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
+        colors={[brand.marfim, brand.marfimDeep, brand.areia]}
+        locations={[0, 0.55, 1]}
+        start={{ x: 0.15, y: 0 }}
+        end={{ x: 0.85, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
+      <View style={styles.washOliva} />
+      <View style={styles.washArgila} />
     </View>
   );
 }
@@ -43,7 +35,7 @@ export function Screen({
   className?: string;
   edges?: "both" | "top" | "none";
   contentMaxWidth?: number;
-  /** plain = gradiente marca · soft = foto editorial suave (telas clínicas) */
+  /** plain = gradiente marca · soft = paleta clínica, sem foto */
   atmosphere?: "plain" | "soft";
 }) {
   const insets = useSafeAreaInsets();
@@ -329,10 +321,22 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 0,
   },
-  atmosphereImage: {
-    ...StyleSheet.absoluteFillObject,
-    width: "100%",
-    height: "100%",
-    opacity: 0.42,
+  washOliva: {
+    position: "absolute",
+    width: 280,
+    height: 280,
+    borderRadius: 999,
+    backgroundColor: "rgba(163, 157, 121, 0.16)",
+    top: 96,
+    right: -110,
+  },
+  washArgila: {
+    position: "absolute",
+    width: 240,
+    height: 240,
+    borderRadius: 999,
+    backgroundColor: "rgba(173, 102, 92, 0.10)",
+    bottom: 24,
+    left: -90,
   },
 });

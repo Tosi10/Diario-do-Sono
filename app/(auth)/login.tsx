@@ -17,12 +17,7 @@ import { brandCopy } from "@/src/theme/brand";
 import { Redirect, router } from "expo-router";
 import { useState } from "react";
 import { AppScrollView } from "@/src/components/AppScrollView";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  View,
-} from "react-native";
+import { Platform, Text, View } from "react-native";
 
 export default function LoginScreen() {
   const { signIn, enterDemo, user, profile, demoMode } = useAuth();
@@ -48,11 +43,8 @@ export default function LoginScreen() {
 
   return (
     <Screen contentMaxWidth={440}>
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
         <AppScrollView
+          keepFocusedVisible
           className="flex-1 px-5"
           contentContainerStyle={{
             paddingTop: 36,
@@ -130,7 +122,6 @@ export default function LoginScreen() {
             {mapaDoSono.welcomeCta}
           </Text>
         </AppScrollView>
-      </KeyboardAvoidingView>
     </Screen>
   );
 }

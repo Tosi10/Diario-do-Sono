@@ -117,6 +117,8 @@ export interface SonoDay {
   dayId: string;
   weekId: string;
   patientUid: string;
+  /** Doutora dona da ficha. Necessário para ela listar os dias no Firestore. */
+  professionalId?: string | null;
   dayIndex: number;
   date: IsoDate;
   input: SleepDayInput;
