@@ -69,6 +69,23 @@ export async function createSonoUser(params: {
     updatedAtServer: serverTimestamp(),
   });
 
+  if (params.role === "patient") {
+    const { requestClinicLink, clinicProfessionalUid } = await import(
+      "@/src/services/patients"
+    );
+    await requestClinicLink({
+      patientUid: params.uid,
+      displayName: profile.displayName,
+      email: params.email,
+    });
+    const professionalId = await clinicProfessionalUid();
+    return {
+      ...profile,
+      linkedProfessionalId: professionalId,
+      linkStatus: "pending",
+    };
+  }
+
   return profile;
 }
 

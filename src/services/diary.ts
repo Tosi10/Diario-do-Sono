@@ -314,9 +314,16 @@ export async function listDaysForWeek(weekId: string): Promise<SonoDay[]> {
 
 export async function getDay(dayId: string): Promise<SonoDay | null> {
   if (isDemoMode()) return demoGetDay(dayId);
-  const snap = await getDoc(doc(requireDb(), COLLECTIONS.days, dayId));
-  if (!snap.exists()) return null;
-  return snap.data() as SonoDay;
+  try {
+    const snap = await getDoc(doc(requireDb(), COLLECTIONS.days, dayId));
+    if (!snap.exists()) return null;
+    return snap.data() as SonoDay;
+  } catch (e) {
+    const code =
+      e && typeof e === "object" && "code" in e ? String(e.code) : "";
+    if (code === "permission-denied") return null;
+    throw e;
+  }
 }
 
 export async function saveDayEntry(params: {

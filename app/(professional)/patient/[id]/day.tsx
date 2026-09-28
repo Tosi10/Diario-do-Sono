@@ -18,7 +18,6 @@ import {
 } from "@/src/domain/timeHelpers";
 import {
   ensureActiveWeek,
-  getDay,
   listDaysForWeek,
   saveDayEntry,
 } from "@/src/services/diary";
@@ -63,9 +62,7 @@ export default function ProfessionalFillDayScreen() {
         around: new Date(dateIso + "T12:00:00"),
       });
       const days = await listDaysForWeek(week.weekId);
-      const day =
-        days.find((d) => d.date === dateIso) ??
-        (await getDay(`${week.weekId}_${dateIso}`));
+      const day = days.find((d) => d.date === dateIso) ?? null;
       setExisting(day);
       setForm(day ? day.input : emptyDayInput(dateIso));
     } catch (e) {

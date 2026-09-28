@@ -4,6 +4,8 @@ export const COLLECTIONS = {
   weeks: "sonoWeeks",
   days: "sonoDays",
   ocrJobs: "sonoOcrJobs",
+  /** Documento `main`: UID da doutora dona do app. */
+  clinic: "sonoClinic",
 } as const;
 
 /** Versão dos termos — subir quando o texto legal mudar */

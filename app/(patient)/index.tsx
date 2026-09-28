@@ -3,7 +3,7 @@ import {
   CycleOutcomeCard,
   CycleWakeSetupCard,
 } from "@/src/components/CycleCards";
-import { EmptyState, emptyStateImages } from "@/src/components/EmptyState";
+import { EmptyState } from "@/src/components/EmptyState";
 import {
   Card,
   Eyebrow,
@@ -167,7 +167,6 @@ export default function PatientHomeScreen() {
             {linkStatus === "pending" ? (
               <Card>
                 <EmptyState
-                  image={emptyStateImages.rest}
                   title="Aguardando a Dra. Ana"
                   message="Seu cadastro já está na fila dela. Quando aprovar, você poderá iniciar o ciclo e registrar as noites."
                 />
@@ -177,7 +176,6 @@ export default function PatientHomeScreen() {
             {linkStatus === "blocked" ? (
               <Card>
                 <EmptyState
-                  image={emptyStateImages.ginkgo}
                   title="Acesso pausado"
                   message="A Dra. Ana bloqueou o diário por enquanto. Fale com ela na consulta para retomar."
                 />
@@ -187,7 +185,6 @@ export default function PatientHomeScreen() {
             {linkStatus === "removed" || linkStatus === "none" ? (
               <Card>
                 <EmptyState
-                  image={emptyStateImages.rest}
                   title="Sem vínculo ativo"
                   message="O pedido de acesso ainda não está liberado. Se precisar, fale com a Dra. Ana na consulta."
                 />

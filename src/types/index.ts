@@ -85,7 +85,8 @@ export interface SonoPatient {
   email: string;
   /** Espelha o vínculo clínico. Ativos entram na lista de diário. */
   status?: LinkStatus;
-  /** Quando o paciente pediu vínculo (fila de aprovação). */
+  /** Quando a pessoa cria conta com o mesmo e-mail da ficha de papel. */
+  accountUid?: string | null;
   requestedAt?: string | null;
   activeWeekId: string | null;
   filledDays: number;

@@ -22,19 +22,33 @@ service cloud.firestore {
         || (isProfessional() && resource.data.linkedProfessionalId == request.auth.uid)
         || (signedIn() && resource.data.inviteCode != null);
       allow create: if isOwner(uid);
-      allow update: if isOwner(uid);
+      allow update: if isOwner(uid)
+        || (isProfessional()
+            && resource.data.role == 'patient'
+            && resource.data.linkedProfessionalId == request.auth.uid
+            && request.resource.data.role == 'patient');
+    }
+
+    match /sonoClinic/{docId} {
+      allow read: if signedIn();
+      allow create, update: if isProfessional()
+        && request.resource.data.professionalUid == request.auth.uid;
     }
 
     match /sonoPatients/{patientUid} {
       allow read: if isOwner(patientUid)
-        || (isProfessional() && resource.data.professionalId == request.auth.uid);
-      allow create, update: if isOwner(patientUid)
-        || (isProfessional() && request.resource.data.professionalId == request.auth.uid);
+        || (isProfessional() && resource.data.professionalId == request.auth.uid)
+        || (signedIn() && resource.data.email == request.auth.token.email);
+      allow create: if (isProfessional() && request.resource.data.professionalId == request.auth.uid)
+        || (isOwner(patientUid) && request.resource.data.status == 'pending');
+      allow update: if (isProfessional() && request.resource.data.professionalId == request.auth.uid)
+        || (isOwner(patientUid) && request.resource.data.status == resource.data.status);
     }
 
     match /sonoWeeks/{weekId} {
       allow read: if signedIn() && (
-        resource.data.patientUid == request.auth.uid
+        resource == null
+        || resource.data.patientUid == request.auth.uid
         || resource.data.professionalId == request.auth.uid
       );
       allow create, update: if signedIn() && (
@@ -45,7 +59,8 @@ service cloud.firestore {
 
     match /sonoDays/{dayId} {
       allow read: if signedIn() && (
-        resource.data.patientUid == request.auth.uid
+        resource == null
+        || resource.data.patientUid == request.auth.uid
         || resource.data.professionalId == request.auth.uid
       );
       allow create, update: if signedIn() && (

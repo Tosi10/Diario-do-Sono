@@ -16,16 +16,16 @@ Docs de suporte: [`README.md`](README.md) · [`docs/ARQUITETURA.md`](docs/ARQUIT
 | Nome + copy oficial | **Feito** — Sono à Vista (`src/content/mapaDoSono.ts`) |
 | Identidade visual no app | **Feito** — Manual 2026: Bethany Elingston + Work Sans, HEX oficiais, selo + logo vertical |
 | Landing Ana Gonçalves | **Deployado** — [anagoncalvespsiquiatra.com.br](https://anagoncalvespsiquiatra.com.br) (+ Firebase `ana-goncalves.web.app`) |
-| Sprints 1–3 (código) | **Feito** em modo demo (sem Firebase `.env`) |
+| Sprints 1–3 (código) | **Feito** em modo demo e com Firebase `sonoavista-prod` |
 | Sprint 4 métricas | **Parcial** — LIS…EF no app; validar com ela |
 | Sprint 5 OCR | **Parcial** — UI + mock demo; Gemini/Storage pendente |
 | Protocolo de ciclo (hora de acordar + 5h + push) | **Sprints 8–10 feitos em demo** · validar push no APK |
-| UI polish (rebrand + Diário em abas) | **Em andamento** — empty states + modal padrão; ver registro |
-| Firebase real / piloto APK | **Depois** — aguarda CNPJ + novo projeto Firebase |
-| Admin clínico (aprovar / bloquear / remover paciente) | **Demo UI feita** — Pacientes com Pendentes; Firebase depois |
+| UI polish (rebrand + Diário em abas) | **Feito na clínica** — paleta neutra, sem foto de fundo |
+| Firebase real / piloto APK | **Ligado** — projeto `sonoavista-prod` (Vision10). APK ainda não |
+| Admin clínico (aprovar / bloquear / remover paciente) | **F1 no código** — fila real + ações no Firestore. E-mail ainda não |
 
-**MVP clínico útil (form + painel + métricas)** ≈ pronto em demo.  
-**Próximo bloqueio de produto:** validação clínica com a Dra. Ana (Sprint 4). UI clínica editorial **congelada em demo**. Firebase continua **depois**.
+**MVP clínico útil (form + painel + métricas)** ≈ pronto em demo e no Firebase de teste.  
+**Próximo passo:** fila e gestão no Firestore (F1) publicadas nas regras, depois a doutora preenche um dia completo (F2).
 
 ---
 
@@ -95,6 +95,18 @@ Histórico para saber o que mudou entre sessões (mais recente primeiro).
 - Depoimentos editorial (grid assimétrico), fundo `11.jpg`, rodapé oliva original
 - Aguardando feedback da Dra. Ana antes de considerar versão final
 
+### 28 set/2026 — Firebase Vision10 (`sonoavista-prod`)
+
+- [x] Projeto exclusivo, Blaze, Auth e-mail/senha, Firestore e Storage em `southamerica-east1`
+- [x] App Web ligado pelo `.env` local (não vai para o Git)
+- [x] Conta de teste da profissional entra no painel
+- [x] Doutora **adiciona paciente** (nome; e-mail opcional) e abre o diário, inclusive só pela folha
+- [x] Paleta neutra no fundo (sem foto da flor); títulos de Pacientes e Perfil iguais
+- [x] F1 no código: cadastro de paciente cai em **Pendentes**; aprovar, recusar, bloquear e remover gravam no Firestore
+- [ ] Republicar `firestore.rules` no console (coleção `sonoClinic` + update da doutora no perfil do paciente)
+- [ ] E-mail de pedido / confirmação de e-mail (F3)
+- [ ] Unir ficha de papel e conta quando o e-mail for o mesmo (depois do F1)
+
 ### 12 set/2026 — UI clínica editorial (demo)
 
 - [x] `Screen atmosphere="soft"` — fundo foto de marca + lavagem marfim (contraste ajustado)
@@ -103,8 +115,8 @@ Histórico para saber o que mudou entre sessões (mais recente primeiro).
 - [x] Stats do Início: só **Ativas** + **Hoje ok** (sem “Sem diário”, redundante)
 - [x] Ativos: `1/7` + **Gerir** alinhados na mesma linha à direita
 - [x] Soft atmosphere no ciclo (paciente/profissional), perfis e Início do paciente
+- [x] Fundo da clínica passou a ser só a paleta (marfim, areia, oliva, argila), sem foto
 - [x] Scroll da grade (semana/stats/histórico) full-bleed — indicador na borda da tela
-- [ ] Soft atmosphere em OCR / dia avulso (opcional)
 - [ ] Roteiro de validação clínica com a Dra. Ana
 
 ### 12 set/2026 — Admin clínico em demo (Sprint 11 UI)
@@ -116,7 +128,8 @@ Histórico para saber o que mudou entre sessões (mais recente primeiro).
 - [x] Início profissional: card “Aguardando você” com contagem
 - [x] Perfil paciente: status do vínculo (sem campo de código)
 - [x] Perfil profissional: copy mono-doutora (sem código)
-- [ ] Firebase + e-mails — quando CNPJ / projeto empresarial
+- [x] Firebase: adicionar paciente, fila pendente e ações de gestão no código
+- [ ] E-mails — F3, com a conta oficial da Dra. Ana
 
 ### 02 set/2026 — SEO técnico (landing)
 
@@ -445,13 +458,17 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 
 **Backend (Firebase):**
 
-- [ ] Firestore rules: só ela (`professionalId`) altera status dos seus pacientes
-- [ ] Cloud Function `onLinkRequestCreated` → e-mail para `pro.email`
+- [x] Projeto `sonoavista-prod` + `.env`
+- [x] Regras no repositório: ficha da doutora, ciclos e dias
+- [x] Código: aprovar, recusar, bloquear, desbloquear, remover
+- [x] Código: cadastro do paciente cria `sonoPatients` com status `pending`
+- [ ] Republicar as regras no console depois do F1
+- [ ] Cloud Function `onLinkRequestCreated` → e-mail para a doutora
 - [ ] Cloud Function `onLinkResolved` → e-mail opcional ao paciente
-- [ ] Domínio remetente: `contato@cuidar.med.br` ou noreply clínica
+- [ ] Domínio remetente da clínica
 
 **Critério de pronto (demo UI):** Dra. Ana vê Pendentes, aprova/recusa, bloqueia/remove — ✅  
-**Critério de pronto (produção):** + e-mail + Auth real — ⏳ Firebase/CNPJ
+**Critério de pronto (produção):** gestão no Firestore — código pronto, falta republicar regras e testar. E-mail ainda não.
 
 **Estimativa restante:** 2–3 dias ao ligar Firebase.
 
@@ -472,7 +489,10 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 | **P1** | **Polish UI (Sprint 7)** | ✅ editorial soft + ClinicChrome · OCR/dia opcional |
 | P1 | OCR com revisão (Gemini) | ⏳ UI pronta |
 | P1 | Piloto APK | ⏳ |
-| P2 | Firebase real + `.env` + **Sprint 11 admin** | ⏳ aguarda CNPJ |
+| P2 | Firebase real + admin no Firestore | ✅ projeto ligado · F1 no código · ⏳ publicar regras e testar |
+| **Agora** | **F2** doutora preenche um dia de ponta a ponta | ⏳ |
+| **Depois** | **F3** confirmação de e-mail + aviso de pedido | ⏳ |
+| **Depois** | **F4** APK Android (push) | ⏳ |
 | P2 | Push iOS | ⏳ pós-piloto |
 | P2 | Relatório PDF / loja | ⏳ |
 
@@ -528,8 +548,8 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 
 ## Próxima ação imediata
 
-1. **Aguardar CNPJ + Firebase** — conectar `.env` e implementar **Sprint 11** (aprovação, bloqueio, e-mails).
-2. **Landing** — feedback da Dra. Ana nos depoimentos e textos.
-3. **Sprint 4** — sessão demo: validar métricas, formulário e fluxo do ciclo (+ admin Pacientes).
-4. **Sprint 6** — EAS APK para push no Android real.
-5. Polish UI restante — OCR / dia avulso com `atmosphere="soft"` (opcional).
+1. **Republicar** `firestore.rules` no console do `sonoavista-prod` e testar F1: entrar como profissional (grava a clínica), cadastrar um paciente, ver em Pendentes, aprovar.
+2. **F2** — ela abre essa paciente e grava um dia do diário.
+3. **F3** — zerar a conta de teste; conta oficial com confirmação de e-mail e aviso de pedido novo.
+4. **F4** — APK Android para o push.
+5. **Sprint 4** — validar métricas com a Dra. Ana quando o fluxo estiver estável.

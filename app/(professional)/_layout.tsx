@@ -4,11 +4,18 @@ import {
   useIsWebSidebar,
 } from "@/src/components/ContentFrame";
 import { useAuth } from "@/src/contexts/AuthContext";
+import { ensureClinicAnchor } from "@/src/services/patients";
 import { Redirect, Tabs } from "expo-router";
+import { useEffect } from "react";
 
 export default function ProfessionalLayout() {
   const { user, profile, role } = useAuth();
   const isSidebar = useIsWebSidebar();
+
+  useEffect(() => {
+    if (!user || (role !== "professional" && role !== "admin")) return;
+    void ensureClinicAnchor(user.uid).catch(() => undefined);
+  }, [user, role]);
 
   if (!user || !profile) return <Redirect href="/(auth)/login" />;
   if (role !== "professional" && role !== "admin") {

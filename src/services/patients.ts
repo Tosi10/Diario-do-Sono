@@ -14,7 +14,7 @@ import {
   demoUpsertPatient,
 } from "@/src/services/demoStore";
 import { isDemoMode, requireDb } from "@/src/services/firebase.config";
-import type { SonoPatient, SonoUserProfile } from "@/src/types";
+import type { LinkStatus, SonoPatient, SonoUserProfile } from "@/src/types";
 import {
   collection,
   doc,
@@ -94,18 +94,79 @@ export async function upsertSonoPatient(params: {
   });
 }
 
-export async function listPatientsForProfessional(
-  professionalId: string
-): Promise<SonoPatient[]> {
-  if (isDemoMode()) return demoListPatients(professionalId);
-
+async function listByProfessional(professionalId: string): Promise<SonoPatient[]> {
   const q = query(
     collection(requireDb(), COLLECTIONS.patients),
     where("professionalId", "==", professionalId)
   );
   const snap = await getDocs(q);
-  return snap.docs
-    .map((d) => d.data() as SonoPatient)
+  return snap.docs.map((d) => d.data() as SonoPatient);
+}
+
+export async function ensureClinicAnchor(professionalUid: string): Promise<void> {
+  if (isDemoMode()) return;
+  await setDoc(
+    doc(requireDb(), COLLECTIONS.clinic, "main"),
+    {
+      professionalUid,
+      updatedAt: new Date().toISOString(),
+      updatedAtServer: serverTimestamp(),
+    },
+    { merge: true }
+  );
+}
+
+export async function clinicProfessionalUid(): Promise<string> {
+  const snap = await getDoc(doc(requireDb(), COLLECTIONS.clinic, "main"));
+  const uid = snap.exists() ? String(snap.data().professionalUid ?? "") : "";
+  if (!uid) {
+    throw new Error(
+      "A clínica ainda não está pronta. Entre uma vez com a conta da profissional e tente o cadastro de novo."
+    );
+  }
+  return uid;
+}
+
+/** Paciente que se cadastra sozinho entra na fila da doutora. */
+export async function requestClinicLink(params: {
+  patientUid: string;
+  displayName: string;
+  email: string;
+}): Promise<void> {
+  const professionalId = await clinicProfessionalUid();
+  const now = new Date().toISOString();
+  const email = params.email.trim().toLowerCase();
+  const patient: SonoPatient = {
+    patientUid: params.patientUid,
+    professionalId,
+    displayName: params.displayName,
+    email,
+    status: "pending",
+    requestedAt: now,
+    activeWeekId: null,
+    filledDays: 0,
+    expectedDays: 7,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await setDoc(doc(requireDb(), COLLECTIONS.patients, params.patientUid), {
+    ...patient,
+    createdAtServer: serverTimestamp(),
+    updatedAtServer: serverTimestamp(),
+  });
+  const { updateSonoUser } = await import("@/src/services/users");
+  await updateSonoUser(params.patientUid, {
+    linkedProfessionalId: professionalId,
+    linkStatus: "pending",
+  });
+}
+
+export async function listPatientsForProfessional(
+  professionalId: string
+): Promise<SonoPatient[]> {
+  if (isDemoMode()) return demoListPatients(professionalId);
+  const all = await listByProfessional(professionalId);
+  return all
     .filter((p) => (p.status ?? "active") === "active")
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "pt-BR"));
 }
@@ -114,22 +175,72 @@ export async function listPendingPatientsForProfessional(
   professionalId: string
 ): Promise<SonoPatient[]> {
   if (isDemoMode()) return demoListPendingPatients(professionalId);
-  // Firebase: Sprint 11
-  return [];
+  const all = await listByProfessional(professionalId);
+  return all
+    .filter((p) => p.status === "pending")
+    .sort((a, b) =>
+      (b.requestedAt ?? b.createdAt).localeCompare(a.requestedAt ?? a.createdAt)
+    );
 }
 
 export async function listBlockedPatientsForProfessional(
   professionalId: string
 ): Promise<SonoPatient[]> {
   if (isDemoMode()) return demoListBlockedPatients(professionalId);
-  return [];
+  const all = await listByProfessional(professionalId);
+  return all
+    .filter((p) => p.status === "blocked")
+    .sort((a, b) => a.displayName.localeCompare(b.displayName, "pt-BR"));
 }
 
 export async function countPendingApprovals(
   professionalId: string
 ): Promise<number> {
   if (isDemoMode()) return demoCountPendingApprovals(professionalId);
-  return 0;
+  const pending = await listPendingPatientsForProfessional(professionalId);
+  return pending.length;
+}
+
+async function setLinkStatus(params: {
+  patientUid: string;
+  status: LinkStatus;
+  requireCurrent?: LinkStatus | "active-like";
+  clearLink?: boolean;
+}): Promise<void> {
+  const patient = await getPatient(params.patientUid);
+  if (!patient) throw new Error("Paciente não encontrado.");
+  const current = patient.status ?? "active";
+  if (params.requireCurrent === "active-like" && current !== "active") {
+    throw new Error("Só é possível bloquear pacientes ativos.");
+  }
+  if (
+    params.requireCurrent &&
+    params.requireCurrent !== "active-like" &&
+    current !== params.requireCurrent
+  ) {
+    throw new Error("Pedido não encontrado ou já resolvido.");
+  }
+
+  const now = new Date().toISOString();
+  await setDoc(
+    doc(requireDb(), COLLECTIONS.patients, params.patientUid),
+    {
+      status: params.status,
+      updatedAt: now,
+      updatedAtServer: serverTimestamp(),
+    },
+    { merge: true }
+  );
+
+  const userSnap = await getDoc(
+    doc(requireDb(), COLLECTIONS.users, params.patientUid)
+  );
+  if (!userSnap.exists()) return;
+  const { updateSonoUser } = await import("@/src/services/users");
+  await updateSonoUser(params.patientUid, {
+    linkStatus: params.status,
+    ...(params.clearLink ? { linkedProfessionalId: null } : {}),
+  });
 }
 
 export async function approvePatient(patientUid: string): Promise<void> {
@@ -137,7 +248,11 @@ export async function approvePatient(patientUid: string): Promise<void> {
     demoApprovePatient(patientUid);
     return;
   }
-  throw new Error("Aprovação exige Firebase (Sprint 11).");
+  await setLinkStatus({
+    patientUid,
+    status: "active",
+    requireCurrent: "pending",
+  });
 }
 
 export async function rejectPatient(patientUid: string): Promise<void> {
@@ -145,7 +260,12 @@ export async function rejectPatient(patientUid: string): Promise<void> {
     demoRejectPatient(patientUid);
     return;
   }
-  throw new Error("Recusa exige Firebase (Sprint 11).");
+  await setLinkStatus({
+    patientUid,
+    status: "removed",
+    requireCurrent: "pending",
+    clearLink: true,
+  });
 }
 
 export async function blockPatient(patientUid: string): Promise<void> {
@@ -153,7 +273,11 @@ export async function blockPatient(patientUid: string): Promise<void> {
     demoBlockPatient(patientUid);
     return;
   }
-  throw new Error("Bloqueio exige Firebase (Sprint 11).");
+  await setLinkStatus({
+    patientUid,
+    status: "blocked",
+    requireCurrent: "active-like",
+  });
 }
 
 export async function unblockPatient(patientUid: string): Promise<void> {
@@ -161,7 +285,11 @@ export async function unblockPatient(patientUid: string): Promise<void> {
     demoUnblockPatient(patientUid);
     return;
   }
-  throw new Error("Desbloqueio exige Firebase (Sprint 11).");
+  await setLinkStatus({
+    patientUid,
+    status: "active",
+    requireCurrent: "blocked",
+  });
 }
 
 export async function removePatientFromClinic(
@@ -171,7 +299,11 @@ export async function removePatientFromClinic(
     demoRemovePatient(patientUid);
     return;
   }
-  throw new Error("Remoção exige Firebase (Sprint 11).");
+  await setLinkStatus({
+    patientUid,
+    status: "removed",
+    clearLink: true,
+  });
 }
 
 /** Prontuário criado pela doutora. Pode não ter conta no app (folha de papel). */
