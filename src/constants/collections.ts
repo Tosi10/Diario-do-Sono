@@ -11,6 +11,9 @@ export const COLLECTIONS = {
 /** Versão dos termos — subir quando o texto legal mudar */
 export const TERMS_VERSION = "1.0.0";
 
+/** Caixa que recebe os avisos enquanto a conta oficial da Dra. Ana não existe. */
+export const CLINIC_NOTIFY_EMAIL = "admin@vision10.com.br";
+
 /** Curitiba / Brasília — evita emulador em UTC bloquear o diário de manhã */
 export const CLINIC_TIMEZONE = "America/Sao_Paulo";
 

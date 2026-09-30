@@ -21,11 +21,11 @@ Docs de suporte: [`README.md`](README.md) · [`docs/ARQUITETURA.md`](docs/ARQUIT
 | Sprint 5 OCR | **Parcial** — UI + mock demo; Gemini/Storage pendente |
 | Protocolo de ciclo (hora de acordar + 5h + push) | **Sprints 8–10 feitos em demo** · validar push no APK |
 | UI polish (rebrand + Diário em abas) | **Feito na clínica** — paleta neutra, sem foto de fundo |
-| Firebase real / piloto APK | **Ligado** — projeto `sonoavista-prod` (Vision10). APK ainda não |
-| Admin clínico (aprovar / bloquear / remover paciente) | **F1 no código** — fila real + ações no Firestore. E-mail ainda não |
+| Firebase real / piloto APK | **Ligado** — `sonoavista-prod` (Vision10). Functions no ar. APK ainda não |
+| Admin clínico (aprovar / bloquear / remover paciente) | **Feito no teste** — fila, ações e dia gravado pela doutora |
 
-**MVP clínico útil (form + painel + métricas)** ≈ pronto em demo e no Firebase de teste.  
-**Próximo passo:** fila e gestão no Firestore (F1) publicadas nas regras, depois a doutora preenche um dia completo (F2).
+**MVP clínico útil (form + painel + métricas)** ≈ pronto no Firebase de teste.  
+**Próximo teste:** cadastro de paciente dispara o aviso em `admin@vision10.com.br`; mesma conta com a ficha da doutora não cria outra ficha.
 
 ---
 
@@ -95,6 +95,17 @@ Histórico para saber o que mudou entre sessões (mais recente primeiro).
 - Depoimentos editorial (grid assimétrico), fundo `11.jpg`, rodapé oliva original
 - Aguardando feedback da Dra. Ana antes de considerar versão final
 
+### 30 set/2026 — Dia da doutora + e-mail de teste
+
+- [x] **F2** — profissional salvou um dia; Início mostrou **Hoje ok** e **Atualizações recentes** (Rodrigo Tosi, 1/7)
+- [x] Confirmação de conta pelo Firebase: link chegou em `admin@vision10.com.br` e foi confirmado
+- [x] Caixa de avisos de teste fixada em `admin@vision10.com.br` (SMTP Gmail, senha de app só no `functions/.env`)
+- [x] Functions publicadas em `southamerica-east1`: `claimChart` e `onPatientPending`
+- [x] Doutora pode **Colocar e-mail** numa ficha sem login (Gerir)
+- [ ] Testar: paciente se cadastra → e-mail de pedido na caixa Vision10
+- [ ] Testar: mesmo e-mail da ficha → login entra na ficha existente, sem duplicar
+- [ ] Conta oficial da Dra. Ana só quando ela tiver o e-mail dela
+
 ### 28 set/2026 — Firebase Vision10 (`sonoavista-prod`)
 
 - [x] Projeto exclusivo, Blaze, Auth e-mail/senha, Firestore e Storage em `southamerica-east1`
@@ -103,9 +114,9 @@ Histórico para saber o que mudou entre sessões (mais recente primeiro).
 - [x] Doutora **adiciona paciente** (nome; e-mail opcional) e abre o diário, inclusive só pela folha
 - [x] Paleta neutra no fundo (sem foto da flor); títulos de Pacientes e Perfil iguais
 - [x] F1 no código: cadastro de paciente cai em **Pendentes**; aprovar, recusar, bloquear e remover gravam no Firestore
-- [ ] Republicar `firestore.rules` no console (coleção `sonoClinic` + update da doutora no perfil do paciente)
-- [ ] E-mail de pedido / confirmação de e-mail (F3)
-- [ ] Unir ficha de papel e conta quando o e-mail for o mesmo (depois do F1)
+- [x] Caixa de teste dos avisos: `admin@vision10.com.br` (até a conta oficial da Dra. Ana)
+- [x] App pede confirmação de e-mail no cadastro e no Perfil (reenviar)
+- [x] Deploy de `onPatientPending` e `claimChart`; SMTP da caixa Vision10 no `functions/.env`
 
 ### 12 set/2026 — UI clínica editorial (demo)
 
@@ -462,17 +473,15 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 - [x] Regras no repositório: ficha da doutora, ciclos e dias
 - [x] Código: aprovar, recusar, bloquear, desbloquear, remover
 - [x] Código: cadastro do paciente cria `sonoPatients` com status `pending`
-- [ ] Republicar as regras no console depois do F1
-- [ ] Cloud Function `onLinkRequestCreated` → e-mail para a doutora
-- [ ] Cloud Function `onLinkResolved` → e-mail opcional ao paciente
-- [ ] Domínio remetente da clínica
+- [x] Function `onPatientPending` → e-mail para `admin@vision10.com.br` (teste)
+- [x] Function `claimChart` → junta login à ficha com o mesmo e-mail
+- [ ] Testar os dois fluxos de e-mail no app
+- [x] E-mail ao paciente quando a doutora aprovar ou recusar (`onPatientResolved`)
+- [ ] Trocar a caixa de aviso para o e-mail oficial da Dra. Ana
 
 **Critério de pronto (demo UI):** Dra. Ana vê Pendentes, aprova/recusa, bloqueia/remove — ✅  
-**Critério de pronto (produção):** gestão no Firestore — código pronto, falta republicar regras e testar. E-mail ainda não.
-
-**Estimativa restante:** 2–3 dias ao ligar Firebase.
-
-**Depende de:** projeto Firebase dedicado, `.env`, CNPJ.
+**Critério de pronto (teste Firebase):** gestão + um dia gravado por ela — ✅  
+**E-mail de pedido e ligação de ficha:** publicados, falta o teste no app.
 
 ---
 
@@ -489,9 +498,9 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 | **P1** | **Polish UI (Sprint 7)** | ✅ editorial soft + ClinicChrome · OCR/dia opcional |
 | P1 | OCR com revisão (Gemini) | ⏳ UI pronta |
 | P1 | Piloto APK | ⏳ |
-| P2 | Firebase real + admin no Firestore | ✅ projeto ligado · F1 no código · ⏳ publicar regras e testar |
-| **Agora** | **F2** doutora preenche um dia de ponta a ponta | ⏳ |
-| **Depois** | **F3** confirmação de e-mail + aviso de pedido | ⏳ |
+| P2 | Firebase real + admin no Firestore | ✅ teste: fila, dia gravado, functions no ar |
+| **Agora** | **F2** doutora preenche um dia de ponta a ponta | ✅ testado no Início |
+| **Agora** | **F3** aviso de pedido + ligar ficha pelo e-mail | ⏳ publicado · falta testar no app |
 | **Depois** | **F4** APK Android (push) | ⏳ |
 | P2 | Push iOS | ⏳ pós-piloto |
 | P2 | Relatório PDF / loja | ⏳ |
@@ -548,8 +557,8 @@ Ao **salvar o dia**, reagenda o ciclo: aquele dia sai da fila (cancela 1º e/ou 
 
 ## Próxima ação imediata
 
-1. **Republicar** `firestore.rules` no console do `sonoavista-prod` e testar F1: entrar como profissional (grava a clínica), cadastrar um paciente, ver em Pendentes, aprovar.
-2. **F2** — ela abre essa paciente e grava um dia do diário.
-3. **F3** — zerar a conta de teste; conta oficial com confirmação de e-mail e aviso de pedido novo.
-4. **F4** — APK Android para o push.
-5. **Sprint 4** — validar métricas com a Dra. Ana quando o fluxo estiver estável.
+1. **Testar o aviso:** cadastrar um paciente novo e ver o e-mail em `admin@vision10.com.br`.
+2. **Testar a ficha:** doutora coloca o e-mail em Gerir; a pessoa cria a conta com esse e-mail e entra na mesma ficha.
+3. **F4** — APK Android para o push.
+4. **Sprint 4** — validar métricas com a Dra. Ana quando o fluxo estiver estável.
+5. Conta oficial dela só quando existir o e-mail que ela abre.

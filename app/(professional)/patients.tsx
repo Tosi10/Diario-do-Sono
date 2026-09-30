@@ -26,6 +26,7 @@ import {
   listPendingPatientsForProfessional,
   rejectPatient,
   removePatientFromClinic,
+  setChartEmail,
   unblockPatient,
 } from "@/src/services/patients";
 import type { SonoPatient } from "@/src/types";
@@ -49,6 +50,7 @@ export default function ProfessionalPatientsScreen() {
   const [adding, setAdding] = useState(false);
   const [draftName, setDraftName] = useState("");
   const [draftEmail, setDraftEmail] = useState("");
+  const [editing, setEditing] = useState<SonoPatient | null>(null);
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -215,9 +217,39 @@ export default function ProfessionalPatientsScreen() {
     );
   };
 
+  const onSaveEmail = async () => {
+    if (!editing) return;
+    try {
+      setSaving(true);
+      await setChartEmail({
+        patientUid: editing.patientUid,
+        email: draftEmail,
+      });
+      setEditing(null);
+      setDraftEmail("");
+      await load();
+      showAppAlert(
+        "E-mail salvo",
+        "Quando essa pessoa criar a conta com este e-mail, ela entra nesta ficha, sem outro cadastro."
+      );
+    } catch (e) {
+      showAppAlert("Não foi possível", e instanceof Error ? e.message : "Erro");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const openManageMenu = (p: SonoPatient) => {
     showAppAlert(p.displayName, "Gerenciar vínculo clínico", [
       { text: "Cancelar", style: "cancel" },
+      {
+        text: p.email ? "Trocar e-mail" : "Colocar e-mail",
+        onPress: () => {
+          setEditing(p);
+          setDraftEmail(p.email || "");
+          setAdding(false);
+        },
+      },
       {
         text: "Bloquear",
         style: "destructive",
@@ -249,7 +281,33 @@ export default function ProfessionalPatientsScreen() {
           </View>
         ) : (
           <View className="mt-5 gap-6">
-            {adding ? (
+            {editing ? (
+              <Card>
+                <TextField
+                  label="E-mail da conta"
+                  value={draftEmail}
+                  onChangeText={setDraftEmail}
+                  placeholder="o e-mail que a pessoa vai usar"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <Text className="mb-4 font-sans text-xs leading-5 text-sleep-muted">
+                  {editing.displayName} cria a conta com este e-mail e entra
+                  nesta ficha, com o diário que você já preencheu.
+                </Text>
+                <PrimaryButton
+                  label={saving ? "Salvando…" : "Salvar e-mail"}
+                  onPress={() => void onSaveEmail()}
+                  disabled={saving || !draftEmail.includes("@")}
+                />
+                <View className="h-3" />
+                <SecondaryButton
+                  label="Cancelar"
+                  onPress={() => setEditing(null)}
+                  disabled={saving}
+                />
+              </Card>
+            ) : adding ? (
               <Card>
                 <TextField
                   label="Nome"

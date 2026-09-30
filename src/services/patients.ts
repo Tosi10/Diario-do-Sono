@@ -1,4 +1,4 @@
-import { COLLECTIONS } from "@/src/constants/collections";
+import { CLINIC_NOTIFY_EMAIL, COLLECTIONS } from "@/src/constants/collections";
 import {
   demoApprovePatient,
   demoBlockPatient,
@@ -105,10 +105,16 @@ async function listByProfessional(professionalId: string): Promise<SonoPatient[]
 
 export async function ensureClinicAnchor(professionalUid: string): Promise<void> {
   if (isDemoMode()) return;
+  const ref = doc(requireDb(), COLLECTIONS.clinic, "main");
+  const existing = await getDoc(ref);
+  const notifyEmail = existing.exists()
+    ? String(existing.data().notifyEmail ?? "")
+    : "";
   await setDoc(
-    doc(requireDb(), COLLECTIONS.clinic, "main"),
+    ref,
     {
       professionalUid,
+      notifyEmail: notifyEmail || CLINIC_NOTIFY_EMAIL,
       updatedAt: new Date().toISOString(),
       updatedAtServer: serverTimestamp(),
     },
@@ -127,15 +133,47 @@ export async function clinicProfessionalUid(): Promise<string> {
   return uid;
 }
 
-/** Paciente que se cadastra sozinho entra na fila da doutora. */
+/** Paciente que se cadastra sozinho entra na fila, ou na ficha já criada com o mesmo e-mail. */
 export async function requestClinicLink(params: {
   patientUid: string;
   displayName: string;
   email: string;
-}): Promise<void> {
+}): Promise<LinkStatus> {
   const professionalId = await clinicProfessionalUid();
   const now = new Date().toISOString();
   const email = params.email.trim().toLowerCase();
+
+  const listed = await getDocs(
+    query(collection(requireDb(), COLLECTIONS.patients), where("email", "==", email))
+  );
+  const chart = listed.docs
+    .map((d) => d.data() as SonoPatient)
+    .find(
+      (p) =>
+        p.patientUid !== params.patientUid &&
+        !p.accountUid &&
+        (p.status ?? "active") === "active"
+    );
+
+  const { updateSonoUser } = await import("@/src/services/users");
+  if (chart) {
+    const { getFunctions, httpsCallable } = await import("firebase/functions");
+    const { default: app } = await import("@/src/services/firebase.config");
+    const claim = httpsCallable<
+      unknown,
+      { claimed: boolean; professionalId?: string }
+    >(getFunctions(app ?? undefined, "southamerica-east1"), "claimChart");
+    const result = await claim();
+    if (!result.data.claimed) {
+      throw new Error("Este e-mail já está ligado a uma conta.");
+    }
+    await updateSonoUser(params.patientUid, {
+      linkedProfessionalId: result.data.professionalId || chart.professionalId,
+      linkStatus: "active",
+    });
+    return "active";
+  }
+
   const patient: SonoPatient = {
     patientUid: params.patientUid,
     professionalId,
@@ -154,11 +192,43 @@ export async function requestClinicLink(params: {
     createdAtServer: serverTimestamp(),
     updatedAtServer: serverTimestamp(),
   });
-  const { updateSonoUser } = await import("@/src/services/users");
   await updateSonoUser(params.patientUid, {
     linkedProfessionalId: professionalId,
     linkStatus: "pending",
   });
+  return "pending";
+}
+
+export async function setChartEmail(params: {
+  patientUid: string;
+  email: string;
+}): Promise<void> {
+  const email = params.email.trim().toLowerCase();
+  if (!email.includes("@")) throw new Error("E-mail inválido.");
+  const patient = await getPatient(params.patientUid);
+  if (!patient) throw new Error("Paciente não encontrado.");
+  if (patient.accountUid) {
+    throw new Error("Esta ficha já está ligada a uma conta. O e-mail não muda por aqui.");
+  }
+  const listed = await listByProfessional(patient.professionalId);
+  if (
+    listed.some(
+      (p) =>
+        p.patientUid !== patient.patientUid &&
+        (p.email || "").toLowerCase() === email
+    )
+  ) {
+    throw new Error("Já existe uma paciente com este e-mail.");
+  }
+  await setDoc(
+    doc(requireDb(), COLLECTIONS.patients, params.patientUid),
+    {
+      email,
+      updatedAt: new Date().toISOString(),
+      updatedAtServer: serverTimestamp(),
+    },
+    { merge: true }
+  );
 }
 
 export async function listPatientsForProfessional(

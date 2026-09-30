@@ -73,7 +73,7 @@ export async function createSonoUser(params: {
     const { requestClinicLink, clinicProfessionalUid } = await import(
       "@/src/services/patients"
     );
-    await requestClinicLink({
+    const status = await requestClinicLink({
       patientUid: params.uid,
       displayName: profile.displayName,
       email: params.email,
@@ -82,7 +82,7 @@ export async function createSonoUser(params: {
     return {
       ...profile,
       linkedProfessionalId: professionalId,
-      linkStatus: "pending",
+      linkStatus: status,
     };
   }
 

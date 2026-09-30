@@ -20,6 +20,7 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   updateProfile,
+  sendEmailVerification,
 } from "firebase/auth";
 import React, {
   createContext,
@@ -50,6 +51,7 @@ type AuthContextValue = {
     role: SonoRole;
     clinicName?: string;
   }) => Promise<void>;
+  sendVerificationEmail: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -187,10 +189,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: params.role,
         clinicName: params.clinicName,
       });
+      await sendEmailVerification(cred.user);
       setProfile(created);
     },
     []
   );
+
+  const sendVerificationEmail = useCallback(async () => {
+    if (isDemoMode()) return;
+    const current = requireAuth().currentUser;
+    if (!current) throw new Error("Entre na conta para confirmar o e-mail.");
+    await sendEmailVerification(current);
+  }, []);
 
   const signOut = useCallback(async () => {
     setProfile(null);
@@ -217,6 +227,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       enterDemo,
       signIn,
       signUp,
+      sendVerificationEmail,
       signOut,
     }),
     [
@@ -229,6 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       enterDemo,
       signIn,
       signUp,
+      sendVerificationEmail,
       signOut,
     ]
   );

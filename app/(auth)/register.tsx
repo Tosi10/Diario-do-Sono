@@ -36,6 +36,10 @@ export default function RegisterScreen() {
         role,
         clinicName: role === "professional" ? clinicName : undefined,
       });
+      showAppAlert(
+        "Confirme o e-mail",
+        `Enviamos um link para ${email.trim()}. Abra a caixa e confirme antes de usar o diário de verdade.`
+      );
       router.replace("/");
     } catch (e) {
       showAppAlert(
