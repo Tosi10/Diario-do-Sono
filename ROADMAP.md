@@ -316,7 +316,10 @@ Fuso: **`America/Sao_Paulo`**.
 - [x] Tela de revisão (foto + campos editáveis + confirmar)
 - [x] Mock de leitura (exemplo do PDF) no modo demo
 - [ ] Upload real → Storage
-- [ ] Function Gemini `sonoExtractDiaryFromImage`
+- [ ] Testar a leitura com uma foto real da folha
+- [x] Código da função `sonoExtractDiaryFromImage` (Gemini Flash → rascunho para revisão)
+- [ ] Colocar `GEMINI_API_KEY` em `functions/.env` e publicar a função
+- [ ] Republicar `firestore.rules` para gravar `sonoOcrJobs`
 - [ ] Persistência `sonoOcrJobs` no Firestore
 
 ---

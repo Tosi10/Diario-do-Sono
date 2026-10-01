@@ -70,7 +70,10 @@ service cloud.firestore {
     }
 
     match /sonoOcrJobs/{jobId} {
-      allow read, write: if false; // Sprint OCR
+      allow read: if signedIn() && resource.data.uploadedBy == request.auth.uid;
+      allow create: if signedIn()
+        && request.resource.data.uploadedBy == request.auth.uid;
+      allow update: if signedIn() && resource.data.uploadedBy == request.auth.uid;
     }
   }
 }
